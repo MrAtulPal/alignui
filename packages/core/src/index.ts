@@ -8,3 +8,4 @@ export * from "./report/utils.js";
 export * from "./tokens/path.js";
 export * from "./config/lint.js";
 export * from "./report/diff.js";
+export * from "./report/score.js";
