@@ -27,9 +27,11 @@ Reusable parsers/normalizers for converting runtime CSS strings into comparable 
 - `parseCssColor()`: parses `rgb()`, `rgba()`, hex (`#rgb/#rgba/#rrggbb/#rrggbbaa`), and `transparent`.
 - `normalizeRgbaToBytes()`: normalizes RGBA into byte-scale channels (alpha converted to 0..255).
 - `parseCssPx()`: parses `NNpx` values.
+- `parseCssPxList()`: parses space-separated px lists (e.g., `8px 8px 0px 0px`).
+- `parseCssUnitlessNumber()`: parses unitless numbers (e.g., `1.25`).
 - `normalizeFontFamilyList()`: normalizes a computed `font-family` list into lowercase tokens.
 
-Why: This logic is shared across compare, future screenshot diff, and future heuristics. Keeping it isolated avoids coupling.
+Why: shared by compare and any future heuristics; keeping it isolated avoids coupling.
 
 ### 3) Comparison Engine (`src/engine/compare.ts`)
 
@@ -43,12 +45,12 @@ Supports:
 
 - Color comparisons with optional `rgba` tolerance (max channel delta).
 - `px` number comparisons with optional `px` tolerance.
+- `px` comparisons against multi-value shorthands (e.g., computed `border-radius` lists).
+- `ratio` number comparisons (unitless computed values, useful for `line-height`).
 - String comparisons with font-family fallback list matching.
-- Rich summary counters:
-  - `errorFailed`, `warnFailed`
-  - `unmatchedSelectors`, `missingTokens`, `missingComputed`
+- Rich summary counters: `errorFailed`, `warnFailed`, `unmatchedSelectors`, `missingTokens`, `missingComputed`.
 
-Why: The engine stays pure so it can run in any environment (Node, server, CI).
+Why: the engine stays pure so it can run in any environment (Node, server, CI).
 
 ### 4) Report Evaluation (`src/engine/evaluate.ts`)
 
@@ -57,7 +59,7 @@ Separates policy from comparison by taking a `ScanReport` and `Thresholds` and r
 - `pass: boolean`
 - `reasons: string[]` (human-readable, stable for CI logs)
 
-Why: Compare produces facts; evaluate decides gating policy. This prevents CLI/SaaS from re-implementing fail logic.
+Why: compare produces facts; evaluate decides gating policy. This prevents CLI/SaaS from re-implementing fail logic.
 
 ### 5) Token Reference Resolver (`src/tokens/resolve.ts`)
 
@@ -69,55 +71,85 @@ Resolves `TokenValue.kind = "ref"` chains:
 
 Why: Figma variables and design systems commonly use aliasing; resolving in core keeps adapters simpler.
 
-### 6) Unit Tests (Jest)
+### 6) Runtime Config Validation (`src/config/validate.ts`)
+
+Dependency-free validation for `ScanConfig` inputs:
+
+- `validateScanConfig(input: unknown)` returns a typed config or structured errors with JSON paths.
+
+Why: adapters can fail fast with actionable messages before running expensive scans.
+
+### 7) Rule/Token Linting (`src/config/lint.ts`)
+
+Optional lint pass to catch common configuration mistakes:
+
+- Duplicate rule ids, duplicate selector+property mappings.
+- Suspicious token keys and tolerance-vs-token-kind mismatches (when `TokenMap` is available).
+
+Why: keeps `validate` strict-but-simple, while `lint` provides higher-level diagnostics.
+
+### 8) Report Utilities (`src/report/utils.ts`)
+
+Deterministic helpers for rendering and CI stability:
+
+- Stable result sorting and grouping (`by selector`, `by ruleId`).
+- Failure filtering and `topFailures()` ranking.
+
+Why: CLI/HTML/PDF renderers should not re-implement report logic.
+
+### 9) Token Key Helpers (`src/tokens/path.ts`)
+
+Token key utilities:
+
+- `isValidTokenKey()`, `splitTokenKey()`, `joinTokenKey()`.
+
+Why: makes config parsing/linting safer and consistent across modules.
+
+### 10) Unit Tests (Jest)
 
 Coverage currently includes:
 
-- Compare behavior for color/px/string cases and missing data.
+- Compare behavior for color/px/ratio/string cases and missing data.
 - Normalize parsing behavior.
 - Token reference resolution (happy path, missing refs, cycles).
+- Runtime config validation and linting.
+- Report grouping/sorting utilities.
 
 Tests live alongside modules:
 
 - `src/engine/compare.test.ts`
 - `src/utils/normalize.test.ts`
 - `src/tokens/resolve.test.ts`
+- `src/config/validate.test.ts`
+- `src/config/lint.test.ts`
+- `src/report/utils.test.ts`
+- `src/tokens/path.test.ts`
 
 ## Remaining (Core)
 
 ### A) Token Model Expansion
 
-- Add `unit: "percent" | "em" | "rem"` or normalize to px in adapters.
+- Add `unit: "percent" | "em" | "rem"` (or normalize to px in adapters).
 - Add structured typography tokens (font family + size + weight + line-height) as first-class helpers.
 
 Reason: reduces boilerplate rule definitions and improves consistency across checks.
 
 ### B) More Comparators
 
-- `lineHeight`: support unitless and `%` (adapter may convert to px when possible).
+- `lineHeight`: support `%` (and optionally px-based normalization in adapters).
 - `spacing`: support shorthand parsing (`padding`, `margin`) and `gap`.
-- `borderRadius`: support multi-value parsing (`8px 8px 0 0`).
+- `borderRadius`: support mixed units (e.g., `%`) and elliptical syntax.
 - `boxShadow`/`effect`: basic parsing for common cases (optional).
 
-Reason: these are common UI compliance needs beyond `color` and `fontSize`.
+Reason: common UI compliance needs beyond `color` and `fontSize`.
 
-### C) Config Schema Validation (Runtime)
+### C) Report Diff Utilities
 
-- Add runtime validation helpers (likely via `zod`) for:
-  - Rule structure
-  - Thresholds
-  - Token map shapes
+- Compare two `ScanReport`s (baseline vs current) with stable output.
 
-Reason: catch misconfig early with actionable errors; keep CLI thin.
+Reason: enables trend/regression reporting without requiring screenshot diffs.
 
-### D) Report Utilities
-
-- Stable sorting/grouping helpers (by selector, ruleId, category).
-- Optional “diff” utilities (compare two reports).
-
-Reason: makes HTML/PDF reporting and trend comparisons consistent across products.
-
-### E) Deterministic Scoring Weights
+### D) Deterministic Scoring Weights
 
 - Allow weighted scoring per category/property/severity.
 - Expose a stable scoring config contract.
