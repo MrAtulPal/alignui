@@ -1,0 +1,11 @@
+[
+  {
+    "selector": ".btn-primary",
+    "url": "https://example.com",
+    "computed": {
+      "backgroundColor": "rgb(47, 107, 255)",
+      "padding": "10px 16px"
+    }
+  }
+]
+

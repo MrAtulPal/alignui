@@ -5,7 +5,7 @@ import { runScan } from "./commands/scan.js";
 
 function printHelp() {
   // Keep help simple; this will expand once commands stabilize.
-  console.log("alignui scan --config <file> [--url <url>] [--out <report.json>]");
+  console.log("alignui scan [--config <file>] [--url <url>] --tokens <tokens.json> --snapshots <snapshots.json> [--out <report.json>] [--baseline <report.json>] [--diff-out <diff.json>]");
 }
 
 async function main() {
@@ -25,4 +25,3 @@ async function main() {
 }
 
 await main();
-

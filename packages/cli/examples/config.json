@@ -1,0 +1,15 @@
+{
+  "url": "https://example.com",
+  "rules": [
+    {
+      "id": "btn-primary",
+      "selector": ".btn-primary",
+      "properties": {
+        "backgroundColor": { "token": "color.primary", "tolerance": { "kind": "rgba", "value": 0 }, "severity": "error" },
+        "padding": { "token": "pad.md", "tolerance": { "kind": "px", "value": 0 }, "severity": "warn" }
+      }
+    }
+  ],
+  "thresholds": { "minScore": 100, "failOnSeverity": "error" }
+}
+

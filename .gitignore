@@ -1,8 +1,9 @@
 node_modules
 dist
+*.tsbuildinfo
+report.json
 .DS_Store
 npm-debug.log*
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
-

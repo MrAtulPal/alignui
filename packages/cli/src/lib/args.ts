@@ -1,6 +1,15 @@
 export type ParsedArgs =
   | { cmd: "help" }
-  | { cmd: "scan"; configPath?: string; url?: string; out?: string };
+  | {
+      cmd: "scan";
+      configPath?: string;
+      url?: string;
+      out?: string;
+      tokensPath?: string;
+      snapshotsPath?: string;
+      baselinePath?: string;
+      diffOut?: string;
+    };
 
 export function parseArgs(argv: string[]): ParsedArgs {
   const [cmd, ...rest] = argv;
@@ -26,6 +35,9 @@ export function parseArgs(argv: string[]): ParsedArgs {
   const configPath = typeof flags.get("config") === "string" ? (flags.get("config") as string) : undefined;
   const url = typeof flags.get("url") === "string" ? (flags.get("url") as string) : undefined;
   const out = typeof flags.get("out") === "string" ? (flags.get("out") as string) : undefined;
-  return { cmd: "scan", configPath, url, out };
+  const tokensPath = typeof flags.get("tokens") === "string" ? (flags.get("tokens") as string) : undefined;
+  const snapshotsPath = typeof flags.get("snapshots") === "string" ? (flags.get("snapshots") as string) : undefined;
+  const baselinePath = typeof flags.get("baseline") === "string" ? (flags.get("baseline") as string) : undefined;
+  const diffOut = typeof flags.get("diff-out") === "string" ? (flags.get("diff-out") as string) : undefined;
+  return { cmd: "scan", configPath, url, out, tokensPath, snapshotsPath, baselinePath, diffOut };
 }
-
