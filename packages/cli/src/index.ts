@@ -6,7 +6,14 @@ import { runValidate } from "./commands/validate.js";
 import { runInit } from "./commands/init.js";
 
 function printHelp() {
-  console.log("AlignUI CLI");
+  console.log(`
+ █████╗ ██╗     ██╗ ██████╗ ███╗   ██╗██╗   ██╗██╗
+██╔══██╗██║     ██║██╔════╝ ████╗  ██║██║   ██║██║
+███████║██║     ██║██║  ███╗██╔██╗ ██║██║   ██║██║
+██╔══██║██║     ██║██║   ██║██║ ╚██╗██║██║   ██║██║
+██║  ██║███████╗██║╚██████╔╝██║  ╚████║╚██████╔╝██║
+╚═╝  ╚═╝╚══════╝╚═╝ ╚═════╝ ╚═╝   ╚═══╝ ╚═════╝ ╚═╝
+    `);
   console.log("Design-to-code compliance checks");
   console.log("");
   console.log("Commands:");
