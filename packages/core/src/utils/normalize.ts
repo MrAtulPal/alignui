@@ -55,6 +55,31 @@ export function parseCssPx(input: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+export function parseCssUnitlessNumber(input: string): number | null {
+  const s = input.trim().toLowerCase();
+  if (s === "") return null;
+  if (!/^-?[0-9.]+$/.test(s)) return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+export function parseCssPxList(input: string): number[] | null {
+  const parts = input
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (parts.length === 0) return null;
+
+  const values: number[] = [];
+  for (const p of parts) {
+    const n = parseCssPx(p);
+    if (n === null) return null;
+    values.push(n);
+  }
+  return values;
+}
+
 export function normalizeFontFamilyList(input: string): string[] {
   // Computed styles look like: "\"Inter\", system-ui, -apple-system, sans-serif"
   return input

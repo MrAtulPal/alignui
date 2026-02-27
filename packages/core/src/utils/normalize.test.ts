@@ -1,4 +1,11 @@
-import { normalizeFontFamilyList, normalizeRgbaToBytes, parseCssColor, parseCssPx } from "./normalize.js";
+import {
+  normalizeFontFamilyList,
+  normalizeRgbaToBytes,
+  parseCssColor,
+  parseCssPx,
+  parseCssPxList,
+  parseCssUnitlessNumber
+} from "./normalize.js";
 
 test("parseCssColor parses rgb/rgba", () => {
   expect(parseCssColor("rgb(1, 2, 3)")).toEqual({ r: 1, g: 2, b: 3, a: 1 });
@@ -19,6 +26,16 @@ test("parseCssPx parses px values", () => {
   expect(parseCssPx("16px")).toBe(16);
   expect(parseCssPx("16.5px")).toBe(16.5);
   expect(parseCssPx("1rem")).toBeNull();
+});
+
+test("parseCssUnitlessNumber parses numeric strings", () => {
+  expect(parseCssUnitlessNumber("1.5")).toBe(1.5);
+  expect(parseCssUnitlessNumber("16px")).toBeNull();
+});
+
+test("parseCssPxList parses space-separated px values", () => {
+  expect(parseCssPxList("8px 8px 0px 0px")).toEqual([8, 8, 0, 0]);
+  expect(parseCssPxList("8px 1rem")).toBeNull();
 });
 
 test("normalizeFontFamilyList splits and lowercases", () => {

@@ -22,7 +22,7 @@ export type Rule = {
     string,
     {
       token: string;
-      tolerance?: { kind: "px"; value: number } | { kind: "rgba"; value: number };
+      tolerance?: { kind: "px"; value: number } | { kind: "rgba"; value: number } | { kind: "ratio"; value: number };
       severity?: "error" | "warn";
     }
   >;

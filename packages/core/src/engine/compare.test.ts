@@ -63,6 +63,44 @@ test("compares px number tokens with px tolerance", () => {
   expect(report.summary.failed).toBe(0);
 });
 
+test("compares px token against multi-value px list (border-radius shorthand)", () => {
+  const tokens: TokenMap = {
+    "radius.md": { kind: "number", value: 8, unit: "px" }
+  };
+  const rules: Rule[] = [
+    {
+      id: "card",
+      selector: ".card",
+      properties: {
+        borderRadius: { token: "radius.md", tolerance: { kind: "px", value: 0 } }
+      }
+    }
+  ];
+  const snaps = [mkSnap(".card", "https://x.test", { borderRadius: "8px 8px 8px 8px" })];
+
+  const report = compare(tokens, snaps, rules);
+  expect(report.summary.failed).toBe(0);
+});
+
+test("compares ratio token against unitless computed value (line-height)", () => {
+  const tokens: TokenMap = {
+    "line.tight": { kind: "number", value: 1.25, unit: "ratio" }
+  };
+  const rules: Rule[] = [
+    {
+      id: "body",
+      selector: "body",
+      properties: {
+        lineHeight: { token: "line.tight", tolerance: { kind: "ratio", value: 0.01 } }
+      }
+    }
+  ];
+  const snaps = [mkSnap("body", "https://x.test", { lineHeight: "1.24" })];
+
+  const report = compare(tokens, snaps, rules);
+  expect(report.summary.failed).toBe(0);
+});
+
 test("matches expected font family within computed fallback list", () => {
   const tokens: TokenMap = {
     "font.body.family": { kind: "string", value: "Inter" }

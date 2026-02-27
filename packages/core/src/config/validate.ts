@@ -86,7 +86,7 @@ function validateRule(input: unknown, path: string, errors: ValidationError[]): 
         } else {
           const kind = tolerance.kind;
           const value = tolerance.value;
-          if (kind !== "px" && kind !== "rgba") push(errors, `${propPath}.tolerance.kind`, "Expected 'px' or 'rgba'");
+          if (kind !== "px" && kind !== "rgba" && kind !== "ratio") push(errors, `${propPath}.tolerance.kind`, "Expected 'px', 'rgba', or 'ratio'");
           if (!isNumber(value)) push(errors, `${propPath}.tolerance.value`, "Expected number");
         }
       }
@@ -96,10 +96,14 @@ function validateRule(input: unknown, path: string, errors: ValidationError[]): 
           token: propSpec.token,
           severity: severity === "warn" ? "warn" : "error",
           tolerance:
-            isRecord(tolerance) && (tolerance.kind === "px" || tolerance.kind === "rgba") && isNumber(tolerance.value)
-              ? (tolerance.kind === "px"
-                  ? { kind: "px", value: tolerance.value }
-                  : { kind: "rgba", value: tolerance.value })
+            isRecord(tolerance) &&
+            (tolerance.kind === "px" || tolerance.kind === "rgba" || tolerance.kind === "ratio") &&
+            isNumber(tolerance.value)
+              ? tolerance.kind === "px"
+                ? { kind: "px", value: tolerance.value }
+                : tolerance.kind === "rgba"
+                  ? { kind: "rgba", value: tolerance.value }
+                  : { kind: "ratio", value: tolerance.value }
               : undefined
         };
         properties[propName] = typed;
@@ -134,4 +138,3 @@ export function validateScanConfig(input: unknown): ValidationResult<ScanConfig>
   if (errors.length > 0) return { ok: false, errors };
   return { ok: true, value: { url: input.url as string, rules, thresholds: thresholds ?? undefined } };
 }
-

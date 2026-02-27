@@ -1,7 +1,18 @@
 import type { Rule, RuleResult, ScanReport, StyleSnapshot, TokenMap, TokenValue } from "../domain/types.js";
-import { normalizeFontFamilyList, normalizeRgbaToBytes, parseCssColor, parseCssPx } from "../utils/normalize.js";
+import {
+  normalizeFontFamilyList,
+  normalizeRgbaToBytes,
+  parseCssColor,
+  parseCssPx,
+  parseCssPxList,
+  parseCssUnitlessNumber
+} from "../utils/normalize.js";
 
-function compareTokenToActual(expected: TokenValue, actual: string, tolerance: { kind: "px"; value: number } | { kind: "rgba"; value: number } | undefined): { pass: boolean; details?: string } {
+function compareTokenToActual(
+  expected: TokenValue,
+  actual: string,
+  tolerance: { kind: "px"; value: number } | { kind: "rgba"; value: number } | { kind: "ratio"; value: number } | undefined
+): { pass: boolean; details?: string } {
   if (expected.kind === "ref") {
     return { pass: false, details: `Unresolved token reference: ${expected.token}` };
   }
@@ -21,12 +32,35 @@ function compareTokenToActual(expected: TokenValue, actual: string, tolerance: {
   }
 
   if (expected.kind === "number") {
-    if (expected.unit !== "px") return { pass: false, details: `Unsupported number unit: ${expected.unit}` };
-    const n = parseCssPx(actual);
-    if (n === null) return { pass: false, details: `Unparseable px value: ${actual}` };
-    const delta = Math.abs(expected.value - n);
-    const tol = tolerance?.kind === "px" ? tolerance.value : 0;
-    return delta <= tol ? { pass: true } : { pass: false, details: `Px delta ${delta} > ${tol}` };
+    if (expected.unit === "px") {
+      const n = parseCssPx(actual);
+      if (n !== null) {
+        const delta = Math.abs(expected.value - n);
+        const tol = tolerance?.kind === "px" ? tolerance.value : 0;
+        return delta <= tol ? { pass: true } : { pass: false, details: `Px delta ${delta} > ${tol}` };
+      }
+
+      // Handle computed shorthands like "8px 8px 0px 0px" (border-radius).
+      const list = parseCssPxList(actual);
+      if (!list) return { pass: false, details: `Unparseable px value: ${actual}` };
+      const deltas = list.map((v) => Math.abs(expected.value - v));
+      const worst = Math.max(...deltas);
+      const tol = tolerance?.kind === "px" ? tolerance.value : 0;
+      return worst <= tol
+        ? { pass: true }
+        : { pass: false, details: `Px list worst-delta ${worst} > ${tol}` };
+    }
+
+    if (expected.unit === "ratio") {
+      const n = parseCssUnitlessNumber(actual);
+      if (n === null) return { pass: false, details: `Unparseable ratio value: ${actual}` };
+      const delta = Math.abs(expected.value - n);
+      const tol = tolerance?.kind === "ratio" ? tolerance.value : 0;
+      // Avoid tiny float rounding issues around the threshold.
+      return delta <= tol + 1e-9 ? { pass: true } : { pass: false, details: `Ratio delta ${delta} > ${tol}` };
+    }
+
+    return { pass: false, details: `Unsupported number unit: ${expected.unit}` };
   }
 
   // string
