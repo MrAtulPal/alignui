@@ -2,10 +2,27 @@
 import { ExitCode } from "./lib/exit-codes.js";
 import { parseArgs } from "./lib/args.js";
 import { runScan } from "./commands/scan.js";
+import { runValidate } from "./commands/validate.js";
+import { runInit } from "./commands/init.js";
 
 function printHelp() {
-  // Keep help simple; this will expand once commands stabilize.
-  console.log("alignui scan [--config <file>] [--url <url>] --tokens <tokens.json> --snapshots <snapshots.json> [--out <report.json>] [--baseline <report.json>] [--diff-out <diff.json>]");
+  console.log("AlignUI CLI");
+  console.log("Design-to-code compliance checks");
+  console.log("");
+  console.log("Commands:");
+  console.log("  scan       Run compliance scan (tokens + snapshots)");
+  console.log("  validate   Validate config/tokens/snapshots (no scan)");
+  console.log("  init       Create starter config + templates");
+  console.log("  help       Show help");
+  console.log("");
+  console.log("Examples:");
+  console.log("  alignui validate --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json");
+  console.log("  alignui scan --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json --out report.json");
+  console.log("  alignui scan ... --baseline report.json --diff-out diff.json");
+  console.log("");
+  console.log("Defaults:");
+  console.log("  --config .alignui.json");
+  console.log("  --out report.json");
 }
 
 async function main() {
@@ -16,7 +33,14 @@ async function main() {
   }
 
   try {
-    const code = await runScan(args);
+    const code =
+      args.cmd === "scan"
+        ? await runScan(args)
+        : args.cmd === "validate"
+          ? await runValidate(args)
+          : args.cmd === "init"
+            ? await runInit(args)
+            : ExitCode.Ok;
     process.exit(code);
   } catch (err) {
     console.error(err instanceof Error ? err.message : String(err));

@@ -1,5 +1,7 @@
 export type ParsedArgs =
   | { cmd: "help" }
+  | { cmd: "init"; configPath?: string; force?: boolean }
+  | { cmd: "validate"; configPath?: string; url?: string; tokensPath?: string; snapshotsPath?: string }
   | {
       cmd: "scan";
       configPath?: string;
@@ -14,8 +16,6 @@ export type ParsedArgs =
 export function parseArgs(argv: string[]): ParsedArgs {
   const [cmd, ...rest] = argv;
   if (!cmd || cmd === "help" || cmd === "--help" || cmd === "-h") return { cmd: "help" };
-
-  if (cmd !== "scan") return { cmd: "help" };
 
   // Minimal parser (no deps). We'll replace with a proper parser later if needed.
   const flags = new Map<string, string | true>();
@@ -39,5 +39,13 @@ export function parseArgs(argv: string[]): ParsedArgs {
   const snapshotsPath = typeof flags.get("snapshots") === "string" ? (flags.get("snapshots") as string) : undefined;
   const baselinePath = typeof flags.get("baseline") === "string" ? (flags.get("baseline") as string) : undefined;
   const diffOut = typeof flags.get("diff-out") === "string" ? (flags.get("diff-out") as string) : undefined;
-  return { cmd: "scan", configPath, url, out, tokensPath, snapshotsPath, baselinePath, diffOut };
+
+  if (cmd === "scan") return { cmd: "scan", configPath, url, out, tokensPath, snapshotsPath, baselinePath, diffOut };
+  if (cmd === "validate") return { cmd: "validate", configPath, url, tokensPath, snapshotsPath };
+  if (cmd === "init") {
+    const force = flags.get("force") === true;
+    return { cmd: "init", configPath, force };
+  }
+
+  return { cmd: "help" };
 }
