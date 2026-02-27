@@ -1,0 +1,15 @@
+{
+  "name": "alignui",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm -ws run build",
+    "typecheck": "npm -ws run typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}
+
