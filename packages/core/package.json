@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "tsc -b",
+    "test": "jest --config ../../jest.config.cjs --selectProjects core",
     "typecheck": "tsc -b --pretty false --noEmit"
   }
 }
-
