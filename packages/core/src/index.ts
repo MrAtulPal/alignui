@@ -5,3 +5,5 @@ export * from "./utils/normalize.js";
 export * from "./tokens/resolve.js";
 export * from "./config/validate.js";
 export * from "./report/utils.js";
+export * from "./tokens/path.js";
+export * from "./config/lint.js";
