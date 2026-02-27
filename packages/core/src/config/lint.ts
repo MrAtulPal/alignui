@@ -12,6 +12,7 @@ function tokenKind(v: TokenValue | null): string {
   if (!v) return "missing";
   if (v.kind === "ref") return `ref(${v.token})`;
   if (v.kind === "number") return `number(${v.unit})`;
+  if (v.kind === "box") return `box(${v.unit})`;
   return v.kind;
 }
 
@@ -48,7 +49,9 @@ export function lintRules(rules: Rule[], tokens?: TokenMap): LintResult {
           push(warnings, `${rulePath}.properties.${prop}.tolerance`, `rgba tolerance used with ${tokenKind(tv)} token`);
         }
         if (spec.tolerance?.kind === "px" && !(tv.kind === "number" && tv.unit === "px")) {
-          push(warnings, `${rulePath}.properties.${prop}.tolerance`, `px tolerance used with ${tokenKind(tv)} token`);
+          if (tv.kind !== "box") {
+            push(warnings, `${rulePath}.properties.${prop}.tolerance`, `px tolerance used with ${tokenKind(tv)} token`);
+          }
         }
         if (spec.tolerance?.kind === "ratio" && !(tv.kind === "number" && tv.unit === "ratio")) {
           push(warnings, `${rulePath}.properties.${prop}.tolerance`, `ratio tolerance used with ${tokenKind(tv)} token`);

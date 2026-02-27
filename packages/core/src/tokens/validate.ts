@@ -44,6 +44,23 @@ function validateTokenValue(input: unknown, path: string, errors: ValidationErro
     return { kind: "string", value: input.value as string };
   }
 
+  if (kind === "box") {
+    if (input.unit !== "px") pushError(errors, `${path}.unit`, "Expected 'px'");
+    if (!isNumber(input.top)) pushError(errors, `${path}.top`, "Expected number");
+    if (!isNumber(input.right)) pushError(errors, `${path}.right`, "Expected number");
+    if (!isNumber(input.bottom)) pushError(errors, `${path}.bottom`, "Expected number");
+    if (!isNumber(input.left)) pushError(errors, `${path}.left`, "Expected number");
+    if (errors.length > 0) return null;
+    return {
+      kind: "box",
+      unit: "px",
+      top: input.top as number,
+      right: input.right as number,
+      bottom: input.bottom as number,
+      left: input.left as number
+    };
+  }
+
   if (kind === "ref") {
     if (!isString(input.token)) pushError(errors, `${path}.token`, "Expected string");
     if (errors.length > 0) return null;
@@ -71,4 +88,3 @@ export function validateTokenMap(input: unknown): ValidationResult<TokenMap> {
   if (errors.length > 0) return { ok: false, errors };
   return { ok: true, value: out };
 }
-

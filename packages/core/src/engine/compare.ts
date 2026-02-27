@@ -7,6 +7,7 @@ import {
   parseCssPxList,
   parseCssUnitlessNumber
 } from "../utils/normalize.js";
+import { parseCssBoxPx } from "../utils/box.js";
 
 function compareTokenToActual(
   expected: TokenValue,
@@ -61,6 +62,20 @@ function compareTokenToActual(
     }
 
     return { pass: false, details: `Unsupported number unit: ${expected.unit}` };
+  }
+
+  if (expected.kind === "box") {
+    const box = parseCssBoxPx(actual);
+    if (!box) return { pass: false, details: `Unparseable box px value: ${actual}` };
+    const tol = tolerance?.kind === "px" ? tolerance.value : 0;
+    const deltas = [
+      Math.abs(expected.top - box.top),
+      Math.abs(expected.right - box.right),
+      Math.abs(expected.bottom - box.bottom),
+      Math.abs(expected.left - box.left)
+    ];
+    const worst = Math.max(...deltas);
+    return worst <= tol ? { pass: true } : { pass: false, details: `Box worst-delta ${worst} > ${tol}` };
   }
 
   // string

@@ -4,6 +4,7 @@ export type TokenValue =
   | { kind: "color"; rgba: Rgba }
   | { kind: "number"; value: number; unit: "px" | "ratio" }
   | { kind: "string"; value: string }
+  | { kind: "box"; unit: "px"; top: number; right: number; bottom: number; left: number }
   | { kind: "ref"; token: string };
 
 export type TokenMap = Record<string, TokenValue>;

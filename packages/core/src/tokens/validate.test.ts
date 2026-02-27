@@ -5,6 +5,7 @@ test("validateTokenMap accepts valid tokens", () => {
     "color.primary": { kind: "color", rgba: { r: 1, g: 2, b: 3, a: 1 } },
     "font.size": { kind: "number", value: 16, unit: "px" },
     "line.tight": { kind: "number", value: 1.25, unit: "ratio" },
+    "pad.md": { kind: "box", unit: "px", top: 10, right: 16, bottom: 10, left: 16 },
     "font.family": { kind: "string", value: "Inter" },
     "color.brand": { kind: "ref", token: "color.primary" }
   });
@@ -23,4 +24,3 @@ test("validateTokenMap reports invalid keys and shapes", () => {
     expect(joined).toMatch(/\$\.ok\.value/);
   }
 });
-

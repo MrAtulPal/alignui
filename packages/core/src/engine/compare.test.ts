@@ -101,6 +101,25 @@ test("compares ratio token against unitless computed value (line-height)", () =>
   expect(report.summary.failed).toBe(0);
 });
 
+test("compares box token against CSS shorthand (padding)", () => {
+  const tokens: TokenMap = {
+    "pad.md": { kind: "box", unit: "px", top: 10, right: 16, bottom: 10, left: 16 }
+  };
+  const rules: Rule[] = [
+    {
+      id: "card",
+      selector: ".card",
+      properties: {
+        padding: { token: "pad.md", tolerance: { kind: "px", value: 0 } }
+      }
+    }
+  ];
+  const snaps = [mkSnap(".card", "https://x.test", { padding: "10px 16px" })];
+
+  const report = compare(tokens, snaps, rules);
+  expect(report.summary.failed).toBe(0);
+});
+
 test("matches expected font family within computed fallback list", () => {
   const tokens: TokenMap = {
     "font.body.family": { kind: "string", value: "Inter" }
