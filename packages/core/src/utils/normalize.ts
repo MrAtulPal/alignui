@@ -62,4 +62,3 @@ export function normalizeFontFamilyList(input: string): string[] {
     .map((p) => p.trim().replace(/^['"]|['"]$/g, "").toLowerCase())
     .filter(Boolean);
 }
-

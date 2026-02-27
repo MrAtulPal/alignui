@@ -24,4 +24,3 @@ test("parseCssPx parses px values", () => {
 test("normalizeFontFamilyList splits and lowercases", () => {
   expect(normalizeFontFamilyList("\"Inter\", system-ui, sans-serif")).toEqual(["inter", "system-ui", "sans-serif"]);
 });
-

@@ -1,4 +1,4 @@
-import type { Evaluation, ScanReport, Thresholds } from "./types.js";
+import type { Evaluation, ScanReport, Thresholds } from "../domain/types.js";
 
 export function evaluate(report: ScanReport, thresholds?: Thresholds): Evaluation {
   const t: Required<Thresholds> = {
@@ -33,4 +33,3 @@ export function evaluate(report: ScanReport, thresholds?: Thresholds): Evaluatio
 
   return { pass: reasons.length === 0, reasons };
 }
-

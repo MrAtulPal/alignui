@@ -1,4 +1,4 @@
-import { compare, type Rule, type StyleSnapshot, type TokenMap } from "./index.js";
+import { compare, type Rule, type StyleSnapshot, type TokenMap } from "../index.js";
 
 function mkSnap(selector: string, url: string, computed: Record<string, string>): StyleSnapshot {
   return { selector, url, computed };

@@ -1,7 +1,10 @@
-import type { Rule, RuleResult, ScanReport, StyleSnapshot, TokenMap, TokenValue } from "./types.js";
-import { normalizeFontFamilyList, normalizeRgbaToBytes, parseCssColor, parseCssPx } from "./normalize.js";
+import type { Rule, RuleResult, ScanReport, StyleSnapshot, TokenMap, TokenValue } from "../domain/types.js";
+import { normalizeFontFamilyList, normalizeRgbaToBytes, parseCssColor, parseCssPx } from "../utils/normalize.js";
 
 function compareTokenToActual(expected: TokenValue, actual: string, tolerance: { kind: "px"; value: number } | { kind: "rgba"; value: number } | undefined): { pass: boolean; details?: string } {
+  if (expected.kind === "ref") {
+    return { pass: false, details: `Unresolved token reference: ${expected.token}` };
+  }
   if (expected.kind === "color") {
     const a = parseCssColor(actual);
     if (!a) return { pass: false, details: `Unparseable CSS color: ${actual}` };

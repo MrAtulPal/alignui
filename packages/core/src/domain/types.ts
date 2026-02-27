@@ -3,7 +3,8 @@ export type Rgba = { r: number; g: number; b: number; a: number };
 export type TokenValue =
   | { kind: "color"; rgba: Rgba }
   | { kind: "number"; value: number; unit: "px" | "ratio" }
-  | { kind: "string"; value: string };
+  | { kind: "string"; value: string }
+  | { kind: "ref"; token: string };
 
 export type TokenMap = Record<string, TokenValue>;
 
