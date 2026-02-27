@@ -7,11 +7,11 @@
     "alignui": "./dist/index.js"
   },
   "dependencies": {
-    "@alignui/core": "0.0.0"
+    "@alignui/core": "0.0.0",
+    "playwright": "^1.54.0"
   },
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b --pretty false --noEmit"
   }
 }
-
