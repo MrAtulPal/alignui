@@ -99,6 +99,6 @@ test("fails when selector snapshot is missing", () => {
   ];
   const report = compare(tokens, [], rules);
   expect(report.summary.failed).toBe(1);
+  expect(report.summary.unmatchedSelectors).toBe(1);
   expect(report.results[0]!.details).toMatch(/missing computed style/i);
 });
-

@@ -6,7 +6,7 @@
   ],
   "scripts": {
     "build": "npm -ws run build",
-    "test": "jest",
+    "test": "jest --runInBand",
     "typecheck": "npm -ws run typecheck"
   },
   "devDependencies": {

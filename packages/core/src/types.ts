@@ -30,10 +30,15 @@ export type Rule = {
 export type ScanConfig = {
   url: string;
   rules: Rule[];
-  thresholds?: {
-    minScore?: number;
-    failOnUnmatched?: boolean;
-  };
+  thresholds?: Thresholds;
+};
+
+export type Thresholds = {
+  minScore?: number;
+  failOnSeverity?: "error" | "warn";
+  failOnUnmatchedSelectors?: boolean;
+  failOnMissingTokens?: boolean;
+  failOnMissingComputed?: boolean;
 };
 
 export type RuleResult = {
@@ -56,6 +61,15 @@ export type ScanReport = {
     passed: number;
     failed: number;
     score: number;
+    errorFailed: number;
+    warnFailed: number;
+    unmatchedSelectors: number;
+    missingTokens: number;
+    missingComputed: number;
   };
 };
 
+export type Evaluation = {
+  pass: boolean;
+  reasons: string[];
+};
