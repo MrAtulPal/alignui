@@ -1,55 +1,33 @@
 import type { Rule, ScanConfig, Thresholds } from "../domain/types.js";
-
-export type ValidationError = { path: string; message: string };
-export type ValidationResult<T> = { ok: true; value: T } | { ok: false; errors: ValidationError[] };
-
-function isRecord(v: unknown): v is Record<string, unknown> {
-  return typeof v === "object" && v !== null && !Array.isArray(v);
-}
-
-function isString(v: unknown): v is string {
-  return typeof v === "string";
-}
-
-function isBoolean(v: unknown): v is boolean {
-  return typeof v === "boolean";
-}
-
-function isNumber(v: unknown): v is number {
-  return typeof v === "number" && Number.isFinite(v);
-}
-
-function push(errors: ValidationError[], path: string, message: string) {
-  errors.push({ path, message });
-}
+import { isBoolean, isNumber, isRecord, isString, pushError, type ValidationError, type ValidationResult } from "../utils/validation.js";
 
 function validateThresholds(input: unknown, path: string, errors: ValidationError[]): Thresholds | null {
   if (input === undefined) return {};
   if (!isRecord(input)) {
-    push(errors, path, "Expected object");
+    pushError(errors, path, "Expected object");
     return null;
   }
 
   const out: Thresholds = {};
   if ("minScore" in input) {
-    if (!isNumber(input.minScore)) push(errors, `${path}.minScore`, "Expected number");
+    if (!isNumber(input.minScore)) pushError(errors, `${path}.minScore`, "Expected number");
     else out.minScore = input.minScore;
   }
   if ("failOnSeverity" in input) {
     if (input.failOnSeverity !== "error" && input.failOnSeverity !== "warn") {
-      push(errors, `${path}.failOnSeverity`, "Expected 'error' or 'warn'");
+      pushError(errors, `${path}.failOnSeverity`, "Expected 'error' or 'warn'");
     } else out.failOnSeverity = input.failOnSeverity;
   }
   if ("failOnUnmatchedSelectors" in input) {
-    if (!isBoolean(input.failOnUnmatchedSelectors)) push(errors, `${path}.failOnUnmatchedSelectors`, "Expected boolean");
+    if (!isBoolean(input.failOnUnmatchedSelectors)) pushError(errors, `${path}.failOnUnmatchedSelectors`, "Expected boolean");
     else out.failOnUnmatchedSelectors = input.failOnUnmatchedSelectors;
   }
   if ("failOnMissingTokens" in input) {
-    if (!isBoolean(input.failOnMissingTokens)) push(errors, `${path}.failOnMissingTokens`, "Expected boolean");
+    if (!isBoolean(input.failOnMissingTokens)) pushError(errors, `${path}.failOnMissingTokens`, "Expected boolean");
     else out.failOnMissingTokens = input.failOnMissingTokens;
   }
   if ("failOnMissingComputed" in input) {
-    if (!isBoolean(input.failOnMissingComputed)) push(errors, `${path}.failOnMissingComputed`, "Expected boolean");
+    if (!isBoolean(input.failOnMissingComputed)) pushError(errors, `${path}.failOnMissingComputed`, "Expected boolean");
     else out.failOnMissingComputed = input.failOnMissingComputed;
   }
 
@@ -58,36 +36,36 @@ function validateThresholds(input: unknown, path: string, errors: ValidationErro
 
 function validateRule(input: unknown, path: string, errors: ValidationError[]): Rule | null {
   if (!isRecord(input)) {
-    push(errors, path, "Expected object");
+    pushError(errors, path, "Expected object");
     return null;
   }
 
-  if (!isString(input.id)) push(errors, `${path}.id`, "Expected string");
-  if (!isString(input.selector)) push(errors, `${path}.selector`, "Expected string");
-  if (!isRecord(input.properties)) push(errors, `${path}.properties`, "Expected object");
+  if (!isString(input.id)) pushError(errors, `${path}.id`, "Expected string");
+  if (!isString(input.selector)) pushError(errors, `${path}.selector`, "Expected string");
+  if (!isRecord(input.properties)) pushError(errors, `${path}.properties`, "Expected object");
 
   const properties: Rule["properties"] = {};
   if (isRecord(input.properties)) {
     for (const [propName, propSpec] of Object.entries(input.properties)) {
       const propPath = `${path}.properties.${propName}`;
       if (!isRecord(propSpec)) {
-        push(errors, propPath, "Expected object");
+        pushError(errors, propPath, "Expected object");
         continue;
       }
-      if (!isString(propSpec.token)) push(errors, `${propPath}.token`, "Expected string");
+      if (!isString(propSpec.token)) pushError(errors, `${propPath}.token`, "Expected string");
       const severity = propSpec.severity;
       if (severity !== undefined && severity !== "error" && severity !== "warn") {
-        push(errors, `${propPath}.severity`, "Expected 'error' or 'warn'");
+        pushError(errors, `${propPath}.severity`, "Expected 'error' or 'warn'");
       }
       const tolerance = propSpec.tolerance;
       if (tolerance !== undefined) {
         if (!isRecord(tolerance)) {
-          push(errors, `${propPath}.tolerance`, "Expected object");
+          pushError(errors, `${propPath}.tolerance`, "Expected object");
         } else {
           const kind = tolerance.kind;
           const value = tolerance.value;
-          if (kind !== "px" && kind !== "rgba" && kind !== "ratio") push(errors, `${propPath}.tolerance.kind`, "Expected 'px', 'rgba', or 'ratio'");
-          if (!isNumber(value)) push(errors, `${propPath}.tolerance.value`, "Expected number");
+          if (kind !== "px" && kind !== "rgba" && kind !== "ratio") pushError(errors, `${propPath}.tolerance.kind`, "Expected 'px', 'rgba', or 'ratio'");
+          if (!isNumber(value)) pushError(errors, `${propPath}.tolerance.value`, "Expected number");
         }
       }
 
@@ -122,9 +100,9 @@ export function validateScanConfig(input: unknown): ValidationResult<ScanConfig>
     return { ok: false, errors: [{ path: "$", message: "Expected object" }] };
   }
 
-  if (!isString(input.url)) push(errors, "$.url", "Expected string");
+  if (!isString(input.url)) pushError(errors, "$.url", "Expected string");
 
-  if (!Array.isArray(input.rules)) push(errors, "$.rules", "Expected array");
+  if (!Array.isArray(input.rules)) pushError(errors, "$.rules", "Expected array");
   const rules: Rule[] = [];
   if (Array.isArray(input.rules)) {
     input.rules.forEach((r, i) => {

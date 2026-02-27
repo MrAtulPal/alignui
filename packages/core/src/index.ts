@@ -9,3 +9,5 @@ export * from "./tokens/path.js";
 export * from "./config/lint.js";
 export * from "./report/diff.js";
 export * from "./report/score.js";
+export * from "./utils/validation.js";
+export * from "./tokens/validate.js";
