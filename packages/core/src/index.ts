@@ -3,3 +3,4 @@ export * from "./engine/compare.js";
 export * from "./engine/evaluate.js";
 export * from "./utils/normalize.js";
 export * from "./tokens/resolve.js";
+export * from "./config/validate.js";
