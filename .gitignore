@@ -2,6 +2,7 @@ node_modules
 dist
 *.tsbuildinfo
 report.json
+.env
 .DS_Store
 npm-debug.log*
 pnpm-lock.yaml
