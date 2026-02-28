@@ -4,6 +4,16 @@ export type ParsedArgs =
   | { cmd: "validate"; configPath?: string; url?: string; tokensPath?: string; snapshotsPath?: string }
   | { cmd: "collect"; configPath?: string; url?: string; out?: string; timeoutMs?: number; waitFor?: string; headed?: boolean }
   | {
+      cmd: "tokens";
+      figmaFile?: string;
+      figmaToken?: string;
+      out?: string;
+      collection?: string;
+      mode?: string;
+      prefixCollection?: boolean;
+      floatUnit?: "px" | "ratio";
+    }
+  | {
       cmd: "scan";
       configPath?: string;
       url?: string;
@@ -46,10 +56,18 @@ export function parseArgs(argv: string[]): ParsedArgs {
   const timeoutMsRaw = typeof flags.get("timeout-ms") === "string" ? (flags.get("timeout-ms") as string) : undefined;
   const timeoutMs = timeoutMsRaw ? Number(timeoutMsRaw) : undefined;
   const headed = flags.get("headed") === true;
+  const prefixCollection = flags.get("prefix-collection") === true;
+  const figmaFile = typeof flags.get("figma-file") === "string" ? (flags.get("figma-file") as string) : undefined;
+  const figmaToken = typeof flags.get("figma-token") === "string" ? (flags.get("figma-token") as string) : undefined;
+  const collection = typeof flags.get("collection") === "string" ? (flags.get("collection") as string) : undefined;
+  const mode = typeof flags.get("mode") === "string" ? (flags.get("mode") as string) : undefined;
+  const floatUnitRaw = typeof flags.get("float-unit") === "string" ? (flags.get("float-unit") as string) : undefined;
+  const floatUnit = floatUnitRaw === "ratio" ? "ratio" : floatUnitRaw === "px" ? "px" : undefined;
 
   if (cmd === "scan") return { cmd: "scan", configPath, url, out, tokensPath, snapshotsPath, baselinePath, diffOut };
   if (cmd === "validate") return { cmd: "validate", configPath, url, tokensPath, snapshotsPath };
   if (cmd === "collect") return { cmd: "collect", configPath, url, out, waitFor, timeoutMs, headed };
+  if (cmd === "tokens") return { cmd: "tokens", figmaFile, figmaToken, out, collection, mode, prefixCollection, floatUnit };
   if (cmd === "init") {
     const force = flags.get("force") === true;
     return { cmd: "init", configPath, force };
