@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import "dotenv/config";
 import { ExitCode } from "./lib/exit-codes.js";
 import { parseArgs } from "./lib/args.js";
 import { runScan } from "./commands/scan.js";
@@ -6,7 +7,6 @@ import { runValidate } from "./commands/validate.js";
 import { runInit } from "./commands/init.js";
 import { runCollect } from "./commands/collect.js";
 import { runTokens } from "./commands/tokens.js";
-import { loadDotEnvFile } from "./lib/dotenv.js";
 
 function printHelp() {
   console.log(`
@@ -51,9 +51,6 @@ function printHelp() {
 }
 
 async function main() {
-  // Optional local secret loading. `.env` is gitignored.
-  loadDotEnvFile(".env");
-
   const args = parseArgs(process.argv.slice(2));
   if (args.cmd === "help") {
     printHelp();
