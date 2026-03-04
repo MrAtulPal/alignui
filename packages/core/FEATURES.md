@@ -14,7 +14,9 @@ Defines stable contracts used across the system:
   - `box`: box model values (`top/right/bottom/left` in `px`)
   - `string`: raw string values (e.g., font family)
   - `ref`: token alias/reference (for variable indirection)
-- `Rule`: selector + property-to-token mapping + tolerance + severity.
+- `Rule`: selector + property mapping + tolerance + severity.
+  - Supports both token-based expectations (`{ token: "..." }`) and design-tree expectations (`{ design: true }`).
+  - Optional `rule.design` supports deterministic lookup into a design node tree (e.g. plugin-export JSON) using `figmaPath` + optional `figmaType/figmaNth`.
 - `StyleSnapshot`: adapter-provided computed style capture for a selector.
 - `ScanReport`: deterministic output schema with totals, score, and failure breakdown.
 - `Thresholds` / `Evaluation`: evaluation inputs and outputs.
@@ -59,7 +61,7 @@ Supports:
 - `ratio` number comparisons (unitless computed values, useful for `line-height`).
 - Box-model comparisons via `box` tokens (e.g., compare `padding` / `margin` shorthands).
 - String comparisons with font-family fallback list matching.
-- Rich summary counters: `errorFailed`, `warnFailed`, `unmatchedSelectors`, `missingTokens`, `missingComputed`.
+- Rich summary counters: `errorFailed`, `warnFailed`, `unmatchedSelectors`, `missingTokens`, `missingDesign`, `missingComputed`.
 
 Why: the engine stays pure so it can run in any environment (Node, server, CI).
 
@@ -72,7 +74,18 @@ Separates policy from comparison by taking a `ScanReport` and `Thresholds` and r
 
 Why: compare produces facts; evaluate decides gating policy. This prevents CLI/SaaS from re-implementing fail logic.
 
-### 6) Token Reference Resolver (`src/tokens/resolve.ts`)
+### 6) Design Tree Support (`src/design/*`)
+
+Deterministic helpers for comparing against a design node tree exported by external tools/plugins:
+
+- `parsePluginExport(input)` validates and normalizes a plugin-export JSON tree (lenient on missing node names).
+- `resolveNodeByPath(roots, figmaPath, { type, nth })` resolves a node by explicit path segments with strict ambiguity errors.
+- `extractDesignExpected(node, property)` extracts a `TokenValue` for supported properties (`backgroundColor`, `padding`, `borderRadius`, basic typography).
+- `compareWithDesign(tokens, snapshots, rules, designRoots)` enables mixed token-based and design-based comparisons in one scan.
+
+Why: this is the deterministic alternative when the Figma Variables API is unavailable; adapters can choose the source of truth without changing the compare engine.
+
+### 7) Token Reference Resolver (`src/tokens/resolve.ts`)
 
 Resolves `TokenValue.kind = "ref"` chains:
 
@@ -82,7 +95,7 @@ Resolves `TokenValue.kind = "ref"` chains:
 
 Why: Figma variables and design systems commonly use aliasing; resolving in core keeps adapters simpler.
 
-### 7) Runtime Config Validation (`src/config/validate.ts`)
+### 8) Runtime Config Validation (`src/config/validate.ts`)
 
 Dependency-free validation for `ScanConfig` inputs:
 
@@ -90,7 +103,7 @@ Dependency-free validation for `ScanConfig` inputs:
 
 Why: adapters can fail fast with actionable messages before running expensive scans.
 
-### 8) Rule/Token Linting (`src/config/lint.ts`)
+### 9) Rule/Token Linting (`src/config/lint.ts`)
 
 Optional lint pass to catch common configuration mistakes:
 
@@ -99,7 +112,7 @@ Optional lint pass to catch common configuration mistakes:
 
 Why: keeps `validate` strict-but-simple, while `lint` provides higher-level diagnostics.
 
-### 9) TokenMap Validation (`src/tokens/validate.ts`)
+### 10) TokenMap Validation (`src/tokens/validate.ts`)
 
 Dependency-free validation for `TokenMap` inputs:
 
@@ -107,7 +120,7 @@ Dependency-free validation for `TokenMap` inputs:
 
 Why: adapters can validate extracted tokens (from Figma, etc.) before running comparisons.
 
-### 10) Report Utilities (`src/report/utils.ts`)
+### 11) Report Utilities (`src/report/utils.ts`)
 
 Deterministic helpers for rendering and CI stability:
 
@@ -116,7 +129,7 @@ Deterministic helpers for rendering and CI stability:
 
 Why: CLI/HTML/PDF renderers should not re-implement report logic.
 
-### 11) Report Diff Utilities (`src/report/diff.ts`)
+### 12) Report Diff Utilities (`src/report/diff.ts`)
 
 Compares two `ScanReport`s (baseline vs current) using stable check identity:
 
@@ -124,7 +137,7 @@ Compares two `ScanReport`s (baseline vs current) using stable check identity:
 
 Why: enables trend/regression reporting without screenshot diffs.
 
-### 12) Weighted Scoring (`src/report/score.ts`)
+### 13) Weighted Scoring (`src/report/score.ts`)
 
 Computes weighted compliance scores from a list of results:
 
@@ -132,7 +145,7 @@ Computes weighted compliance scores from a list of results:
 
 Why: lets enterprise users tune “what matters” without forking the compare engine.
 
-### 13) Token Key Helpers (`src/tokens/path.ts`)
+### 14) Token Key Helpers (`src/tokens/path.ts`)
 
 Token key utilities:
 
@@ -140,7 +153,7 @@ Token key utilities:
 
 Why: makes config parsing/linting safer and consistent across modules.
 
-### 14) Unit Tests (Jest)
+### 15) Unit Tests (Jest)
 
 Coverage currently includes:
 
