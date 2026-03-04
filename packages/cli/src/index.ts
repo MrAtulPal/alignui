@@ -7,6 +7,7 @@ import { runValidate } from "./commands/validate.js";
 import { runInit } from "./commands/init.js";
 import { runCollect } from "./commands/collect.js";
 import { runTokens } from "./commands/tokens.js";
+import { runDesignLs } from "./commands/design.js";
 
 function printHelp() {
   console.log(`
@@ -21,6 +22,7 @@ function printHelp() {
   console.log("");
   console.log("Commands:");
   console.log("  tokens     Pull tokens from Figma variables");
+  console.log("  design     Helpers for plugin-export design trees");
   console.log("  collect    Collect snapshots from a live URL (Playwright)");
   console.log("  scan       Run compliance scan (tokens + snapshots)");
   console.log("  validate   Validate config/tokens/snapshots (no scan)");
@@ -29,6 +31,7 @@ function printHelp() {
   console.log("");
   console.log("Examples:");
   console.log("  alignui tokens --figma-file <key> --figma-token <token> --out alignui/tokens.json");
+  console.log("  alignui design ls --in report.json --contains Button --type INSTANCE --max 50");
   console.log("  alignui collect --config .alignui.json --url https://app.example.com --out alignui/snapshots.json");
   console.log("  alignui validate --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json");
   console.log("  alignui scan --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json --out report.json");
@@ -61,6 +64,8 @@ async function main() {
     const code =
       args.cmd === "scan"
         ? await runScan(args)
+        : args.cmd === "design"
+          ? await runDesignLs(args)
         : args.cmd === "tokens"
           ? await runTokens(args)
         : args.cmd === "collect"

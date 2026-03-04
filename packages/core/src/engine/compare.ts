@@ -8,6 +8,9 @@ import {
   parseCssUnitlessNumber
 } from "../utils/normalize.js";
 import { parseCssBoxPx } from "../utils/box.js";
+import type { PluginNode } from "../design/plugin.js";
+import { designExpectedKey, extractDesignExpected } from "../design/extract.js";
+import { resolveNodeByPath } from "../design/resolve.js";
 
 function compareTokenToActual(
   expected: TokenValue,
@@ -96,6 +99,15 @@ function getSeverity(rule: Rule, property: string): "error" | "warn" {
 }
 
 export function compare(tokens: TokenMap, snapshots: StyleSnapshot[], rules: Rule[]): ScanReport {
+  return compareWithDesign(tokens, snapshots, rules, undefined);
+}
+
+export function compareWithDesign(
+  tokens: TokenMap,
+  snapshots: StyleSnapshot[],
+  rules: Rule[],
+  designRoots?: PluginNode[]
+): ScanReport {
   const startedAt = new Date().toISOString();
   const results: RuleResult[] = [];
 
@@ -104,19 +116,56 @@ export function compare(tokens: TokenMap, snapshots: StyleSnapshot[], rules: Rul
 
   let unmatchedSelectors = 0;
   let missingTokens = 0;
+  let missingDesign = 0;
   let missingComputed = 0;
 
   for (const rule of rules) {
     const snap = snapshotBySelector.get(rule.selector);
     if (!snap) unmatchedSelectors++;
     for (const [property, spec] of Object.entries(rule.properties)) {
-      const expected: TokenValue | null = tokens[spec.token] ?? null;
+      let tokenKey = "";
+      let expected: TokenValue | null = null;
+      let expectedDetails: string | undefined;
+
+      if ("token" in spec) {
+        tokenKey = spec.token;
+        expected = tokens[spec.token] ?? null;
+        if (expected === null) {
+          missingTokens++;
+          expectedDetails = `Missing token: ${spec.token}`;
+        }
+      } else {
+        tokenKey = designExpectedKey(rule, property);
+        if (!designRoots) {
+          missingDesign++;
+          expectedDetails = "Missing design tree (provide --design <plugin-export.json>)";
+        } else if (!rule.design?.figmaPath || rule.design.figmaPath.length === 0) {
+          missingDesign++;
+          expectedDetails = "Missing rule.design.figmaPath (required for design properties)";
+        } else {
+          const resolved = resolveNodeByPath(designRoots, rule.design.figmaPath, {
+            type: rule.design.figmaType,
+            nth: rule.design.figmaNth
+          });
+          if (!resolved.ok) {
+            missingDesign++;
+            expectedDetails = `Design node not found: ${resolved.error}`;
+          } else {
+            const ex = extractDesignExpected(resolved.node, property);
+            if (!ex.ok) {
+              missingDesign++;
+              expectedDetails = `Design extract failed: ${ex.error}`;
+            } else {
+              expected = ex.value;
+            }
+          }
+        }
+      }
       const actual: string | null = snap?.computed[property] ?? null;
       let pass = false;
       let details: string | undefined;
       if (expected === null) {
-        missingTokens++;
-        details = `Missing token: ${spec.token}`;
+        details = expectedDetails ?? "Missing expected value";
       } else if (actual === null) {
         missingComputed++;
         details = `Missing computed style: ${property}`;
@@ -130,7 +179,7 @@ export function compare(tokens: TokenMap, snapshots: StyleSnapshot[], rules: Rul
         ruleId: rule.id,
         selector: rule.selector,
         property,
-        token: spec.token,
+        token: tokenKey,
         expected,
         actual,
         pass,
@@ -161,6 +210,7 @@ export function compare(tokens: TokenMap, snapshots: StyleSnapshot[], rules: Rul
       warnFailed,
       unmatchedSelectors,
       missingTokens,
+      missingDesign,
       missingComputed
     }
   };

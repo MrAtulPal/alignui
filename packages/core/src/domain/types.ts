@@ -16,17 +16,35 @@ export type StyleSnapshot = {
   computed: Record<string, string>;
 };
 
-export type Rule = {
-  id: string;
-  selector: string;
-  properties: Record<
-    string,
-    {
+export type RuleDesignLocator = {
+  // Deterministic path into a design tree (e.g. plugin-export JSON).
+  // Use array segments to avoid delimiter escaping issues (names can include "." or "/").
+  figmaPath: string[];
+  // Optional disambiguation when names collide under the same parent.
+  figmaType?: string;
+  // Optional disambiguation when multiple nodes still match after figmaType filter.
+  // 0-based index.
+  figmaNth?: number;
+};
+
+export type RulePropertySpec =
+  | {
       token: string;
       tolerance?: { kind: "px"; value: number } | { kind: "rgba"; value: number } | { kind: "ratio"; value: number };
       severity?: "error" | "warn";
     }
-  >;
+  | {
+      design: true;
+      tolerance?: { kind: "px"; value: number } | { kind: "rgba"; value: number } | { kind: "ratio"; value: number };
+      severity?: "error" | "warn";
+    };
+
+export type Rule = {
+  id: string;
+  selector: string;
+  // Optional: enables "design expected values" for properties marked { design: true }.
+  design?: RuleDesignLocator;
+  properties: Record<string, RulePropertySpec>;
 };
 
 export type ScanConfig = {
@@ -40,6 +58,7 @@ export type Thresholds = {
   failOnSeverity?: "error" | "warn";
   failOnUnmatchedSelectors?: boolean;
   failOnMissingTokens?: boolean;
+  failOnMissingDesign?: boolean;
   failOnMissingComputed?: boolean;
 };
 
@@ -47,6 +66,7 @@ export type RuleResult = {
   ruleId: string;
   selector: string;
   property: string;
+  // For token-based checks: the token key. For design-based checks: a stable synthetic key.
   token: string;
   expected: TokenValue | null;
   actual: string | null;
@@ -67,6 +87,7 @@ export type ScanReport = {
     warnFailed: number;
     unmatchedSelectors: number;
     missingTokens: number;
+    missingDesign: number;
     missingComputed: number;
   };
 };

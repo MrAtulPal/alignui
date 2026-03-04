@@ -16,6 +16,7 @@ function mkReport(partial: Partial<ScanReport>): ScanReport {
         warnFailed: 0,
         unmatchedSelectors: 0,
         missingTokens: 0,
+        missingDesign: 0,
         missingComputed: 0
       } as any)
   };
@@ -33,6 +34,7 @@ test("diffReports detects added/removed and pass/fail flips", () => {
       warnFailed: 0,
       unmatchedSelectors: 0,
       missingTokens: 0,
+      missingDesign: 0,
       missingComputed: 0
     },
     results: [
@@ -60,6 +62,7 @@ test("diffReports detects added/removed and pass/fail flips", () => {
       warnFailed: 0,
       unmatchedSelectors: 0,
       missingTokens: 1,
+      missingDesign: 0,
       missingComputed: 0
     },
     results: [
@@ -106,6 +109,7 @@ test("diffReports treats identical results as unchanged", () => {
       warnFailed: 0,
       unmatchedSelectors: 0,
       missingTokens: 0,
+      missingDesign: 0,
       missingComputed: 0
     },
     results: [
@@ -129,4 +133,3 @@ test("diffReports treats identical results as unchanged", () => {
   expect(d.summary.unchanged).toBe(1);
   expect(d.summary.changed).toBe(0);
 });
-

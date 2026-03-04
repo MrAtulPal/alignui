@@ -1,8 +1,10 @@
 import {
   compare,
+  compareWithDesign,
   diffReports,
   evaluate,
   lintRules,
+  parsePluginExport,
   resolveTokenMap,
   topFailures,
   validateScanConfig,
@@ -10,6 +12,7 @@ import {
   type ScanConfig,
   type ScanReport,
   type StyleSnapshot,
+  type PluginNode,
   type TokenMap
 } from "@alignui/core";
 import { writeFile } from "node:fs/promises";
@@ -23,6 +26,7 @@ type ScanOpts = {
   out?: string;
   tokensPath?: string;
   snapshotsPath?: string;
+  designPath?: string;
   baselinePath?: string;
   diffOut?: string;
 };
@@ -59,24 +63,49 @@ export async function runScan(opts: ScanOpts): Promise<number> {
   const url = opts.url ?? config.url;
   if (!url) throw new Error("Missing url (provide --url or config.url).");
 
-  if (!opts.tokensPath) throw new Error("Missing --tokens <tokens.json> (Figma mode comes later).");
-  const tokensRaw = await readJsonFile(opts.tokensPath);
-  const tv = validateTokenMap(tokensRaw);
-  if (!tv.ok) {
-    const msg = tv.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
-    throw new Error(`Invalid tokens (${opts.tokensPath}):\n${msg}`);
+  const needsTokens = config.rules.some((r) => Object.values(r.properties).some((p) => "token" in p));
+  const needsDesign = config.rules.some((r) => Object.values(r.properties).some((p) => "design" in p));
+
+  for (const r of config.rules) {
+    const usesDesign = Object.values(r.properties).some((p) => "design" in p);
+    if (usesDesign && (!r.design?.figmaPath || r.design.figmaPath.length === 0)) {
+      throw new Error(`Rule "${r.id}" uses { design: true } properties but is missing rule.design.figmaPath`);
+    }
   }
-  const resolved = resolveTokenMap(tv.value);
-  if (resolved.errors.length > 0) {
-    throw new Error(`Token resolution errors:\n${resolved.errors.join("\n")}`);
+
+  let tokens: TokenMap = {};
+  if (needsTokens) {
+    if (!opts.tokensPath) throw new Error("Missing --tokens <tokens.json> (required because some properties use { token: ... }).");
+    const tokensRaw = await readJsonFile(opts.tokensPath);
+    const tv = validateTokenMap(tokensRaw);
+    if (!tv.ok) {
+      const msg = tv.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
+      throw new Error(`Invalid tokens (${opts.tokensPath}):\n${msg}`);
+    }
+    const resolved = resolveTokenMap(tv.value);
+    if (resolved.errors.length > 0) {
+      throw new Error(`Token resolution errors:\n${resolved.errors.join("\n")}`);
+    }
+    tokens = resolved.resolved;
   }
-  const tokens: TokenMap = resolved.resolved;
+
+  let designRoots: PluginNode[] | undefined = undefined;
+  if (needsDesign) {
+    if (!opts.designPath) throw new Error("Missing --design <plugin-export.json> (required because some properties use { design: true }).");
+    const designRaw = await readJsonFile(opts.designPath);
+    const parsed = parsePluginExport(designRaw);
+    if (!parsed.ok) {
+      const msg = parsed.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
+      throw new Error(`Invalid design export (${opts.designPath}):\n${msg}`);
+    }
+    designRoots = parsed.value;
+  }
 
   if (!opts.snapshotsPath) throw new Error("Missing --snapshots <snapshots.json> (Playwright mode comes later).");
   const snapsRaw = await readJsonFile(opts.snapshotsPath);
   const snapshots: StyleSnapshot[] = parseSnapshots(snapsRaw).map((s) => ({ ...s, url }));
 
-  const report = compare(tokens, snapshots, config.rules);
+  const report = needsDesign ? compareWithDesign(tokens, snapshots, config.rules, designRoots) : compare(tokens, snapshots, config.rules);
   const outPath = opts.out ?? "report.json";
   await writeFile(outPath, JSON.stringify(report, null, 2), "utf8");
 

@@ -6,6 +6,7 @@ export function evaluate(report: ScanReport, thresholds?: Thresholds): Evaluatio
     failOnSeverity: thresholds?.failOnSeverity ?? "error",
     failOnUnmatchedSelectors: thresholds?.failOnUnmatchedSelectors ?? false,
     failOnMissingTokens: thresholds?.failOnMissingTokens ?? true,
+    failOnMissingDesign: thresholds?.failOnMissingDesign ?? true,
     failOnMissingComputed: thresholds?.failOnMissingComputed ?? true
   };
 
@@ -26,6 +27,9 @@ export function evaluate(report: ScanReport, thresholds?: Thresholds): Evaluatio
   }
   if (t.failOnMissingTokens && report.summary.missingTokens > 0) {
     reasons.push(`Missing tokens (${report.summary.missingTokens})`);
+  }
+  if (t.failOnMissingDesign && report.summary.missingDesign > 0) {
+    reasons.push(`Missing design values (${report.summary.missingDesign})`);
   }
   if (t.failOnMissingComputed && report.summary.missingComputed > 0) {
     reasons.push(`Missing computed values (${report.summary.missingComputed})`);
