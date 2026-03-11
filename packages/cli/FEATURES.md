@@ -8,41 +8,48 @@ CLI is the first adapter on top of `@alignui/core`. It is responsible for:
 
 ## Done
 
-- Project skeleton and minimal `alignui` help UI (`src/index.ts`)
-- Config file support (JSON) with consistent lookup (`--config`, default `.alignui.json`)
-- Validate config using core: `validateScanConfig()` + `lintRules()` (`alignui validate`)
-- Token input modes:
-  - `--tokens <tokens.json>` using `validateTokenMap()` + `resolveTokenMap()`
-  - `alignui tokens --figma-file <key> [--figma-token <token>]` (Figma Variables API)
-- Browser style collection (Playwright): `alignui collect` writes snapshots JSON
-- Scan pipeline: `alignui scan` (tokens + snapshots) -> `report.json` + exit codes
-- Baseline diff support: `--baseline` + `--diff-out`
-- Design mapping helpers (plugin export fallback):
-  - `alignui design ls --in report.json ...` to list `figmaPath` arrays
-  - `alignui scan --design report.json` to compare `{ design: true }` properties against the plugin-exported node tree
+- Project skeleton and `alignui scan` command stub (`src/index.ts`, `src/commands/scan.ts`)
 
 ## Remaining (CLI)
 
 ### A) Config + Input
 
-- Fallback token extraction/import when Variables API is unavailable:
-  - Import from plugin exports (fills/typography/spacing) into `tokens.json`, or
-  - Extract from Figma file content API (styles) if available.
-- `alignui design validate` / `alignui scan` preflight helpers:
-  - Detect ambiguous `figmaPath` matches and print candidate disambiguations.
+- Support a config file format (JSON first) and consistent lookup (`--config`, default `.alignui.json`).
+- Validate config using core: `validateScanConfig()` + `lintRules()`.
+- Support token input modes:
+  - `--tokens <tokens.json>` using `validateTokenMap()` + `resolveTokenMap()`
+  - `tokens --figma-file <key> [--figma-token <token>]` to extract tokens from Figma Variables API
+  - Note: Figma Variables REST API requires the `file_variables:read` scope. Some accounts/orgs only expose `file_content:read`, which causes `403` on `/v1/files/:key/variables/local` even for full-seat users.
+  - Fallback (needed): token extraction from non-Variables sources (Figma Styles or a token sheet frame) when Variables API is unavailable.
 
 ### B) Browser Style Collection (Playwright Adapter)
 
-- Device emulation presets (`--device`) and auth flows (cookies/storageState).
+- Implement a collector that returns `StyleSnapshot[]`:
+  - open `config.url` (or `--url`)
+  - for each rule selector, query element and call `getComputedStyle`
+  - capture required properties only (from the rule set)
+  - handle missing selectors deterministically (reportable as missing computed)
+- Add runtime options:
+  - `--headed/--headless`, `--timeout`, `--wait-for <selector>`, `--device <preset>`
 
 ### C) Scan Pipeline
 
-- Optional: support running `scan` without snapshots by collecting on-the-fly (single command workflow).
+- Full scan flow (single entrypoint):
+  - load config
+  - load/resolve tokens
+  - collect snapshots
+  - `compare()` -> `evaluate()` -> exit codes
+- Print a readable console summary:
+  - score + pass/fail reasons
+  - top failures using `topFailures()`
 
 ### D) Reporting + Artifacts
 
+- Write `report.json` (always).
 - Optional HTML report generation (keep dependency-light).
-- Optional: write a deterministic `summary.json` for CI annotations.
+- Optional baseline support:
+  - `--baseline <report.json>` to run `diffReports(baseline, current)`
+  - write `diff.json` and show changed/introduced failures
 
 ### E) Packaging + DX
 
@@ -57,4 +64,3 @@ CLI is the first adapter on top of `@alignui/core`. It is responsible for:
   - config loading + validation errors
   - snapshot collection (mocked Playwright)
   - pipeline exit codes
-  - design tree parsing + `figmaPath` resolution failures surfaced at CLI level
