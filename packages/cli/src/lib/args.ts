@@ -12,6 +12,7 @@ export type ParsedArgs =
       mode?: string;
       prefixCollection?: boolean;
       floatUnit?: "px" | "ratio";
+      source?: "auto" | "variables" | "file";
     }
   | {
       cmd: "scan";
@@ -63,11 +64,13 @@ export function parseArgs(argv: string[]): ParsedArgs {
   const mode = typeof flags.get("mode") === "string" ? (flags.get("mode") as string) : undefined;
   const floatUnitRaw = typeof flags.get("float-unit") === "string" ? (flags.get("float-unit") as string) : undefined;
   const floatUnit = floatUnitRaw === "ratio" ? "ratio" : floatUnitRaw === "px" ? "px" : undefined;
+  const sourceRaw = typeof flags.get("source") === "string" ? (flags.get("source") as string) : undefined;
+  const source = sourceRaw === "variables" ? "variables" : sourceRaw === "file" ? "file" : sourceRaw === "auto" ? "auto" : undefined;
 
   if (cmd === "scan") return { cmd: "scan", configPath, url, out, tokensPath, snapshotsPath, baselinePath, diffOut };
   if (cmd === "validate") return { cmd: "validate", configPath, url, tokensPath, snapshotsPath };
   if (cmd === "collect") return { cmd: "collect", configPath, url, out, waitFor, timeoutMs, headed };
-  if (cmd === "tokens") return { cmd: "tokens", figmaFile, figmaToken, out, collection, mode, prefixCollection, floatUnit };
+  if (cmd === "tokens") return { cmd: "tokens", figmaFile, figmaToken, out, collection, mode, prefixCollection, floatUnit, source };
   if (cmd === "init") {
     const force = flags.get("force") === true;
     return { cmd: "init", configPath, force };

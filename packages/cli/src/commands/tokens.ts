@@ -1,7 +1,8 @@
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
-import { getLocalVariables } from "../lib/figma.js";
+import { getFile, getLocalVariables, getNodes } from "../lib/figma.js";
 import { ExitCode } from "../lib/exit-codes.js";
+import { exportTokensFromFileStyles, rgba01ToToken, toTokenKey, type TokenMap } from "../lib/figma-styles.js";
 
 type TokensOpts = {
   figmaFile?: string;
@@ -11,35 +12,38 @@ type TokensOpts = {
   mode?: string;
   prefixCollection?: boolean;
   floatUnit?: "px" | "ratio";
+  source?: "auto" | "variables" | "file";
 };
 
-type TokenValue =
-  | { kind: "color"; rgba: { r: number; g: number; b: number; a: number } }
-  | { kind: "number"; value: number; unit: "px" | "ratio" }
-  | { kind: "string"; value: string }
-  | { kind: "box"; unit: "px"; top: number; right: number; bottom: number; left: number }
-  | { kind: "ref"; token: string };
-
-type TokenMap = Record<string, TokenValue>;
-
-function toTokenKey(name: string): string {
-  // Figma variable names are often like "Color/Primary" or "Spacing/4".
-  // Convert to a conservative dotted token key.
-  const s = name.trim();
-  const replaced = s.replace(/[\/:]+/g, ".").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "-");
-  return replaced.replace(/\.+/g, ".").replace(/-+/g, "-").replace(/^\.+|\.+$/g, "");
+function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
 }
 
-function rgba01ToToken(v: any) {
-  // Figma API returns r/g/b in 0..1, alpha 0..1.
-  const r = typeof v?.r === "number" ? v.r : 0;
-  const g = typeof v?.g === "number" ? v.g : 0;
-  const b = typeof v?.b === "number" ? v.b : 0;
-  const a = typeof v?.a === "number" ? v.a : 1;
-  return {
-    kind: "color" as const,
-    rgba: { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255), a }
-  };
+async function exportFromFileStyles(fileKey: string, figmaToken: string, outPath: string): Promise<{ tokens: TokenMap; meta: string }> {
+  // Use shallow depth to avoid huge responses.
+  const file = await getFile(fileKey, figmaToken, { depth: 1 });
+  const styles = file.styles ?? {};
+
+  const styleValues = Object.values(styles);
+  const nodeIds = styleValues
+    .map((s) => (typeof s?.node_id === "string" ? s.node_id : typeof s?.nodeId === "string" ? s.nodeId : ""))
+    .filter((id) => id.length > 0);
+
+  const nodesById: Record<string, any | null> = {};
+  for (const ids of chunk(nodeIds, 50)) {
+    const resp = await getNodes(fileKey, figmaToken, ids);
+    for (const [id, wrap] of Object.entries(resp.nodes ?? {})) nodesById[id] = wrap;
+  }
+
+  const r = exportTokensFromFileStyles({ styles, nodesById });
+  await mkdir(path.dirname(outPath), { recursive: true });
+  await writeFile(outPath, JSON.stringify(r.tokens, null, 2), "utf8");
+
+  const note = r.notes.length ? ` notes=${r.notes.length}` : "";
+  const meta = `Source: Figma file_content styles file=${fileKey} styles=${Object.keys(styles).length} exported=${Object.keys(r.tokens).length} skipped=${r.skipped}${note}`;
+  return { tokens: r.tokens, meta };
 }
 
 export async function runTokens(opts: TokensOpts): Promise<number> {
@@ -50,14 +54,36 @@ export async function runTokens(opts: TokensOpts): Promise<number> {
 
   const outPath = opts.out ?? "alignui/tokens.json";
   const floatUnit = opts.floatUnit ?? "px";
+  const source = opts.source ?? "auto";
 
-  let resp;
+  if (source === "file") {
+    const r = await exportFromFileStyles(fileKey, figmaToken, outPath);
+    console.log(`Wrote ${outPath}`);
+    console.log(r.meta);
+    return ExitCode.Ok;
+  }
+
+  // variables or auto
+  let resp: Awaited<ReturnType<typeof getLocalVariables>> | null = null;
+  let variablesError: string | null = null;
   try {
     resp = await getLocalVariables(fileKey, figmaToken);
   } catch (e) {
-    // Variables endpoint may be unavailable for non-Enterprise accounts.
-    const msg = e instanceof Error ? e.message : String(e);
-    throw new Error(`${msg}\nNote: Figma variables API requires Enterprise + file_variables:read scope. If unavailable, use a manual tokens.json for now.`);
+    variablesError = e instanceof Error ? e.message : String(e);
+    resp = null;
+    if (source === "variables") {
+      throw new Error(
+        `${variablesError}\nNote: Figma variables API requires Enterprise + file_variables:read scope. If unavailable, rerun with --source file (uses file_content:read styles).`
+      );
+    }
+  }
+
+  if (!resp) {
+    const r = await exportFromFileStyles(fileKey, figmaToken, outPath);
+    console.log(`Wrote ${outPath}`);
+    console.log(`Variables API failed, fell back to file styles. Error: ${variablesError}`);
+    console.log(r.meta);
+    return ExitCode.Ok;
   }
 
   const collections = Object.values(resp.meta.variableCollections);
@@ -116,4 +142,3 @@ export async function runTokens(opts: TokensOpts): Promise<number> {
   console.log(`Source: Figma file=${fileKey} collection="${chosenCollection.name}" mode="${chosenMode.name}" vars=${vars.length} exported=${Object.keys(tokens).length}`);
   return ExitCode.Ok;
 }
-

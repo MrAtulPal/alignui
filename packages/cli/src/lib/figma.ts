@@ -50,3 +50,39 @@ export async function getLocalVariables(fileKey: string, figmaToken: string): Pr
   return figmaGetJson<FigmaLocalVariablesResponse>(url, figmaToken);
 }
 
+export type FigmaFileResponse = {
+  name?: string;
+  lastModified?: string;
+  version?: string;
+  // Style id -> style metadata. Fields vary; we use what we can.
+  styles?: Record<
+    string,
+    {
+      key?: string;
+      name?: string;
+      styleType?: string;
+      style_type?: string;
+      node_id?: string;
+      nodeId?: string;
+      description?: string;
+    }
+  >;
+};
+
+export async function getFile(fileKey: string, figmaToken: string, opts?: { depth?: number }): Promise<FigmaFileResponse> {
+  const depth = typeof opts?.depth === "number" && Number.isFinite(opts.depth) ? opts.depth : undefined;
+  const qs = depth !== undefined ? `?depth=${encodeURIComponent(String(depth))}` : "";
+  const url = `https://api.figma.com/v1/files/${encodeURIComponent(fileKey)}${qs}`;
+  return figmaGetJson<FigmaFileResponse>(url, figmaToken);
+}
+
+export type FigmaNodesResponse = {
+  err?: string;
+  nodes: Record<string, { document: any } | null>;
+};
+
+export async function getNodes(fileKey: string, figmaToken: string, ids: string[]): Promise<FigmaNodesResponse> {
+  const joined = ids.map(String).join(",");
+  const url = `https://api.figma.com/v1/files/${encodeURIComponent(fileKey)}/nodes?ids=${encodeURIComponent(joined)}`;
+  return figmaGetJson<FigmaNodesResponse>(url, figmaToken);
+}

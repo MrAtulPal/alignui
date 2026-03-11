@@ -35,6 +35,7 @@ function printHelp() {
   console.log("  alignui scan ... --baseline report.json --diff-out diff.json");
   console.log("");
   console.log("Tokens options:");
+  console.log("  --source auto|variables|file   Token source (default: auto)");
   console.log("  --collection <name>     Variable collection name (default: first)");
   console.log("  --mode <name>           Mode name within collection (default: first)");
   console.log("  --prefix-collection     Prefix keys with collection name");
