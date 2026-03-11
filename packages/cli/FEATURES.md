@@ -2,7 +2,7 @@
 
 CLI is the first adapter on top of `@alignui/core`. It is responsible for:
 
-- fetching/extracting expected tokens (Figma or local)
+- loading expected tokens (manual `tokens.json`)
 - collecting actual computed styles (browser automation)
 - producing reports and exit codes (CI-friendly)
 
@@ -18,9 +18,7 @@ CLI is the first adapter on top of `@alignui/core`. It is responsible for:
 - Validate config using core: `validateScanConfig()` + `lintRules()`.
 - Support token input modes:
   - `--tokens <tokens.json>` using `validateTokenMap()` + `resolveTokenMap()`
-  - `tokens --figma-file <key> [--figma-token <token>]` to extract tokens from Figma Variables API
-  - Note: Figma Variables REST API requires the `file_variables:read` scope. Some accounts/orgs only expose `file_content:read`, which causes `403` on `/v1/files/:key/variables/local` even for full-seat users.
-  - Fallback (needed): token extraction from non-Variables sources (Figma Styles or a token sheet frame) when Variables API is unavailable.
+  - (v1) Figma extraction is intentionally out of scope. Use a manual `tokens.json`.
 
 ### B) Browser Style Collection (Playwright Adapter)
 
