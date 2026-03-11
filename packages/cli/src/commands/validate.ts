@@ -1,4 +1,4 @@
-import { lintRules, parsePluginExport, resolveTokenMap, validateScanConfig, validateTokenMap, type PluginNode, type ScanConfig, type TokenMap } from "@alignui/core";
+import { lintRules, resolveTokenMap, validateScanConfig, validateTokenMap, type ScanConfig, type TokenMap } from "@alignui/core";
 import { readJsonFile } from "../lib/json.js";
 import { parseSnapshots } from "../lib/snapshots.js";
 import { ExitCode } from "../lib/exit-codes.js";
@@ -8,7 +8,6 @@ type ValidateOpts = {
   url?: string;
   tokensPath?: string;
   snapshotsPath?: string;
-  designPath?: string;
 };
 
 export async function runValidate(opts: ValidateOpts): Promise<number> {
@@ -31,35 +30,18 @@ export async function runValidate(opts: ValidateOpts): Promise<number> {
     for (const w of lint.warnings) console.log(`- ${w.path}: ${w.message}`);
   }
 
-  const needsTokens = config.rules.some((r) => Object.values(r.properties).some((p) => "token" in p));
-  const needsDesign = config.rules.some((r) => Object.values(r.properties).some((p) => "design" in p));
-
-  let tokens: TokenMap = {};
-  if (needsTokens) {
-    if (!opts.tokensPath) throw new Error("Missing --tokens <tokens.json> (required because some properties use { token: ... }).");
-    const tokensRaw = await readJsonFile(opts.tokensPath);
-    const tv = validateTokenMap(tokensRaw);
-    if (!tv.ok) {
-      const msg = tv.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
-      throw new Error(`Invalid tokens (${opts.tokensPath}):\n${msg}`);
-    }
-    const resolved = resolveTokenMap(tv.value);
-    if (resolved.errors.length > 0) {
-      throw new Error(`Token resolution errors:\n${resolved.errors.join("\n")}`);
-    }
-    tokens = resolved.resolved;
+  if (!opts.tokensPath) throw new Error("Missing --tokens <tokens.json>.");
+  const tokensRaw = await readJsonFile(opts.tokensPath);
+  const tv = validateTokenMap(tokensRaw);
+  if (!tv.ok) {
+    const msg = tv.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
+    throw new Error(`Invalid tokens (${opts.tokensPath}):\n${msg}`);
   }
-
-  let designRoots: PluginNode[] | undefined = undefined;
-  if (needsDesign && opts.designPath) {
-    const designRaw = await readJsonFile(opts.designPath);
-    const parsed = parsePluginExport(designRaw);
-    if (!parsed.ok) {
-      const msg = parsed.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
-      throw new Error(`Invalid design export (${opts.designPath}):\n${msg}`);
-    }
-    designRoots = parsed.value;
+  const resolved = resolveTokenMap(tv.value);
+  if (resolved.errors.length > 0) {
+    throw new Error(`Token resolution errors:\n${resolved.errors.join("\n")}`);
   }
+  const tokens: TokenMap = resolved.resolved;
 
   if (!opts.snapshotsPath) throw new Error("Missing --snapshots <snapshots.json>.");
   const snapsRaw = await readJsonFile(opts.snapshotsPath);
@@ -70,12 +52,9 @@ export async function runValidate(opts: ValidateOpts): Promise<number> {
 
   console.log(`Config: ${config.rules.length} rule(s)`);
   console.log(`Tokens: ${Object.keys(tokens).length} token(s)`);
-  if (needsDesign) {
-    if (!opts.designPath) console.log("Design: required by config, but not provided (pass --design <plugin-export.json> to validate it)");
-    else console.log(`Design: ${designRoots ? `${designRoots.length} root(s)` : "invalid"}`);
-  }
   console.log(`Snapshots: ${snapshots.length} selector(s)`);
   console.log(`URL: ${url}`);
 
   return ExitCode.Ok;
 }
+

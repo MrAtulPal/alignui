@@ -38,12 +38,9 @@ export function lintRules(rules: Rule[], tokens?: TokenMap): LintResult {
       if (seenSelectorProp.has(key)) push(warnings, `${rulePath}.properties.${prop}`, "Duplicate selector+property mapping");
       seenSelectorProp.add(key);
 
-      if ("token" in spec) {
-        if (!isValidTokenKey(spec.token)) push(warnings, `${rulePath}.properties.${prop}.token`, `Suspicious token key: ${spec.token}`);
-      }
+      if (!isValidTokenKey(spec.token)) push(warnings, `${rulePath}.properties.${prop}.token`, `Suspicious token key: ${spec.token}`);
 
       if (tokens) {
-        if (!("token" in spec)) continue;
         const tv = tokens[spec.token] ?? null;
         if (!tv) continue;
 
