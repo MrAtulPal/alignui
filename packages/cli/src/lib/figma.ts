@@ -86,3 +86,12 @@ export async function getNodes(fileKey: string, figmaToken: string, ids: string[
   const url = `https://api.figma.com/v1/files/${encodeURIComponent(fileKey)}/nodes?ids=${encodeURIComponent(joined)}`;
   return figmaGetJson<FigmaNodesResponse>(url, figmaToken);
 }
+
+export async function getNodeSubtree(fileKey: string, figmaToken: string, nodeId: string): Promise<any> {
+  const resp = await getNodes(fileKey, figmaToken, [nodeId]);
+  const wrap = resp.nodes?.[nodeId] ?? null;
+  if (!wrap) throw new Error(`Figma nodes response missing node: ${nodeId}`);
+  const doc = (wrap as any).document ?? null;
+  if (!doc) throw new Error(`Figma nodes response missing document for node: ${nodeId}`);
+  return doc;
+}

@@ -1,8 +1,9 @@
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
-import { getFile, getLocalVariables, getNodes } from "../lib/figma.js";
+import { getFile, getLocalVariables, getNodes, getNodeSubtree } from "../lib/figma.js";
 import { ExitCode } from "../lib/exit-codes.js";
 import { exportTokensFromFileStyles, rgba01ToToken, toTokenKey, type TokenMap } from "../lib/figma-styles.js";
+import { exportTokensByScanningNodeSubtree } from "../lib/figma-scan.js";
 
 type TokensOpts = {
   figmaFile?: string;
@@ -12,7 +13,9 @@ type TokensOpts = {
   mode?: string;
   prefixCollection?: boolean;
   floatUnit?: "px" | "ratio";
-  source?: "auto" | "variables" | "file";
+  source?: "auto" | "variables" | "file" | "scan";
+  rootNode?: string;
+  indexOut?: string;
 };
 
 function chunk<T>(arr: T[], size: number): T[][] {
@@ -55,11 +58,30 @@ export async function runTokens(opts: TokensOpts): Promise<number> {
   const outPath = opts.out ?? "alignui/tokens.json";
   const floatUnit = opts.floatUnit ?? "px";
   const source = opts.source ?? "auto";
+  const indexOut = opts.indexOut ?? "alignui/tokens.index.json";
 
   if (source === "file") {
     const r = await exportFromFileStyles(fileKey, figmaToken, outPath);
     console.log(`Wrote ${outPath}`);
     console.log(r.meta);
+    return ExitCode.Ok;
+  }
+
+  if (source === "scan") {
+    const rootNodeRaw = opts.rootNode;
+    const rootNode = rootNodeRaw && rootNodeRaw.includes("-") && !rootNodeRaw.includes(":") ? rootNodeRaw.replace(/-/g, ":") : rootNodeRaw;
+    if (!rootNode) throw new Error("Missing --root-node <nodeId> (required for --source scan).");
+    const doc = await getNodeSubtree(fileKey, figmaToken, rootNode);
+    const r = exportTokensByScanningNodeSubtree({ rootNodeId: rootNode, rootDocument: doc });
+    await mkdir(path.dirname(outPath), { recursive: true });
+    await writeFile(outPath, JSON.stringify(r.tokens, null, 2), "utf8");
+    await mkdir(path.dirname(indexOut), { recursive: true });
+    await writeFile(indexOut, JSON.stringify(r.index, null, 2), "utf8");
+    console.log(`Wrote ${outPath}`);
+    console.log(`Wrote ${indexOut}`);
+    console.log(
+      `Source: Figma file_content scan file=${fileKey} root=${rootNode} exported=${Object.keys(r.tokens).length} colors=${r.index.meta.uniqueColors} textStyles=${r.index.meta.uniqueTextStyles}`
+    );
     return ExitCode.Ok;
   }
 
