@@ -12,7 +12,7 @@ import {
   type StyleSnapshot,
   type TokenMap
 } from "@alignui/core";
-import { writeFile, mkdir, readFile } from "node:fs/promises";
+import { writeFile, mkdir, copyFile } from "node:fs/promises";
 import path from "node:path";
 import { readJsonFile } from "../lib/json.js";
 import { parseSnapshots } from "../lib/snapshots.js";
@@ -39,13 +39,15 @@ function printTopFailures(report: ScanReport, max = 10) {
   }
 }
 
-async function readBundledFontWoff2Base64(): Promise<string | undefined> {
-  // Prefer resolving relative to the actual CLI entrypoint (dist/index.js).
-  // Jest runs scan.ts directly, so this may fail there; it's fine to fall back.
+async function copyBundledFontIntoReport(reportDir: string) {
+  const inJest = typeof process.env.JEST_WORKER_ID === "string";
+
+  const assetsDir = path.join(reportDir, "assets");
+  const outPath = path.join(assetsDir, "nunito-sans.woff2");
+  await mkdir(assetsDir, { recursive: true });
+
   const argv1 = process.argv[1] ? path.resolve(process.argv[1]) : undefined;
-  const fromArgv = argv1
-    ? path.resolve(path.dirname(argv1), "..", "assets", "fonts", "nunito-sans.woff2")
-    : undefined;
+  const fromArgv = argv1 ? path.resolve(path.dirname(argv1), "..", "assets", "fonts", "nunito-sans.woff2") : undefined;
 
   const candidates = [
     fromArgv,
@@ -53,16 +55,18 @@ async function readBundledFontWoff2Base64(): Promise<string | undefined> {
     path.resolve("assets/fonts/nunito-sans.woff2")
   ].filter(Boolean) as string[];
 
-  for (const p of candidates) {
+  for (const src of candidates) {
     try {
-      const buf = await readFile(p);
-      return buf.toString("base64");
+      await copyFile(src, outPath);
+      return;
     } catch {
       // keep trying
     }
   }
 
-  return undefined;
+  if (!inJest) {
+    console.warn(`Warning: Nunito Sans font not found; report will use fallback fonts. Tried: ${candidates.join(", ")}`);
+  }
 }
 
 async function writeHtmlReport(reportDir: string, report: ScanReport, ev: ReturnType<typeof evaluate>) {
@@ -70,16 +74,10 @@ async function writeHtmlReport(reportDir: string, report: ScanReport, ev: Return
   const htmlPath = path.join(reportDir, "index.html");
 
   await mkdir(reportDir, { recursive: true });
+  await copyBundledFontIntoReport(reportDir);
 
   await writeFile(jsonPath, JSON.stringify(report, null, 2), "utf8");
-  const fontWoff2Base64 = await readBundledFontWoff2Base64();
-  if (!fontWoff2Base64) {
-    const inJest = typeof process.env.JEST_WORKER_ID === "string";
-    if (!inJest) {
-      console.warn("Warning: Nunito Sans font not found; HTML report will render with fallback system fonts.");
-    }
-  }
-  const html = renderHtmlReport(report, ev, { fontWoff2Base64 });
+  const html = renderHtmlReport(report, ev);
   await writeFile(htmlPath, html, "utf8");
   console.log(`Wrote ${jsonPath}`);
   console.log(`Wrote ${htmlPath}`);
