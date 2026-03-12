@@ -2,6 +2,9 @@ node_modules
 dist
 *.tsbuildinfo
 report.json
+report/
+alignui/
+.alignui.json
 .env
 .DS_Store
 npm-debug.log*

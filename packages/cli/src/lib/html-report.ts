@@ -1,19 +1,23 @@
 import type { Evaluation, ScanReport } from "@alignui/core";
 
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): string {
+export function renderHtmlReport(
+  report: ScanReport,
+  evaluation: Evaluation,
+  opts?: { fontWoff2Base64?: string }
+): string {
   const data = { report, evaluation };
   const json = JSON.stringify(data).replace(/</g, "\\u003c");
+  const fontFace = opts?.fontWoff2Base64
+    ? `@font-face {
+        font-family: "Nunito Sans";
+        font-style: normal;
+        font-weight: 200 1000;
+        font-display: swap;
+        src: url("data:font/woff2;base64,${opts.fontWoff2Base64}") format("woff2");
+      }`
+    : "";
 
-  // Single-file report. Keep it dependency-free.
+  // Keep it dependency-free: one self-contained HTML file (optionally with embedded font).
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -21,6 +25,8 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>AlignUI Report</title>
     <style>
+      ${fontFace}
+
       :root {
         --bg: #0b0c10;
         --panel: #12141c;
@@ -33,14 +39,17 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
         --warn: #ffb020;
         --chip: rgba(255,255,255,0.08);
         --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        --sans: "Nunito Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+          "Apple Color Emoji", "Segoe UI Emoji";
       }
 
       * { box-sizing: border-box; }
       html, body { height: 100%; }
+
       body {
         margin: 0;
         font-family: var(--sans);
+        font-size: 12px; /* UX rule: keep text >= 12px */
         background: radial-gradient(1200px 600px at 10% -10%, rgba(80,125,255,0.25), transparent 60%),
                     radial-gradient(900px 500px at 90% 10%, rgba(255,115,80,0.18), transparent 55%),
                     var(--bg);
@@ -48,44 +57,63 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
       }
 
       .app {
-        display: grid;
-        grid-template-columns: 320px 1fr;
         height: 100%;
+        display: grid;
+        grid-template-rows: auto auto 1fr;
       }
 
-      .sidebar {
-        border-right: 1px solid var(--border);
-        background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent 40%), var(--panel2);
-        padding: 18px 16px;
-        overflow: auto;
+      .topbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent 55%), var(--panel2);
       }
 
       .brand {
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        margin-bottom: 14px;
-      }
-      .brand small {
-        display: block;
-        font-weight: 500;
-        color: var(--muted);
-        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 240px;
       }
 
-      .kpi {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin: 14px 0 16px;
-      }
-      .card {
+      .logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
         border: 1px solid var(--border);
-        background: rgba(255,255,255,0.03);
-        border-radius: 12px;
-        padding: 10px 10px;
+        background: radial-gradient(16px 16px at 30% 25%, rgba(80,125,255,0.75), rgba(80,125,255,0.0)),
+                    radial-gradient(18px 18px at 80% 80%, rgba(255,115,80,0.55), rgba(255,115,80,0.0)),
+                    rgba(255,255,255,0.03);
+        display: grid;
+        place-items: center;
       }
-      .card .label { color: var(--muted); font-size: 12px; }
-      .card .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+
+      .logo svg { width: 18px; height: 18px; opacity: 0.95; }
+
+      .brandName {
+        font-weight: 800;
+        letter-spacing: 0.3px;
+        line-height: 1.1;
+        font-size: 14px;
+      }
+
+      .brandSub {
+        margin-top: 3px;
+        color: var(--muted);
+        font-weight: 500;
+        line-height: 1.2;
+      }
+
+      .topRight {
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
 
       .status {
         display: inline-flex;
@@ -98,17 +126,30 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
       }
       .dot { width: 10px; height: 10px; border-radius: 50%; }
 
-      .section-title {
-        margin: 18px 0 10px;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: var(--muted);
-      }
-
-      .filters {
-        display: grid;
+      .kpi {
+        display: flex;
         gap: 10px;
+        flex-wrap: wrap;
+      }
+      .card {
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.03);
+        border-radius: 12px;
+        padding: 10px 10px;
+        min-width: 120px;
+      }
+      .card .label { color: var(--muted); font-size: 12px; }
+      .card .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+
+      .subbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(18, 20, 28, 0.65);
+        backdrop-filter: blur(10px);
       }
 
       .row {
@@ -131,38 +172,34 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
       .chip[aria-pressed="true"] { outline: 2px solid rgba(80,125,255,0.6); }
 
       input[type="search"] {
-        width: 100%;
+        width: min(520px, 64vw);
         border: 1px solid var(--border);
         background: rgba(0,0,0,0.25);
         color: var(--text);
         padding: 10px 10px;
         border-radius: 12px;
         outline: none;
+        font-size: 12px;
       }
       input[type="search"]::placeholder { color: rgba(231,235,255,0.45); }
-
-      .main {
-        padding: 18px 18px;
-        overflow: auto;
-      }
-
-      .toolbar {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 12px;
-      }
-
-      .title {
-        font-size: 16px;
-        font-weight: 700;
-      }
 
       .meta {
         font-family: var(--mono);
         font-size: 12px;
         color: var(--muted);
+      }
+
+      .metaStack {
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .main {
+        padding: 14px 16px;
+        overflow: auto;
       }
 
       table {
@@ -202,7 +239,7 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
         align-items: center;
         gap: 6px;
         font-family: var(--mono);
-        font-size: 11px;
+        font-size: 12px;
         padding: 5px 8px;
         border-radius: 999px;
         border: 1px solid var(--border);
@@ -216,62 +253,73 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
       .muted { color: var(--muted); }
 
       @media (max-width: 960px) {
-        .app { grid-template-columns: 1fr; }
-        .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+        .topbar { align-items: flex-start; }
+        input[type="search"] { width: 100%; }
+        .subbar { align-items: flex-start; flex-direction: column; }
+        .metaStack { justify-content: flex-start; }
       }
     </style>
   </head>
   <body>
     <div class="app">
-      <aside class="sidebar">
-        <div class="brand">AlignUI<small>Compliance Report</small></div>
-        <div id="status" class="status">
-          <span class="dot" id="statusDot"></span>
-          <span id="statusText"></span>
-        </div>
-
-        <div class="kpi">
-          <div class="card">
-            <div class="label">Score</div>
-            <div class="value" id="kpiScore">-</div>
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M6.5 17.5L12 6.5L17.5 17.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M8.7 13h6.6" stroke="white" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
           </div>
-          <div class="card">
-            <div class="label">Failed</div>
-            <div class="value" id="kpiFailed">-</div>
-          </div>
-          <div class="card">
-            <div class="label">Passed</div>
-            <div class="value" id="kpiPassed">-</div>
-          </div>
-          <div class="card">
-            <div class="label">Checks</div>
-            <div class="value" id="kpiTotal">-</div>
+          <div>
+            <div class="brandName">AlignUI</div>
+            <div class="brandSub">Compliance report</div>
           </div>
         </div>
 
-        <div class="section-title">Filter</div>
-        <div class="filters">
+        <div class="topRight">
+          <div id="status" class="status">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusText"></span>
+          </div>
+
+          <div class="kpi">
+            <div class="card">
+              <div class="label">Score</div>
+              <div class="value" id="kpiScore">-</div>
+            </div>
+            <div class="card">
+              <div class="label">Failed</div>
+              <div class="value" id="kpiFailed">-</div>
+            </div>
+            <div class="card">
+              <div class="label">Passed</div>
+              <div class="value" id="kpiPassed">-</div>
+            </div>
+            <div class="card">
+              <div class="label">Checks</div>
+              <div class="value" id="kpiTotal">-</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="subbar">
+        <div class="row">
           <input id="q" type="search" placeholder="Search selector, property, token..." />
           <div class="row">
             <button class="chip" id="fPass" aria-pressed="true" type="button">Pass</button>
             <button class="chip" id="fFail" aria-pressed="true" type="button">Fail</button>
-          </div>
-          <div class="row">
             <button class="chip" id="fErr" aria-pressed="true" type="button">Error</button>
             <button class="chip" id="fWarn" aria-pressed="true" type="button">Warn</button>
           </div>
         </div>
-      </aside>
-
-      <main class="main">
-        <div class="toolbar">
-          <div>
-            <div class="title">Results</div>
-            <div class="meta" id="metaLine"></div>
-          </div>
+        <div class="metaStack">
+          <div class="meta" id="metaLine"></div>
           <div class="meta"><span id="shownCount">0</span> shown</div>
         </div>
+      </section>
 
+      <main class="main">
         <table>
           <thead>
             <tr>
@@ -389,4 +437,3 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
   </body>
 </html>`;
 }
-
