@@ -19,7 +19,7 @@ import { parseSnapshots } from "../lib/snapshots.js";
 import { ExitCode } from "../lib/exit-codes.js";
 import { renderHtmlReport } from "../lib/html-report.js";
 import { buildInlinedFontFaceCss } from "../lib/font-assets.js";
-import { minifyHtmlLite } from "../lib/html-minify.js";
+import { minify } from "html-minifier-terser";
 
 type ScanOpts = {
   configPath?: string;
@@ -50,7 +50,16 @@ async function writeHtmlReport(reportDir: string, report: ScanReport, ev: Return
 
   await writeFile(jsonPath, JSON.stringify(report, null, 2), "utf8");
   const html = renderHtmlReport(report, ev, { fontFaceCss });
-  const minified = minifyHtmlLite(html);
+  const minified = await minify(html, {
+    collapseWhitespace: true,
+    removeComments: true,
+    removeRedundantAttributes: true,
+    removeEmptyAttributes: true,
+    sortAttributes: true,
+    sortClassName: true,
+    minifyCSS: true,
+    minifyJS: true
+  });
   await writeFile(htmlPath, minified, "utf8");
   console.log(`Wrote ${jsonPath}`);
   console.log(`Wrote ${htmlPath}`);
