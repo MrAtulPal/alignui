@@ -387,8 +387,18 @@ export function renderHtmlReport(
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 12px;
-        overflow: hidden;
+        overflow: auto;
         box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 6px 22px rgba(0,0,0,0.08);
+      }
+
+      .table-wrap::-webkit-scrollbar {
+        height: 6px;
+        background: #1e1e1e;
+      }
+
+      .table-wrap::-webkit-scrollbar-track {
+        background: #616060;
+        border-radius: 12px;
       }
 
       table {
