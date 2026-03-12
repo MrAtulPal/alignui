@@ -11,6 +11,8 @@ test("parseArgs parses scan flags", () => {
     "s.json",
     "--out",
     "r.json",
+    "--report-dir",
+    "report",
     "--baseline",
     "b.json",
     "--diff-out",
@@ -22,6 +24,7 @@ test("parseArgs parses scan flags", () => {
     expect(a.tokensPath).toBe("t.json");
     expect(a.snapshotsPath).toBe("s.json");
     expect(a.out).toBe("r.json");
+    expect(a.reportDir).toBe("report");
     expect(a.baselinePath).toBe("b.json");
     expect(a.diffOut).toBe("d.json");
   }
@@ -42,4 +45,3 @@ test("parseArgs defaults to help on unknown command", () => {
   const a = parseArgs(["wat"]);
   expect(a.cmd).toBe("help");
 });
-

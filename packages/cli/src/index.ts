@@ -28,6 +28,7 @@ function printHelp() {
   console.log("  alignui collect --config .alignui.json --url https://app.example.com --out alignui/snapshots.json");
   console.log("  alignui validate --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json");
   console.log("  alignui scan --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json --out report.json");
+  console.log("  alignui scan ... --report-dir report");
   console.log("  alignui scan ... --baseline report.json --diff-out diff.json");
   console.log("");
   console.log("Collect options:");

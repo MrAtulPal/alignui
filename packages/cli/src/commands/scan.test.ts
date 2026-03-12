@@ -13,7 +13,9 @@ test("runScan returns Ok for matching token vs snapshot", async () => {
   const configPath = path.join(dir, "config.json");
   const tokensPath = path.join(dir, "tokens.json");
   const snapsPath = path.join(dir, "snapshots.json");
-  const outPath = path.join(dir, "report.json");
+  const reportDir = path.join(dir, "report");
+  const outPath = path.join(reportDir, "report.json");
+  const htmlPath = path.join(reportDir, "index.html");
 
   await writeJson(configPath, {
     url: "https://x.test",
@@ -32,10 +34,12 @@ test("runScan returns Ok for matching token vs snapshot", async () => {
     { selector: ".btn", url: "https://x.test", computed: { backgroundColor: "rgb(0, 0, 0)" } }
   ]);
 
-  const code = await runScan({ configPath, tokensPath, snapshotsPath: snapsPath, out: outPath });
+  const code = await runScan({ configPath, tokensPath, snapshotsPath: snapsPath, reportDir });
   expect(code).toBe(ExitCode.Ok);
   const txt = await readFile(outPath, "utf8");
   expect(txt).toMatch(/\"score\"/);
+  const html = await readFile(htmlPath, "utf8");
+  expect(html).toMatch(/AlignUI Report/);
 });
 
 test("runScan returns Fail when token is missing", async () => {
@@ -65,4 +69,3 @@ test("runScan returns Fail when token is missing", async () => {
   const code = await runScan({ configPath, tokensPath, snapshotsPath: snapsPath, out: outPath });
   expect(code).toBe(ExitCode.Fail);
 });
-

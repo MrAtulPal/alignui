@@ -8,6 +8,7 @@ export type ParsedArgs =
       configPath?: string;
       url?: string;
       out?: string;
+      reportDir?: string;
       tokensPath?: string;
       snapshotsPath?: string;
       baselinePath?: string;
@@ -38,6 +39,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
   const configPath = typeof flags.get("config") === "string" ? (flags.get("config") as string) : undefined;
   const url = typeof flags.get("url") === "string" ? (flags.get("url") as string) : undefined;
   const out = typeof flags.get("out") === "string" ? (flags.get("out") as string) : undefined;
+  const reportDir = typeof flags.get("report-dir") === "string" ? (flags.get("report-dir") as string) : undefined;
   const tokensPath = typeof flags.get("tokens") === "string" ? (flags.get("tokens") as string) : undefined;
   const snapshotsPath = typeof flags.get("snapshots") === "string" ? (flags.get("snapshots") as string) : undefined;
   const baselinePath = typeof flags.get("baseline") === "string" ? (flags.get("baseline") as string) : undefined;
@@ -48,7 +50,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
   const headed = flags.get("headed") === true;
   const prefixCollection = flags.get("prefix-collection") === true;
 
-  if (cmd === "scan") return { cmd: "scan", configPath, url, out, tokensPath, snapshotsPath, baselinePath, diffOut };
+  if (cmd === "scan") return { cmd: "scan", configPath, url, out, reportDir, tokensPath, snapshotsPath, baselinePath, diffOut };
   if (cmd === "validate") return { cmd: "validate", configPath, url, tokensPath, snapshotsPath };
   if (cmd === "collect") return { cmd: "collect", configPath, url, out, waitFor, timeoutMs, headed };
   if (cmd === "init") {

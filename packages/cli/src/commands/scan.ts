@@ -12,15 +12,18 @@ import {
   type StyleSnapshot,
   type TokenMap
 } from "@alignui/core";
-import { writeFile } from "node:fs/promises";
+import { writeFile, mkdir } from "node:fs/promises";
+import path from "node:path";
 import { readJsonFile } from "../lib/json.js";
 import { parseSnapshots } from "../lib/snapshots.js";
 import { ExitCode } from "../lib/exit-codes.js";
+import { renderHtmlReport } from "../lib/html-report.js";
 
 type ScanOpts = {
   configPath?: string;
   url?: string;
   out?: string;
+  reportDir?: string;
   tokensPath?: string;
   snapshotsPath?: string;
   baselinePath?: string;
@@ -77,10 +80,23 @@ export async function runScan(opts: ScanOpts): Promise<number> {
   const snapshots: StyleSnapshot[] = parseSnapshots(snapsRaw).map((s) => ({ ...s, url }));
 
   const report = compare(tokens, snapshots, config.rules, config.defaults);
-  const outPath = opts.out ?? "report.json";
-  await writeFile(outPath, JSON.stringify(report, null, 2), "utf8");
 
   const ev = evaluate(report, config.thresholds);
+
+  const reportDir = opts.reportDir;
+  if (reportDir) {
+    const jsonPath = path.join(reportDir, "report.json");
+    const htmlPath = path.join(reportDir, "index.html");
+    await mkdir(reportDir, { recursive: true });
+    await writeFile(jsonPath, JSON.stringify(report, null, 2), "utf8");
+    const html = renderHtmlReport(report, ev);
+    await writeFile(htmlPath, html, "utf8");
+    console.log(`Wrote ${jsonPath}`);
+    console.log(`Wrote ${htmlPath}`);
+  } else {
+    const outPath = opts.out ?? "report.json";
+    await writeFile(outPath, JSON.stringify(report, null, 2), "utf8");
+  }
   console.log(`Score: ${report.summary.score} (${report.summary.passed}/${report.summary.total} passed)`);
   if (!ev.pass) {
     console.log("Fail reasons:");
