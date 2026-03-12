@@ -114,7 +114,6 @@ export function renderHtmlReport(
         padding: 20px 0;
         border-right: 1px solid rgba(255,255,255,0.1);
         padding-right: 40px;
-        margin-right: 40px;
         flex-shrink: 0;
       }
 
@@ -478,6 +477,7 @@ export function renderHtmlReport(
         background: rgba(255,107,71,0.1);
         padding: 3px 7px;
         border-radius: 6px;
+        white-space: nowrap;
       }
 
       .prop-cell { font-family: var(--mono); font-size: 12px; color: var(--ink); font-weight: 400; }
@@ -507,6 +507,7 @@ export function renderHtmlReport(
         font-size: 12px;
         color: var(--ink-2);
         font-weight: 400;
+        white-space: nowrap;
       }
 
       .details-btn {
@@ -635,12 +636,40 @@ export function renderHtmlReport(
 
       @media (max-width: 980px) {
         header { padding: 0 16px; flex-wrap: wrap; }
-        .brand { padding-right: 16px; margin-right: 16px; }
-        .stat-block { padding: 14px 16px; min-width: 100px; }
+        .brand {
+          border-right: 0;
+          padding-right: 0;
+          margin-right: 0;
+          width: 100%;
+        }
+        .header-stats { width: 100%; flex-wrap: wrap; }
+        .stat-block { padding: 14px 16px; min-width: 160px; flex: 1 1 50%; }
+        .verdict-block { margin-left: 0; padding: 0 0 18px; width: 100%; }
+
         .meta-bar { padding: 12px 16px; flex-wrap: wrap; }
+        .meta-url { flex-wrap: wrap; row-gap: 6px; }
+        .meta-sep { display: none; }
         main { padding: 22px 16px; }
         footer { padding: 18px 16px 26px; flex-wrap: wrap; justify-content: flex-start; }
         header::after { display: none; }
+      }
+
+      @media (max-width: 720px) {
+        .toolbar { flex-direction: column; align-items: stretch; }
+        .search-wrap { max-width: none; }
+        .count-badge { margin-left: 0; align-self: flex-start; }
+
+        .table-wrap {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        table { min-width: 920px; }
+      }
+
+      @media (max-width: 520px) {
+        .stat-block { min-width: 140px; flex: 1 1 100%; }
+        .verdict-badge { width: 100%; justify-content: center; }
+        .score-track { width: 120px; }
       }
     </style>
   </head>
