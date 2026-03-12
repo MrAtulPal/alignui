@@ -83,7 +83,7 @@ export async function runScan(opts: ScanOpts): Promise<number> {
 
   const ev = evaluate(report, config.thresholds);
 
-  const reportDir = opts.reportDir;
+  const reportDir = opts.reportDir ?? (opts.out ? undefined : "report");
   if (reportDir) {
     const jsonPath = path.join(reportDir, "report.json");
     const htmlPath = path.join(reportDir, "index.html");

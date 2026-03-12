@@ -38,7 +38,7 @@ function printHelp() {
   console.log("");
   console.log("Defaults:");
   console.log("  --config .alignui.json");
-  console.log("  --out report.json");
+  console.log("  --report-dir report (writes report/report.json + report/index.html)");
 }
 
 async function main() {

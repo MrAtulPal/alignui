@@ -47,7 +47,7 @@ test("runScan returns Fail when token is missing", async () => {
   const configPath = path.join(dir, "config.json");
   const tokensPath = path.join(dir, "tokens.json");
   const snapsPath = path.join(dir, "snapshots.json");
-  const outPath = path.join(dir, "report.json");
+  const outPath = path.join(dir, "out.json");
 
   await writeJson(configPath, {
     url: "https://x.test",
@@ -68,4 +68,41 @@ test("runScan returns Fail when token is missing", async () => {
 
   const code = await runScan({ configPath, tokensPath, snapshotsPath: snapsPath, out: outPath });
   expect(code).toBe(ExitCode.Fail);
+});
+
+test("runScan defaults to report/ folder when no out/reportDir are provided", async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), "alignui-scan-"));
+  const configPath = path.join(dir, "config.json");
+  const tokensPath = path.join(dir, "tokens.json");
+  const snapsPath = path.join(dir, "snapshots.json");
+
+  await writeJson(configPath, {
+    url: "https://x.test",
+    rules: [
+      {
+        id: "btn",
+        selector: ".btn",
+        properties: { backgroundColor: { token: "color.primary", tolerance: { kind: "rgba", value: 0 } } }
+      }
+    ]
+  });
+  await writeJson(tokensPath, {
+    "color.primary": { kind: "color", rgba: { r: 0, g: 0, b: 0, a: 1 } }
+  });
+  await writeJson(snapsPath, [
+    { selector: ".btn", url: "https://x.test", computed: { backgroundColor: "rgb(0, 0, 0)" } }
+  ]);
+
+  const cwd = process.cwd();
+  try {
+    process.chdir(dir);
+    const code = await runScan({ configPath, tokensPath, snapshotsPath: snapsPath });
+    expect(code).toBe(ExitCode.Ok);
+    const json = await readFile(path.join(dir, "report", "report.json"), "utf8");
+    const html = await readFile(path.join(dir, "report", "index.html"), "utf8");
+    expect(json).toMatch(/\"score\"/);
+    expect(html).toMatch(/AlignUI Report/);
+  } finally {
+    process.chdir(cwd);
+  }
 });
