@@ -74,7 +74,10 @@ async function writeHtmlReport(reportDir: string, report: ScanReport, ev: Return
   await writeFile(jsonPath, JSON.stringify(report, null, 2), "utf8");
   const fontWoff2Base64 = await readBundledFontWoff2Base64();
   if (!fontWoff2Base64) {
-    console.warn("Warning: Nunito Sans font not found; HTML report will render with fallback system fonts.");
+    const inJest = typeof process.env.JEST_WORKER_ID === "string";
+    if (!inJest) {
+      console.warn("Warning: Nunito Sans font not found; HTML report will render with fallback system fonts.");
+    }
   }
   const html = renderHtmlReport(report, ev, { fontWoff2Base64 });
   await writeFile(htmlPath, html, "utf8");
