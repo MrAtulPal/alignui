@@ -9,11 +9,16 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
-export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): string {
+export function renderHtmlReport(
+  report: ScanReport,
+  evaluation: Evaluation,
+  opts?: { fontFaceCss?: string }
+): string {
   const data = { report, evaluation };
   const json = JSON.stringify(data).replace(/</g, "\\u003c");
+  const fontFaceCss = opts?.fontFaceCss ? String(opts.fontFaceCss) : "";
 
-  // Report is one HTML file plus ./assets/nunito-sans.woff2.
+  // Report is one HTML file plus local font files under ./assets/.
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -21,13 +26,7 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AlignUI - Compliance Report</title>
     <style>
-      @font-face {
-        font-family: "Nunito Sans";
-        font-style: normal;
-        font-weight: 200 1000;
-        font-display: swap;
-        src: url("./assets/nunito-sans.woff2") format("woff2");
-      }
+      ${fontFaceCss}
 
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -58,18 +57,28 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
         --err-text: #f472b6;
         --err-dot: #e0366a;
 
-        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        --mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       }
 
       body {
-        font-family: "Nunito Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         font-size: 12px; /* UX rule: keep text >= 12px */
         background: var(--bg);
         color: var(--ink);
         min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
 
-      /* Header */
+      .brand-avatar,
+      .brand-name,
+      .stat-value,
+      .verdict-text,
+      .score-num {
+        font-family: "Syne", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+      }
+
+      /* Header (match alignui-compliance.html) */
       header {
         background: #0a0b0d;
         color: #fff;
@@ -88,9 +97,10 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
         right: -20px;
         top: 50%;
         transform: translateY(-50%);
-        font-weight: 900;
-        font-size: 72px;
-        color: rgba(255,255,255,0.03);
+        font-family: "Syne", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+        font-size: 80px;
+        font-weight: 800;
+        color: rgba(255,255,255,0.025);
         letter-spacing: 8px;
         pointer-events: none;
         user-select: none;
@@ -116,20 +126,27 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 900;
-        font-size: 14px;
+        font-family: "Syne", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+        font-weight: 800;
+        font-size: 16px;
         color: #fff;
         flex-shrink: 0;
       }
 
-      .brand-text { display: flex; flex-direction: column; gap: 2px; }
-      .brand-name { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
+      .brand-text { display: flex; flex-direction: column; gap: 1px; }
+      .brand-name {
+        font-family: "Syne", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+        font-size: 17px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -0.3px;
+      }
       .brand-sub {
-        font-size: 12px;
-        color: rgba(255,255,255,0.55);
-        letter-spacing: 0.6px;
+        font-size: 11px;
+        color: rgba(255,255,255,0.45);
+        letter-spacing: 0.5px;
         text-transform: uppercase;
-        font-weight: 600;
+        font-weight: 300;
       }
 
       .header-stats {
@@ -137,7 +154,6 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
         align-items: stretch;
         gap: 0;
         flex: 1;
-        min-width: 0;
       }
 
       .stat-block {
@@ -146,22 +162,23 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
         justify-content: center;
         padding: 18px 32px;
         border-right: 1px solid rgba(255,255,255,0.08);
-        min-width: 110px;
-        transition: background 0.18s;
+        min-width: 100px;
+        transition: background 0.2s;
         cursor: default;
       }
       .stat-block:hover { background: rgba(255,255,255,0.04); }
       .stat-label {
-        font-size: 12px;
+        font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 1px;
-        color: rgba(255,255,255,0.5);
-        font-weight: 700;
+        color: rgba(255,255,255,0.4);
+        font-weight: 500;
         margin-bottom: 4px;
       }
       .stat-value {
+        font-family: "Syne", "DM Sans", ui-sans-serif, system-ui, sans-serif;
         font-size: 28px;
-        font-weight: 900;
+        font-weight: 800;
         color: #fff;
         line-height: 1;
       }
@@ -174,50 +191,53 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
         padding: 18px 32px;
         margin-left: auto;
         gap: 12px;
-        flex-shrink: 0;
       }
 
       .verdict-badge {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        gap: 10px;
-        border-radius: 999px;
-        padding: 8px 18px 8px 12px;
-        border: 1px solid transparent;
+        gap: 8px;
+        border-radius: 100px;
+        padding: 6px 16px 6px 10px;
+        background: rgba(74,222,128,0.12);
+        border: 1px solid rgba(74,222,128,0.3);
       }
 
       .verdict-dot {
         width: 8px;
         height: 8px;
+        background: #4ade80;
         border-radius: 50%;
+        animation: pulse-green 2s ease-in-out infinite;
       }
 
-      @keyframes pulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.25); }
-        50% { box-shadow: 0 0 0 5px rgba(255,255,255,0); }
+      @keyframes pulse-green {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+        50% { box-shadow: 0 0 0 4px rgba(74,222,128,0); }
       }
 
-      .verdict-text { font-size: 14px; font-weight: 900; }
+      @keyframes pulse-red {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.4); }
+        50% { box-shadow: 0 0 0 4px rgba(248,113,113,0); }
+      }
 
-      .verdict-pass {
-        background: var(--pass-bg);
-        border-color: rgba(74,222,128,0.28);
+      .verdict-text {
+        font-family: "Syne", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: #4ade80;
       }
-      .verdict-pass .verdict-dot {
-        background: var(--pass-text);
-        animation: pulse 2.1s ease-in-out infinite;
-      }
-      .verdict-pass .verdict-text { color: var(--pass-text); }
 
-      .verdict-fail {
-        background: var(--fail-bg);
-        border-color: rgba(248,113,113,0.28);
+      /* Toggle to fail visuals when evaluation fails */
+      .verdict-badge.verdict-fail {
+        background: rgba(248,113,113,0.12);
+        border-color: rgba(248,113,113,0.3);
       }
-      .verdict-fail .verdict-dot {
-        background: var(--fail-text);
-        animation: pulse 2.1s ease-in-out infinite;
+      .verdict-badge.verdict-fail .verdict-dot {
+        background: #f87171;
+        animation: pulse-red 2s ease-in-out infinite;
       }
-      .verdict-fail .verdict-text { color: var(--fail-text); }
+      .verdict-badge.verdict-fail .verdict-text { color: #f87171; }
 
       /* Meta bar */
       .meta-bar {
@@ -246,6 +266,7 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
         text-transform: uppercase;
         letter-spacing: 0.8px;
         color: var(--ink-3);
+        font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         font-weight: 800;
         flex-shrink: 0;
       }
@@ -275,7 +296,7 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
       }
 
       /* Main */
-      main { padding: 32px 48px; }
+      main { padding: 32px 48px; flex: 1 0 auto; }
 
       /* Toolbar */
       .toolbar {
@@ -509,15 +530,29 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
       }
 
       dialog {
-        border: 1px solid var(--border);
-        background: rgba(22,23,25,0.98);
+        border: 1px solid rgba(255,255,255,0.14);
+        background: rgba(22,23,25,0.55);
         color: var(--ink);
         border-radius: 12px;
         padding: 0;
         width: min(820px, calc(100vw - 32px));
+        max-height: calc(100vh - 64px);
         box-shadow: 0 18px 80px rgba(0,0,0,0.45);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        margin: auto;
       }
-      dialog::backdrop { background: rgba(0,0,0,0.55); }
+      dialog::backdrop {
+        background: rgba(10,11,13,0.62);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+      }
+
+      @keyframes modal-in {
+        from { opacity: 0; transform: translateY(8px) scale(0.985); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      dialog[open] { animation: modal-in 160ms ease-out both; }
 
       .dlg-head {
         display: flex;
@@ -540,7 +575,7 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
         cursor: pointer;
       }
       .dlg-close:hover { background: var(--surface-alt); color: var(--ink); }
-      .dlg-body { padding: 14px 16px; }
+      .dlg-body { padding: 14px 16px; overflow: auto; }
       .dlg-pre {
         font-family: var(--mono);
         font-size: 12px;
@@ -556,6 +591,7 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
         align-items: center;
         justify-content: space-between;
         gap: 14px;
+        margin-top: auto;
       }
 
       .footer-note {
@@ -620,11 +656,11 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
       <div class="header-stats">
         <div class="stat-block">
           <div class="stat-label">Score</div>
-          <div class="stat-value" id="kpiScore">-</div>
+          <div class="stat-value pass" id="kpiScore">-</div>
         </div>
         <div class="stat-block">
           <div class="stat-label">Failed</div>
-          <div class="stat-value" id="kpiFailed">-</div>
+          <div class="stat-value fail" id="kpiFailed">-</div>
         </div>
         <div class="stat-block">
           <div class="stat-label">Passed</div>
@@ -736,7 +772,6 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
       const pass = !!evaluation.pass;
       const verdictBadge = el("verdictBadge");
       const verdictText = el("verdictText");
-      verdictBadge.classList.toggle("verdict-pass", pass);
       verdictBadge.classList.toggle("verdict-fail", !pass);
       verdictText.textContent = pass ? "All Passed" : "Needs Review";
 
@@ -878,4 +913,3 @@ export function renderHtmlReport(report: ScanReport, evaluation: Evaluation): st
   </body>
 </html>`;
 }
-

@@ -12,12 +12,14 @@ import {
   type StyleSnapshot,
   type TokenMap
 } from "@alignui/core";
-import { writeFile, mkdir, copyFile } from "node:fs/promises";
+import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { readJsonFile } from "../lib/json.js";
 import { parseSnapshots } from "../lib/snapshots.js";
 import { ExitCode } from "../lib/exit-codes.js";
 import { renderHtmlReport } from "../lib/html-report.js";
+import { buildInlinedFontFaceCss } from "../lib/font-assets.js";
+import { minifyHtmlLite } from "../lib/html-minify.js";
 
 type ScanOpts = {
   configPath?: string;
@@ -39,46 +41,17 @@ function printTopFailures(report: ScanReport, max = 10) {
   }
 }
 
-async function copyBundledFontIntoReport(reportDir: string) {
-  const inJest = typeof process.env.JEST_WORKER_ID === "string";
-
-  const assetsDir = path.join(reportDir, "assets");
-  const outPath = path.join(assetsDir, "nunito-sans.woff2");
-  await mkdir(assetsDir, { recursive: true });
-
-  const argv1 = process.argv[1] ? path.resolve(process.argv[1]) : undefined;
-  const fromArgv = argv1 ? path.resolve(path.dirname(argv1), "..", "assets", "fonts", "nunito-sans.woff2") : undefined;
-
-  const candidates = [
-    fromArgv,
-    path.resolve("packages/cli/assets/fonts/nunito-sans.woff2"),
-    path.resolve("assets/fonts/nunito-sans.woff2")
-  ].filter(Boolean) as string[];
-
-  for (const src of candidates) {
-    try {
-      await copyFile(src, outPath);
-      return;
-    } catch {
-      // keep trying
-    }
-  }
-
-  if (!inJest) {
-    console.warn(`Warning: Nunito Sans font not found; report will use fallback fonts. Tried: ${candidates.join(", ")}`);
-  }
-}
-
 async function writeHtmlReport(reportDir: string, report: ScanReport, ev: ReturnType<typeof evaluate>) {
   const jsonPath = path.join(reportDir, "report.json");
   const htmlPath = path.join(reportDir, "index.html");
 
   await mkdir(reportDir, { recursive: true });
-  await copyBundledFontIntoReport(reportDir);
+  const fontFaceCss = await buildInlinedFontFaceCss();
 
   await writeFile(jsonPath, JSON.stringify(report, null, 2), "utf8");
-  const html = renderHtmlReport(report, ev);
-  await writeFile(htmlPath, html, "utf8");
+  const html = renderHtmlReport(report, ev, { fontFaceCss });
+  const minified = minifyHtmlLite(html);
+  await writeFile(htmlPath, minified, "utf8");
   console.log(`Wrote ${jsonPath}`);
   console.log(`Wrote ${htmlPath}`);
 }
