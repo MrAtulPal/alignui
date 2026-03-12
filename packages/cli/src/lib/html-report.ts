@@ -191,6 +191,7 @@ export function renderHtmlReport(
         padding: 18px 32px;
         margin-left: auto;
         gap: 12px;
+        padding-right:0;
       }
 
       .verdict-badge {
@@ -267,7 +268,7 @@ export function renderHtmlReport(
         letter-spacing: 0.8px;
         color: var(--ink-3);
         font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        font-weight: 800;
+        font-weight: 500;
         flex-shrink: 0;
       }
 
@@ -350,7 +351,7 @@ export function renderHtmlReport(
         border: 1.5px solid var(--border);
         background: var(--surface);
         font-size: 12px;
-        font-weight: 800;
+        font-weight: 500;
         cursor: pointer;
         transition: all 0.15s;
         display: inline-flex;
@@ -376,7 +377,7 @@ export function renderHtmlReport(
         font-size: 12px;
         color: var(--ink-3);
         font-family: var(--mono);
-        font-weight: 600;
+        font-weight: 500;
         padding: 6px 12px;
         background: var(--surface-alt);
         border-radius: 8px;
@@ -406,7 +407,7 @@ export function renderHtmlReport(
         padding: 12px 16px;
         text-align: left;
         font-size: 12px;
-        font-weight: 900;
+        font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.8px;
         color: var(--ink-3);
@@ -439,7 +440,7 @@ export function renderHtmlReport(
         gap: 7px;
         font-family: var(--mono);
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 400;
         padding: 6px 10px;
         border-radius: 8px;
         text-transform: uppercase;
@@ -460,7 +461,7 @@ export function renderHtmlReport(
         display: inline-flex;
         align-items: center;
         font-size: 12px;
-        font-weight: 800;
+        font-weight: 400;
         padding: 6px 10px;
         border-radius: 8px;
         text-transform: capitalize;
@@ -479,7 +480,7 @@ export function renderHtmlReport(
         border-radius: 6px;
       }
 
-      .prop-cell { font-family: var(--mono); font-size: 12px; color: var(--ink); font-weight: 600; }
+      .prop-cell { font-family: var(--mono); font-size: 12px; color: var(--ink); font-weight: 400; }
 
       .token-cell .token-badge {
         font-family: var(--mono);
@@ -505,7 +506,7 @@ export function renderHtmlReport(
         font-family: var(--mono);
         font-size: 12px;
         color: var(--ink-2);
-        font-weight: 700;
+        font-weight: 400;
       }
 
       .details-btn {
@@ -517,7 +518,7 @@ export function renderHtmlReport(
         border-radius: 8px;
         background: transparent;
         font-size: 12px;
-        font-weight: 800;
+        font-weight: 400;
         color: var(--ink-3);
         cursor: pointer;
         transition: all 0.15s;
@@ -606,7 +607,7 @@ export function renderHtmlReport(
         gap: 12px;
       }
 
-      .score-label { font-size: 12px; color: var(--ink-3); font-weight: 800; }
+      .score-label { font-size: 12px; color: var(--ink-3); font-weight: 500; }
 
       .score-track {
         width: 140px;
