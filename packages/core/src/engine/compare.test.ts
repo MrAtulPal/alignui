@@ -44,6 +44,45 @@ test("fails color compare when beyond rgba tolerance", () => {
   expect(report.results[0]!.details).toMatch(/delta/i);
 });
 
+test("uses config defaults tolerance when property tolerance is omitted", () => {
+  const tokens: TokenMap = {
+    "color.primary": { kind: "color", rgba: { r: 0, g: 0, b: 0, a: 1 } }
+  };
+  const rules: Rule[] = [
+    {
+      id: "btn",
+      selector: ".btn",
+      properties: {
+        backgroundColor: { token: "color.primary" }
+      }
+    }
+  ];
+  const snaps = [mkSnap(".btn", "https://x.test", { backgroundColor: "rgb(0, 0, 1)" })];
+
+  // delta=1 should pass with default rgba tolerance 2
+  const report = compare(tokens, snaps, rules, { tolerance: { rgba: 2 } });
+  expect(report.summary.failed).toBe(0);
+});
+
+test("uses rule defaults severity when property severity is omitted", () => {
+  const tokens: TokenMap = {
+    "color.primary": { kind: "color", rgba: { r: 0, g: 0, b: 0, a: 1 } }
+  };
+  const rules: Rule[] = [
+    {
+      id: "btn",
+      selector: ".btn",
+      defaults: { severity: "warn" },
+      properties: {
+        backgroundColor: { token: "color.primary", tolerance: { kind: "rgba", value: 0 } }
+      }
+    }
+  ];
+  const snaps = [mkSnap(".btn", "https://x.test", { backgroundColor: "rgb(1, 0, 0)" })];
+  const report = compare(tokens, snaps, rules);
+  expect(report.results[0]!.severity).toBe("warn");
+});
+
 test("compares px number tokens with px tolerance", () => {
   const tokens: TokenMap = {
     "font.button.size": { kind: "number", value: 16, unit: "px" }

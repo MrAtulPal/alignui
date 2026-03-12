@@ -76,7 +76,7 @@ export async function runScan(opts: ScanOpts): Promise<number> {
   const snapsRaw = await readJsonFile(opts.snapshotsPath);
   const snapshots: StyleSnapshot[] = parseSnapshots(snapsRaw).map((s) => ({ ...s, url }));
 
-  const report = compare(tokens, snapshots, config.rules);
+  const report = compare(tokens, snapshots, config.rules, config.defaults);
   const outPath = opts.out ?? "report.json";
   await writeFile(outPath, JSON.stringify(report, null, 2), "utf8");
 

@@ -1,4 +1,4 @@
-import type { Rule, RuleResult, ScanReport, StyleSnapshot, TokenMap, TokenValue } from "../domain/types.js";
+import type { ConfigDefaults, Rule, RuleResult, ScanReport, StyleSnapshot, TokenMap, TokenValue } from "../domain/types.js";
 import {
   normalizeFontFamilyList,
   normalizeRgbaToBytes,
@@ -95,7 +95,22 @@ function getSeverity(rule: Rule, property: string): "error" | "warn" {
   return rule.properties[property]?.severity ?? "error";
 }
 
-export function compare(tokens: TokenMap, snapshots: StyleSnapshot[], rules: Rule[]): ScanReport {
+function defaultToleranceFor(expected: TokenValue, defaults?: ConfigDefaults): { kind: "px"; value: number } | { kind: "rgba"; value: number } | { kind: "ratio"; value: number } | undefined {
+  const t = defaults?.tolerance;
+  if (!t) return undefined;
+  if (expected.kind === "color" && typeof t.rgba === "number") return { kind: "rgba", value: t.rgba };
+  if (expected.kind === "box" && typeof t.px === "number") return { kind: "px", value: t.px };
+  if (expected.kind === "number" && expected.unit === "px" && typeof t.px === "number") return { kind: "px", value: t.px };
+  if (expected.kind === "number" && expected.unit === "ratio" && typeof t.ratio === "number") return { kind: "ratio", value: t.ratio };
+  return undefined;
+}
+
+function effectiveSeverity(rule: Rule, property: string, configDefaults?: ConfigDefaults): "error" | "warn" {
+  const s = rule.properties[property]?.severity ?? rule.defaults?.severity ?? configDefaults?.severity ?? "error";
+  return s === "warn" ? "warn" : "error";
+}
+
+export function compare(tokens: TokenMap, snapshots: StyleSnapshot[], rules: Rule[], defaults?: ConfigDefaults): ScanReport {
   const startedAt = new Date().toISOString();
   const results: RuleResult[] = [];
 
@@ -121,7 +136,8 @@ export function compare(tokens: TokenMap, snapshots: StyleSnapshot[], rules: Rul
         missingComputed++;
         details = `Missing computed style: ${property}`;
       } else {
-        const r = compareTokenToActual(expected, actual, spec.tolerance);
+        const tol = spec.tolerance ?? defaultToleranceFor(expected, rule.defaults ?? defaults);
+        const r = compareTokenToActual(expected, actual, tol);
         pass = r.pass;
         details = r.details;
       }
@@ -134,7 +150,7 @@ export function compare(tokens: TokenMap, snapshots: StyleSnapshot[], rules: Rul
         expected,
         actual,
         pass,
-        severity: getSeverity(rule, property),
+        severity: effectiveSeverity(rule, property, defaults),
         details: pass ? undefined : details
       });
     }

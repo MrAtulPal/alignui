@@ -16,9 +16,21 @@ export type StyleSnapshot = {
   computed: Record<string, string>;
 };
 
+export type ToleranceKind = "px" | "rgba" | "ratio";
+
+export type DefaultTolerance = Partial<Record<ToleranceKind, number>>;
+
+export type ConfigDefaults = {
+  severity?: "error" | "warn";
+  tolerance?: DefaultTolerance;
+};
+
+export type RuleDefaults = ConfigDefaults;
+
 export type Rule = {
   id: string;
   selector: string;
+  defaults?: RuleDefaults;
   properties: Record<
     string,
     {
@@ -32,6 +44,7 @@ export type Rule = {
 export type ScanConfig = {
   url: string;
   rules: Rule[];
+  defaults?: ConfigDefaults;
   thresholds?: Thresholds;
 };
 

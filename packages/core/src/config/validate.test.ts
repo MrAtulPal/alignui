@@ -3,6 +3,7 @@ import { validateScanConfig } from "../index.js";
 test("validateScanConfig accepts a minimal valid config", () => {
   const r = validateScanConfig({
     url: "https://x.test",
+    defaults: { severity: "warn", tolerance: { px: 1, rgba: 2 } },
     rules: [
       {
         id: "btn",
@@ -42,4 +43,3 @@ test("validateScanConfig reports useful paths for invalid config", () => {
     expect(joined).toMatch(/\$\.thresholds\.failOnSeverity/);
   }
 });
-
