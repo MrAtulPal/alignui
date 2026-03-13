@@ -1,11 +1,6 @@
 #!/usr/bin/env node
 import { ExitCode } from "./lib/exit-codes.js";
 import { parseArgs, type ParsedArgs } from "./lib/args.js";
-import { runScan } from "./commands/scan.js";
-import { runValidate } from "./commands/validate.js";
-import { runInit } from "./commands/init.js";
-import { runCollect } from "./commands/collect.js";
-import { runServe } from "./commands/serve.js";
 
 function printHelp() {
   console.log(`
@@ -63,8 +58,10 @@ async function handleHelp(): Promise<number> {
 }
 
 async function handleScan(args: Extract<ParsedArgs, { cmd: "scan" }>): Promise<number> {
+  const { runScan } = await import("./commands/scan.js");
   const code = await runScan(args);
   if (args.serveReport && scanWillWriteHtml(args)) {
+    const { runServe } = await import("./commands/serve.js");
     await runServe({ reportDir: scanReportDir(args), host: args.host, port: args.port, noOpen: args.noOpen });
   } else if (args.serveReport && !scanWillWriteHtml(args)) {
     console.log("Skipping report server: HTML report is not generated when using --out without --report-dir.");
@@ -78,11 +75,23 @@ type HandlerMap = {
 
 const handlers: HandlerMap = {
   help: async () => await handleHelp(),
-  init: async (args) => await runInit(args),
-  validate: async (args) => await runValidate(args),
-  collect: async (args) => await runCollect(args),
+  init: async (args) => {
+    const { runInit } = await import("./commands/init.js");
+    return await runInit(args);
+  },
+  validate: async (args) => {
+    const { runValidate } = await import("./commands/validate.js");
+    return await runValidate(args);
+  },
+  collect: async (args) => {
+    const { runCollect } = await import("./commands/collect.js");
+    return await runCollect(args);
+  },
   scan: async (args) => await handleScan(args),
-  serve: async (args) => await runServe(args)
+  serve: async (args) => {
+    const { runServe } = await import("./commands/serve.js");
+    return await runServe(args);
+  }
 };
 
 async function main() {
