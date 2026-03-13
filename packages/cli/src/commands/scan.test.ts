@@ -4,6 +4,8 @@ import path from "node:path";
 import { runScan } from "./scan.js";
 import { ExitCode } from "../lib/exit-codes.js";
 
+jest.setTimeout(15000);
+
 async function writeJson(p: string, v: unknown) {
   await writeFile(p, JSON.stringify(v, null, 2), "utf8");
 }

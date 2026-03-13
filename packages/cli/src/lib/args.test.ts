@@ -27,6 +27,29 @@ test("parseArgs parses scan flags", () => {
     expect(a.reportDir).toBe("report");
     expect(a.baselinePath).toBe("b.json");
     expect(a.diffOut).toBe("d.json");
+    expect(a.serveReport).toBe(true);
+  }
+});
+
+test("parseArgs parses scan serve flags", () => {
+  const a = parseArgs(["scan", "--tokens", "t.json", "--snapshots", "s.json", "--no-open", "--no-serve", "--host", "0.0.0.0", "--port", "9000"]);
+  expect(a.cmd).toBe("scan");
+  if (a.cmd === "scan") {
+    expect(a.serveReport).toBe(false);
+    expect(a.noOpen).toBe(true);
+    expect(a.host).toBe("0.0.0.0");
+    expect(a.port).toBe(9000);
+  }
+});
+
+test("parseArgs parses serve flags", () => {
+  const a = parseArgs(["serve", "--report-dir", "report", "--host", "127.0.0.1", "--port", "4173", "--no-open"]);
+  expect(a.cmd).toBe("serve");
+  if (a.cmd === "serve") {
+    expect(a.reportDir).toBe("report");
+    expect(a.host).toBe("127.0.0.1");
+    expect(a.port).toBe(4173);
+    expect(a.noOpen).toBe(true);
   }
 });
 

@@ -13,6 +13,18 @@ export type ParsedArgs =
       snapshotsPath?: string;
       baselinePath?: string;
       diffOut?: string;
+      serveReport: boolean;
+      noOpen?: boolean;
+      host?: string;
+      port?: number;
+    }
+  | {
+      cmd: "serve";
+      reportDir?: string;
+      file?: string;
+      noOpen?: boolean;
+      host?: string;
+      port?: number;
     };
 
 export function parseArgs(argv: string[]): ParsedArgs {
@@ -21,7 +33,6 @@ export function parseArgs(argv: string[]): ParsedArgs {
 
   if (rest.includes("--help") || rest.includes("-h")) return { cmd: "help" };
 
-  // Minimal parser (no deps). We'll replace with a proper parser later if needed.
   const flags = new Map<string, string | true>();
   for (let i = 0; i < rest.length; i++) {
     const tok = rest[i]!;
@@ -40,6 +51,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
   const url = typeof flags.get("url") === "string" ? (flags.get("url") as string) : undefined;
   const out = typeof flags.get("out") === "string" ? (flags.get("out") as string) : undefined;
   const reportDir = typeof flags.get("report-dir") === "string" ? (flags.get("report-dir") as string) : undefined;
+  const file = typeof flags.get("file") === "string" ? (flags.get("file") as string) : undefined;
   const tokensPath = typeof flags.get("tokens") === "string" ? (flags.get("tokens") as string) : undefined;
   const snapshotsPath = typeof flags.get("snapshots") === "string" ? (flags.get("snapshots") as string) : undefined;
   const baselinePath = typeof flags.get("baseline") === "string" ? (flags.get("baseline") as string) : undefined;
@@ -47,12 +59,33 @@ export function parseArgs(argv: string[]): ParsedArgs {
   const waitFor = typeof flags.get("wait-for") === "string" ? (flags.get("wait-for") as string) : undefined;
   const timeoutMsRaw = typeof flags.get("timeout-ms") === "string" ? (flags.get("timeout-ms") as string) : undefined;
   const timeoutMs = timeoutMsRaw ? Number(timeoutMsRaw) : undefined;
+  const portRaw = typeof flags.get("port") === "string" ? (flags.get("port") as string) : undefined;
+  const port = portRaw ? Number(portRaw) : undefined;
+  const host = typeof flags.get("host") === "string" ? (flags.get("host") as string) : undefined;
   const headed = flags.get("headed") === true;
-  const prefixCollection = flags.get("prefix-collection") === true;
+  const noOpen = flags.get("no-open") === true;
+  const noServe = flags.get("no-serve") === true;
 
-  if (cmd === "scan") return { cmd: "scan", configPath, url, out, reportDir, tokensPath, snapshotsPath, baselinePath, diffOut };
+  if (cmd === "scan") {
+    return {
+      cmd: "scan",
+      configPath,
+      url,
+      out,
+      reportDir,
+      tokensPath,
+      snapshotsPath,
+      baselinePath,
+      diffOut,
+      serveReport: !noServe,
+      noOpen,
+      host,
+      port
+    };
+  }
   if (cmd === "validate") return { cmd: "validate", configPath, url, tokensPath, snapshotsPath };
   if (cmd === "collect") return { cmd: "collect", configPath, url, out, waitFor, timeoutMs, headed };
+  if (cmd === "serve") return { cmd: "serve", reportDir, file, noOpen, host, port };
   if (cmd === "init") {
     const force = flags.get("force") === true;
     return { cmd: "init", configPath, force };
