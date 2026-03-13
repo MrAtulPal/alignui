@@ -46,12 +46,15 @@ async function resolveFontsAddressPath(): Promise<string> {
     if (p) return p;
     const p2 = await findUp(start, path.join("assets", "fonts-address.txt"));
     if (p2) return p2;
+    const p3 = await findUp(start, path.join("public", "assets", "fonts-address.txt"));
+    if (p3) return p3;
   }
 
   // As a last resort, try CWD-relative paths.
   const direct = [
     path.resolve("packages/cli/assets/fonts-address.txt"),
-    path.resolve("assets/fonts-address.txt")
+    path.resolve("assets/fonts-address.txt"),
+    path.resolve("public/assets/fonts-address.txt")
   ];
   for (const p of direct) if (await exists(p)) return p;
 

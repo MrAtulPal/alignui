@@ -1,210 +1,170 @@
 # AlignUI
 
-## (Figma-to-UI Automated Testing & Compliance Engine)
+AlignUI is a CLI-first design compliance tool for comparing expected design token values with computed styles from a live site.
 
-**Version:** 1.0\
-**Prepared On:** 2026-02-26\
-**Author:** Atul Pal
+Public docs: https://mratulpal.github.io/alignui/
+Repository: https://github.com/MrAtulPal/alignui
+Package: `@alignui/cli`
 
-------------------------------------------------------------------------
+## What v1 does
 
-# 1. Executive Summary
+- validates `.alignui.json`, `tokens.json`, and `snapshots.json`
+- collects live computed styles with Playwright
+- compares live styles against expected token values
+- writes `report/report.json`
+- writes a minified HTML compliance report at `report/index.html`
+- serves the report locally with `alignui serve`
 
-The AlignUI is an enterprise-grade AI-powered
-solution that automatically validates developed UI implementations
-against Figma prototypes and design systems.
+## Quick Start
 
-This platform eliminates subjective visual QA processes and replaces
-them with measurable, traceable, and report-driven UI compliance
-validation.
+### 1. Install
 
-It is designed as:
+```bash
+npm install -D @alignui/cli
+npx alignui help
+```
 
--   SaaS Product (Cloud Dashboard)
--   Developer CLI Tool
--   CI/CD Integrated DevTool
--   Enterprise UX Audit Platform
+### 2. Initialize starter files
 
-------------------------------------------------------------------------
+```bash
+npx alignui init --force
+```
 
-# 2. Problem Statement
+Edit `.alignui.json` so it contains your real URL, selectors, and property rules.
 
-Modern product teams face the following challenges:
+### 3. Provide expected tokens
 
--   Manual UI verification against Figma designs
--   Inconsistent spacing, typography, and colors across components
--   No traceable compliance documentation for clients
--   High regression risk after releases
--   Lack of automated design-system enforcement
-
-Enterprise customers increasingly demand:
-
-"Provide results of UI testing with respect to the Figma prototype."
-
-This platform solves that need with measurable compliance reporting.
-
-------------------------------------------------------------------------
-
-# 3. Core Product Vision
-
-To become the industry-standard automation platform for
-design-to-development validation.
-
-Provide: - Pixel-level precision validation - Design token enforcement -
-Automated compliance reports - CI/CD integration - Enterprise-grade
-audit documentation
-
-------------------------------------------------------------------------
-
-# 4. Product Offerings
-
-## 4.1 SaaS Platform
-
--   Cloud dashboard
--   Project-level compliance tracking
--   Historical comparison reports
--   Role-based access
--   Enterprise reporting exports (PDF / HTML)
-
-## 4.2 Developer CLI Tool
-
-Command example:
-
-npx ui-compare --figma-file=FILE_ID --url=https://staging.app.com
---output=report.html
-
-Features: - Local execution - JSON output - HTML export - PDF export -
-CI compatible exit codes
-
-## 4.3 DevTool / CI Integration
-
--   GitHub Action support
--   GitLab CI support
--   Jenkins integration
--   Break build on design drift
--   Slack notifications
-
-------------------------------------------------------------------------
-
-# 5. Phase-wise Development Roadmap
-
-# Phase 1 -- MVP (3--6 Weeks)
-
-Core Features: - Figma API integration - Extract typography, spacing,
-color tokens - Playwright-based DOM extraction - getComputedStyle
-comparison - Tolerance threshold configuration - HTML compliance
-report - JSON export - CLI version
-
-Deliverable: - Functional CLI tool - Basic SaaS dashboard (optional)
-
-------------------------------------------------------------------------
-
-# Phase 2 -- Enhanced Visual Validation
-
-Advanced Features: - Screenshot pixel diff engine - Responsive
-breakpoint testing - Mobile viewport simulation - Component-level
-compliance score - Multi-page validation automation - Version comparison
-(Design v1 vs v2)
-
-Deliverable: - Automated visual regression system - Design drift
-analytics
-
-------------------------------------------------------------------------
-
-# Phase 3 -- Enterprise Design Governance
-
-Advanced Enterprise Features: - Design system drift detection -
-Component usage enforcement - Centralized token registry - Audit logs &
-compliance history - Access control & team roles - API for enterprise
-integration
-
-Target Customers: - Fintech - Enterprise SaaS - UX-heavy product
-companies
-
-------------------------------------------------------------------------
-
-# Phase 4 -- AI-Powered Design Intelligence
-
-Future Advanced Capabilities: - AI-based layout similarity detection -
-Auto-suggest CSS fixes - Design inconsistency clustering - Figma plugin
-integration - Predictive UI regression risk scoring - AI-based component
-mapping
-
-Optional Future: - Figma to production-ready component generation -
-Design system health score - White-label enterprise solution
-
-------------------------------------------------------------------------
-
-# 6. Technical Architecture Overview
-
-Frontend: - React / Vue dashboard
-
-Backend: - Node.js service - Figma REST API integration - Design token
-parser
-
-Automation Engine: - Playwright for DOM & rendering - Pixel diff
-comparison layer - Tolerance engine
-
-Reporting: - HTML renderer - PDF export service - JSON API output
-
-------------------------------------------------------------------------
-
-# 7. Target Market
-
-Primary: - Enterprise Product Teams - Fintech Platforms - UX-heavy
-startups - Design-led organizations
-
-Secondary: - QA Automation Teams - DevOps teams - Design System teams
-
-------------------------------------------------------------------------
-
-# 8. Monetization Strategy
-
-Freemium: - Limited scans/month
-
-Pro: - CI Integration - Export reports - Multi-project dashboard
-
-Enterprise: - SSO - Audit history - SLA - Custom integrations
-
-------------------------------------------------------------------------
-
-# 9. Competitive Advantage
-
--   Focus on measurable compliance (not just screenshot diff)
--   Design-system-aware validation
--   CLI + SaaS hybrid model
--   Enterprise reporting focus
--   AI-powered drift detection roadmap
-
-------------------------------------------------------------------------
-
-# 10. Long-Term Vision
-
-To become the global standard for automated UI compliance validation.
-
-From: Manual visual QA
-
-To: Design-to-Code measurable compliance percentage
+Create `alignui/tokens.json` manually.
 
 Example:
 
-Compliance Score: 97.4% Typography: 100% Spacing: 94% Colors: 100%
-Layout: 95%
+```json
+{
+  "color.primary": { "kind": "color", "rgba": { "r": 17, "g": 17, "b": 17, "a": 1 } },
+  "space.md": { "kind": "dimension", "value": 16, "unit": "px" }
+}
+```
 
-------------------------------------------------------------------------
+### 4. Collect live snapshots
 
-# 11. Conclusion
+```bash
+npx alignui collect --config .alignui.json --url https://app.example.com --out alignui/snapshots.json --wait-for "body"
+```
 
-The UI Design Compliance SaaS Platform positions itself as:
+If Chromium is missing:
 
--   A developer productivity tool
--   A CI automation system
--   A client-facing audit solution
--   A design governance engine
+```bash
+npx playwright install chromium
+```
 
-It bridges the gap between Design and Engineering with measurable
-accuracy and automation.
+### 5. Run the scan
 
-------------------------------------------------------------------------
+```bash
+npx alignui scan --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json --report-dir report
+```
 
-End of Document
+This writes:
+
+- `report/report.json`
+- `report/index.html`
+
+### 6. Serve the HTML report
+
+```bash
+npx alignui serve --report-dir report
+```
+
+## Commands
+
+### `init`
+
+Create starter config and template files.
+
+```bash
+npx alignui init --force
+```
+
+### `collect`
+
+Capture computed styles from the live site.
+
+```bash
+npx alignui collect --config .alignui.json --url https://app.example.com --out alignui/snapshots.json --wait-for "body"
+```
+
+Useful flags:
+
+- `--timeout-ms <ms>`
+- `--headed`
+
+### `validate`
+
+Validate config, tokens, and snapshots without running the compare engine.
+
+```bash
+npx alignui validate --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json
+```
+
+### `scan`
+
+Run the compliance engine and generate reports.
+
+```bash
+npx alignui scan --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json --report-dir report
+```
+
+Optional diff flow:
+
+```bash
+npx alignui scan --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json --baseline report/report.json --diff-out diff.json
+```
+
+Useful flags:
+
+- `--no-serve`
+- `--no-open`
+- `--host <host>`
+- `--port <port>`
+
+### `serve`
+
+Serve a generated report directory or specific HTML file.
+
+```bash
+npx alignui serve --report-dir report
+npx alignui serve --file report/index.html --no-open
+```
+
+## Inputs
+
+### `.alignui.json`
+
+Maps selectors to token-backed expectations.
+
+```json
+{
+  "url": "https://app.example.com",
+  "rules": [
+    {
+      "id": "primary-button",
+      "selector": ".btn-primary",
+      "properties": {
+        "backgroundColor": { "token": "color.primary", "tolerance": { "kind": "rgba", "value": 0 } },
+        "padding": { "token": "space.md", "tolerance": { "kind": "px", "value": 1 } }
+      }
+    }
+  ]
+}
+```
+
+### `tokens.json`
+
+The expected design values for v1.
+
+### `snapshots.json`
+
+The actual computed styles collected from the live site.
+
+## Publishing docs
+
+GitHub Pages can publish from the repo `docs/` folder. The public entry page is `docs/index.html`.
