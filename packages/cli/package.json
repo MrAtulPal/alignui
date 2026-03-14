@@ -1,7 +1,7 @@
 {
   "name": "@alignui/cli",
   "version": "1.0.0-beta",
-  "private": true,
+  "private": false,
   "type": "module",
   "bin": {
     "alignui": "./dist/index.js"

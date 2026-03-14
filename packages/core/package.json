@@ -1,7 +1,7 @@
 {
   "name": "@alignui/core",
   "version": "1.0.0-beta",
-  "private": true,
+  "private": false,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
