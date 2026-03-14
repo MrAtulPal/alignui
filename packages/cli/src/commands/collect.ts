@@ -1,4 +1,4 @@
-import { validateScanConfig, type ScanConfig, type StyleSnapshot } from "@alignui/core";
+import { validateScanConfig, type ScanConfig, type StyleSnapshot } from "@designlatch/core";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
@@ -41,7 +41,7 @@ async function collectForSelector(
 }
 
 export async function runCollect(opts: CollectOpts): Promise<number> {
-  const configPath = opts.configPath ?? ".alignui.json";
+  const configPath = opts.configPath ?? ".designlatch.json";
   const configRaw = await readJsonFile(configPath);
   const validated = validateScanConfig(configRaw);
   if (!validated.ok) {
@@ -53,7 +53,7 @@ export async function runCollect(opts: CollectOpts): Promise<number> {
   const url = opts.url ?? config.url;
   if (!url) throw new Error("Missing url (provide --url or config.url).");
 
-  const outPath = opts.out ?? "alignui/snapshots.json";
+  const outPath = opts.out ?? "designlatch/snapshots.json";
   const timeoutMs = opts.timeoutMs ?? 30_000;
   const waitFor = opts.waitFor;
   const headed = opts.headed ?? false;

@@ -23,7 +23,7 @@ function printHelp() {
   console.log("  serve      Serve the generated HTML report locally");
   console.log("");
   console.log("Quick start:");
-  console.log("  alignui scan --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json --report-dir report");
+  console.log("  designlatch scan --config .designlatch.json --tokens designlatch/tokens.json --snapshots designlatch/snapshots.json --report-dir report");
   console.log("");
   console.log(`For more details refer : ${DOCS_URL}`);
 }

@@ -1,6 +1,6 @@
 {
-  "name": "@alignui/core",
-  "version": "1.0.0-beta",
+  "name": "@designlatch/core",
+  "version": "0.1.0",
   "private": false,
   "type": "module",
   "main": "./dist/index.js",
@@ -17,3 +17,4 @@
     "typecheck": "tsc -b --pretty false --noEmit"
   }
 }
+

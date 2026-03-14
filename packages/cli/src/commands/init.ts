@@ -14,7 +14,7 @@ async function exists(path: string): Promise<boolean> {
 }
 
 export async function runInit(opts: InitOpts): Promise<number> {
-  const configPath = opts.configPath ?? ".alignui.json";
+  const configPath = opts.configPath ?? ".designlatch.json";
   const force = opts.force ?? false;
 
   if (!force && (await exists(configPath))) {
@@ -37,10 +37,10 @@ export async function runInit(opts: InitOpts): Promise<number> {
   };
 
   await writeFile(configPath, JSON.stringify(config, null, 2), "utf8");
-  await mkdir("alignui", { recursive: true });
+  await mkdir("designlatch", { recursive: true });
 
-  const tokensPath = "alignui/tokens.json";
-  const snapsPath = "alignui/snapshots.json";
+  const tokensPath = "designlatch/tokens.json";
+  const snapsPath = "designlatch/snapshots.json";
 
   if (force || !(await exists(tokensPath))) {
     const tokens = {

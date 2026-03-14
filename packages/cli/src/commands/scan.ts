@@ -11,7 +11,7 @@ import {
   type ScanReport,
   type StyleSnapshot,
   type TokenMap
-} from "@alignui/core";
+} from "@designlatch/core";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { readJsonFile } from "../lib/json.js";
@@ -66,7 +66,7 @@ async function writeHtmlReport(reportDir: string, report: ScanReport, ev: Return
 }
 
 export async function runScan(opts: ScanOpts): Promise<number> {
-  const configPath = opts.configPath ?? ".alignui.json";
+  const configPath = opts.configPath ?? ".designlatch.json";
   const configRaw = await readJsonFile(configPath);
   const validated = validateScanConfig(configRaw);
   if (!validated.ok) {

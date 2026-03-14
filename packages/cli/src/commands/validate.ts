@@ -1,4 +1,4 @@
-import { lintRules, resolveTokenMap, validateScanConfig, validateTokenMap, type ScanConfig, type TokenMap } from "@alignui/core";
+import { lintRules, resolveTokenMap, validateScanConfig, validateTokenMap, type ScanConfig, type TokenMap } from "@designlatch/core";
 import { readJsonFile } from "../lib/json.js";
 import { parseSnapshots } from "../lib/snapshots.js";
 import { ExitCode } from "../lib/exit-codes.js";
@@ -11,7 +11,7 @@ type ValidateOpts = {
 };
 
 export async function runValidate(opts: ValidateOpts): Promise<number> {
-  const configPath = opts.configPath ?? ".alignui.json";
+  const configPath = opts.configPath ?? ".designlatch.json";
   const configRaw = await readJsonFile(configPath);
   const validated = validateScanConfig(configRaw);
   if (!validated.ok) {

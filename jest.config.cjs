@@ -36,7 +36,7 @@ module.exports = {
         ]
       },
       moduleNameMapper: {
-        "^@alignui/core$": "<rootDir>/packages/core/src/index.ts",
+        "^@designlatch/core$": "<rootDir>/packages/core/src/index.ts",
         "^playwright$": "<rootDir>/packages/cli/src/test/playwright-mock.ts",
         "^(\\.{1,2}/.*)\\.js$": "$1"
       }

@@ -1,11 +1,11 @@
-# AlignUI CLI (v1) - Step-by-Step
+# DesignLatch CLI (v1) - Step-by-Step
 
 This guide gets you from zero to a `report.json` in the fewest steps.
 
 ## 1) Build
 
 ```powershell
-cd D:\Study_Material_Learning\AlignUI
+cd D:\Study_Material_Learning\DesignLatch
 npm -ws run build
 ```
 
@@ -23,7 +23,7 @@ Create starter files:
 node packages/cli/dist/index.js init --force
 ```
 
-Edit `.alignui.json`:
+Edit `.DesignLatch.json`:
 - set `url`
 - add `rules[]` with `selector` + `properties`
 
@@ -31,7 +31,7 @@ Edit `.alignui.json`:
 
 Each property must reference a token key in `tokens.json`.
 
-In `.alignui.json`, use `{ "token": "..." }`:
+In `.DesignLatch.json`, use `{ "token": "..." }`:
 
 ```json
 {
@@ -49,14 +49,14 @@ In `.alignui.json`, use `{ "token": "..." }`:
 }
 ```
 
-You will pass `--tokens alignui/tokens.json` to `scan`.
+You will pass `--tokens DesignLatch/tokens.json` to `scan`.
 
 ## 4) Collect Live-Site Snapshots
 
 This opens your site in Playwright and captures computed styles for each rule selector.
 
 ```powershell
-node packages/cli/dist/index.js collect --config .alignui.json --url https://app.example.com --out alignui/snapshots.json --wait-for "body"
+node packages/cli/dist/index.js collect --config .DesignLatch.json --url https://app.example.com --out DesignLatch/snapshots.json --wait-for "body"
 ```
 
 Useful flags:
@@ -72,17 +72,17 @@ npx playwright install chromium
 ## 5) Scan (Generate `report.json`)
 
 ```powershell
-node packages/cli/dist/index.js scan --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json --out report.json
+node packages/cli/dist/index.js scan --config .DesignLatch.json --tokens DesignLatch/tokens.json --snapshots DesignLatch/snapshots.json --out report.json
 ```
 
 ### Optional: Baseline diff
 
 ```powershell
-node packages/cli/dist/index.js scan --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json --baseline report.json --diff-out diff.json
+node packages/cli/dist/index.js scan --config .DesignLatch.json --tokens DesignLatch/tokens.json --snapshots DesignLatch/snapshots.json --baseline report.json --diff-out diff.json
 ```
 
 ## 6) Validate Inputs (No Scan)
 
 ```powershell
-node packages/cli/dist/index.js validate --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json
+node packages/cli/dist/index.js validate --config .DesignLatch.json --tokens DesignLatch/tokens.json --snapshots DesignLatch/snapshots.json
 ```

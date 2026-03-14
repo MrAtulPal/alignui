@@ -1,4 +1,4 @@
-# @alignui/core Features (Status)
+# @designlatch/core Features (Status)
 
 This package is intentionally browser- and Figma-agnostic. It contains pure data models and comparison logic that can be reused by future adapters (CLI, GitHub Action, SaaS) without changes.
 
@@ -202,7 +202,7 @@ Reason: weighted scoring exists; this adds standardized scoring semantics withou
 
 ## Remaining (Adapters, Not Core)
 
-These are intentionally out of `@alignui/core` and belong in CLI/SaaS layers:
+These are intentionally out of `@designlatch/core` and belong in CLI/SaaS layers:
 
 - Figma API fetching + token extraction.
 - Browser automation + computed-style capture (Playwright).

@@ -28,7 +28,7 @@ test("runCollect writes snapshots for configured selectors (mocked playwright)",
 
   __setChromiumLaunch(async () => browser);
 
-  const dir = await mkdtemp(path.join(os.tmpdir(), "alignui-collect-"));
+  const dir = await mkdtemp(path.join(os.tmpdir(), "designlatch-collect-"));
   const configPath = path.join(dir, "config.json");
   const outPath = path.join(dir, "snapshots.json");
 

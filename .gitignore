@@ -3,9 +3,9 @@ dist
 *.tsbuildinfo
 report.json
 report/
-alignui/
-.alignui.json
-alignui-compliance.html
+designlatch/
+.designlatch.json
+designlatch-compliance.html
 .env
 .DS_Store
 npm-debug.log*

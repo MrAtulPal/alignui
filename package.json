@@ -1,5 +1,5 @@
 {
-  "name": "alignui",
+  "name": "designlatch",
   "private": true,
   "workspaces": [
     "packages/*"

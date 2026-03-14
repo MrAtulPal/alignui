@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AlignUI Docs</title>
-  <meta name="description" content="AlignUI CLI documentation with quick start, command reference, inputs, and report output." />
+  <title>DesignLatch Docs</title>
+  <meta name="description" content="DesignLatch CLI documentation with quick start, command reference, inputs, and report output." />
   <style>
     @font-face {
       font-family: "DM Sans";
@@ -473,7 +473,7 @@
     <a class="brand" href="index.html">
       <div class="brand-mark">A</div>
       <div class="brand-copy">
-        <strong>AlignUI</strong>
+        <strong>DesignLatch</strong>
         <span>CLI Docs</span>
       </div>
     </a>
@@ -523,7 +523,7 @@
         <div class="section-tag">Setup</div>
         <h1>Quick start</h1>
         <p class="section-subtitle">
-          This is the shortest path to a working AlignUI run after installing the published CLI package.
+          This is the shortest path to a working DesignLatch run after installing the published CLI package.
         </p>
         <div class="card">
           <div class="step-list">
@@ -533,7 +533,7 @@
               <p>Add the CLI to your project as a dev dependency.</p>
               <div class="codeblock">
                 <div class="codeblock-header"><span>bash</span></div>
-                <pre><code>npm install -D @alignui/cli</code></pre>
+                <pre><code>npm install -D @designlatch/cli</code></pre>
               </div>
             </div>
             <div class="step">
@@ -542,7 +542,7 @@
               <p>Create starter config and template files.</p>
               <div class="codeblock">
                 <div class="codeblock-header"><span>bash</span></div>
-                <pre><code>npx alignui init --force</code></pre>
+                <pre><code>npx designlatch init --force</code></pre>
               </div>
             </div>
             <div class="step">
@@ -551,7 +551,7 @@
               <p>Capture computed styles from the running site.</p>
               <div class="codeblock">
                 <div class="codeblock-header"><span>bash</span></div>
-                <pre><code>npx alignui collect --config .alignui.json --url https://app.example.com --out alignui/snapshots.json --wait-for "body"</code></pre>
+                <pre><code>npx designlatch collect --config .designlatch.json --url https://app.example.com --out designlatch/snapshots.json --wait-for "body"</code></pre>
               </div>
             </div>
             <div class="step">
@@ -560,7 +560,7 @@
               <p>Compare tokens against snapshots and write the report.</p>
               <div class="codeblock">
                 <div class="codeblock-header"><span>bash</span></div>
-                <pre><code>npx alignui scan --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json --report-dir report</code></pre>
+                <pre><code>npx designlatch scan --config .designlatch.json --tokens designlatch/tokens.json --snapshots designlatch/snapshots.json --report-dir report</code></pre>
               </div>
             </div>
           </div>
@@ -571,24 +571,24 @@
         <div class="section-tag">Flow</div>
         <h2>Workflow</h2>
         <p class="section-subtitle">
-          AlignUI follows a simple pipeline: define rules, collect actual styles, compare against expected values, then review the report.
+          DesignLatch follows a simple pipeline: define rules, collect actual styles, compare against expected values, then review the report.
         </p>
         <div class="card">
           <div class="command-grid">
             <div class="command-card">
               <div class="chip">01</div>
               <h3>Define</h3>
-              <p>Map selectors and CSS properties inside <code>.alignui.json</code>.</p>
+              <p>Map selectors and CSS properties inside <code>.designlatch.json</code>.</p>
             </div>
             <div class="command-card">
               <div class="chip">02</div>
               <h3>Expected</h3>
-              <p>Provide the design values in <code>alignui/tokens.json</code>.</p>
+              <p>Provide the design values in <code>designlatch/tokens.json</code>.</p>
             </div>
             <div class="command-card">
               <div class="chip">03</div>
               <h3>Actual</h3>
-              <p>Generate <code>alignui/snapshots.json</code> from the live site with <code>collect</code>.</p>
+              <p>Generate <code>designlatch/snapshots.json</code> from the live site with <code>collect</code>.</p>
             </div>
             <div class="command-card">
               <div class="chip">04</div>
@@ -609,10 +609,10 @@
           <div class="command-card" id="cmd-init">
             <div class="chip">bootstrap</div>
             <h3><code>init</code></h3>
-            <p>Create starter files for a fresh AlignUI workspace.</p>
+            <p>Create starter files for a fresh DesignLatch workspace.</p>
             <div class="meta">
               <span>Needs: optional <code>--config</code>, optional <code>--force</code></span>
-              <span>Example: npx alignui init --force</span>
+              <span>Example: npx designlatch init --force</span>
             </div>
           </div>
           <div class="command-card" id="cmd-collect">
@@ -621,7 +621,7 @@
             <p>Open the site in Playwright and write computed CSS values to <code>snapshots.json</code>.</p>
             <div class="meta">
               <span>Needs: <code>--config</code>, site <code>--url</code> or <code>config.url</code>, <code>--out</code></span>
-              <span>Example: npx alignui collect --config .alignui.json --url https://app.example.com --out alignui/snapshots.json --wait-for "body"</span>
+              <span>Example: npx designlatch collect --config .designlatch.json --url https://app.example.com --out designlatch/snapshots.json --wait-for "body"</span>
             </div>
           </div>
           <div class="command-card" id="cmd-validate">
@@ -630,7 +630,7 @@
             <p>Validate config, tokens, and snapshots without running the compare engine.</p>
             <div class="meta">
               <span>Needs: <code>--config</code>, <code>--tokens</code>, <code>--snapshots</code></span>
-              <span>Example: npx alignui validate --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json</span>
+              <span>Example: npx designlatch validate --config .designlatch.json --tokens designlatch/tokens.json --snapshots designlatch/snapshots.json</span>
             </div>
           </div>
           <div class="command-card" id="cmd-scan">
@@ -639,7 +639,7 @@
             <p>Compare expected token values with collected snapshots and write reports.</p>
             <div class="meta">
               <span>Needs: <code>--config</code>, <code>--tokens</code>, <code>--snapshots</code>, optional <code>--report-dir</code></span>
-              <span>Example: npx alignui scan --config .alignui.json --tokens alignui/tokens.json --snapshots alignui/snapshots.json --report-dir report</span>
+              <span>Example: npx designlatch scan --config .designlatch.json --tokens designlatch/tokens.json --snapshots designlatch/snapshots.json --report-dir report</span>
             </div>
           </div>
           <div class="command-card" id="cmd-serve">
@@ -648,7 +648,7 @@
             <p>Serve an existing report directory or HTML file locally in the browser.</p>
             <div class="meta">
               <span>Needs: <code>--report-dir</code> or <code>--file</code></span>
-              <span>Example: npx alignui serve --report-dir report</span>
+              <span>Example: npx designlatch serve --report-dir report</span>
             </div>
           </div>
           <div class="command-card" id="cmd-help">
@@ -657,7 +657,7 @@
             <p>Show the compact terminal help and point users back to the docs page.</p>
             <div class="meta">
               <span>Needs: no flags</span>
-              <span>Example: npx alignui help</span>
+              <span>Example: npx designlatch help</span>
             </div>
           </div>
         </div>
@@ -667,12 +667,12 @@
         <div class="section-tag">Reference</div>
         <h2>Inputs</h2>
         <p class="section-subtitle">
-          These are the files AlignUI expects during a normal run.
+          These are the files DesignLatch expects during a normal run.
         </p>
         <div class="input-grid">
           <div class="input-card">
             <div class="chip">config</div>
-            <h3><code>.alignui.json</code></h3>
+            <h3><code>.designlatch.json</code></h3>
             <p>Defines the page URL, rules, selectors, and which properties map to which tokens.</p>
             <div class="codeblock">
               <div class="codeblock-header"><span>json</span></div>
@@ -694,13 +694,13 @@
             <div class="chip">expected</div>
             <h3><code>tokens.json</code></h3>
             <p>The expected design values that the scan engine compares against.</p>
-            <div class="mono-line">Passed with <code>--tokens alignui/tokens.json</code></div>
+            <div class="mono-line">Passed with <code>--tokens designlatch/tokens.json</code></div>
           </div>
           <div class="input-card">
             <div class="chip">actual</div>
             <h3><code>snapshots.json</code></h3>
             <p>The computed style capture created by the collect command.</p>
-            <div class="mono-line">Passed with <code>--snapshots alignui/snapshots.json</code></div>
+            <div class="mono-line">Passed with <code>--snapshots designlatch/snapshots.json</code></div>
           </div>
           <div class="input-card">
             <div class="chip">baseline</div>
@@ -715,7 +715,7 @@
         <div class="section-tag">Reference</div>
         <h2>Reports</h2>
         <p class="section-subtitle">
-          AlignUI writes both machine-readable and browser-readable output.
+          DesignLatch writes both machine-readable and browser-readable output.
         </p>
         <div class="report-grid">
           <div class="report-card">
@@ -730,7 +730,7 @@
           </div>
           <div class="report-card">
             <div class="chip">served</div>
-            <h3><code>alignui serve</code></h3>
+            <h3><code>DesignLatch serve</code></h3>
             <p>Runs a local HTTP server so the HTML report opens cleanly in a browser.</p>
           </div>
           <div class="report-card">
@@ -742,7 +742,7 @@
       </section>
 
       <div class="doc-footer">
-        <span>AlignUI v1</span>
+        <span>DesignLatch v1</span>
         <div>
           <a href="index.html">Home</a>
           <span> | </span>

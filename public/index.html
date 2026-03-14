@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AlignUI</title>
-  <meta name="description" content="AlignUI is a CLI-first design compliance tool for comparing expected token values with computed styles from a live UI." />
+  <title>DesignLatch</title>
+  <meta name="description" content="DesignLatch is a CLI-first design compliance tool for comparing expected token values with computed styles from a live UI." />
   <style>
     @font-face {
       font-family: "DM Sans";
@@ -72,7 +72,7 @@
         linear-gradient(180deg, #0b0d10 0%, #11161b 100%);
     }
     body::before {
-      content: "ALIGNUI";
+      content: "DESIGNLATCH";
       position: fixed;
       top: 16px;
       right: min(22px, 4vw);
@@ -461,10 +461,10 @@
 <body>
   <div class="page">
     <header class="topbar">
-      <a class="brand" href="#top" aria-label="AlignUI home">
-        <div class="brand-mark">A</div>
+      <a class="brand" href="#top" aria-label="DesignLatch home">
+        <div class="brand-mark">D</div>
         <div class="brand-copy">
-          <strong>AlignUI</strong>
+          <strong>DesignLatch</strong>
           <span>CLI Compliance</span>
         </div>
       </a>
@@ -484,7 +484,7 @@
         <span class="eyebrow">CLI-first documentation</span>
         <h1>Check live UI against expected design values.</h1>
         <p class="lead">
-          AlignUI is a CLI-first design compliance tool. It compares expected token values with computed styles from a running site,
+          DesignLatch is a CLI-first design compliance tool. It compares expected token values with computed styles from a running site,
           then generates JSON and HTML reports so teams can review drift with something measurable instead of subjective visual QA.
         </p>
         <div class="hero-actions">
@@ -497,13 +497,13 @@
         <section class="summary-card panel">
           <h2>What it does</h2>
           <p>
-            You define selectors and property expectations in <code>.alignui.json</code>, provide a manual <code>tokens.json</code>,
+            You define selectors and property expectations in <code>.designlatch.json</code>, provide a manual <code>tokens.json</code>,
             collect computed styles with Playwright, and run a scan that writes a compliance report.
           </p>
           <div class="stats">
             <div class="stat">
               <span>Install</span>
-              <strong>@alignui/cli</strong>
+              <strong>@designlatch/cli</strong>
             </div>
             <div class="stat">
               <span>Outputs</span>
@@ -515,7 +515,7 @@
             </div>
             <div class="stat">
               <span>Usage</span>
-              <strong>npx alignui</strong>
+              <strong>npx designlatch</strong>
             </div>
           </div>
         </section>
@@ -539,12 +539,12 @@
           <div class="entry">
             <div class="tag">1</div>
             <h3>Install</h3>
-            <p>Add <code>@alignui/cli</code> to your project and run it through <code>npx alignui</code>.</p>
+            <p>Add <code>@designlatch/cli</code> to your project and run it through <code>npx designlatch</code>.</p>
           </div>
           <div class="entry">
             <div class="tag">2</div>
             <h3>Collect</h3>
-            <p>Capture computed styles from the live site into <code>alignui/snapshots.json</code>.</p>
+            <p>Capture computed styles from the live site into <code>designlatch/snapshots.json</code>.</p>
           </div>
           <div class="entry">
             <div class="tag">3</div>
@@ -556,7 +556,7 @@
     </section>
 
     <footer class="footer">
-      <span>AlignUI v1</span>
+      <span>DesignLatch v1</span>
       <a href="./docs/index.html">Documentation</a>
     </footer>
   </div>

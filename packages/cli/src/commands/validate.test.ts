@@ -9,7 +9,7 @@ async function writeJson(p: string, v: unknown) {
 }
 
 test("runValidate returns Ok for valid inputs", async () => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), "alignui-validate-"));
+  const dir = await mkdtemp(path.join(os.tmpdir(), "designlatch-validate-"));
   const configPath = path.join(dir, "config.json");
   const tokensPath = path.join(dir, "tokens.json");
   const snapsPath = path.join(dir, "snapshots.json");

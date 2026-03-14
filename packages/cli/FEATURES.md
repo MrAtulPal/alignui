@@ -1,6 +1,6 @@
-# @alignui/cli Features (Status)
+# @designlatch/cli Features (Status)
 
-CLI is the first adapter on top of `@alignui/core`. It is responsible for:
+CLI is the first adapter on top of `@designlatch/core`. It is responsible for:
 
 - loading expected tokens (manual `tokens.json`)
 - collecting actual computed styles (browser automation)
@@ -8,13 +8,13 @@ CLI is the first adapter on top of `@alignui/core`. It is responsible for:
 
 ## Done
 
-- Project skeleton and `alignui scan` command stub (`src/index.ts`, `src/commands/scan.ts`)
+- Project skeleton and `designlatch scan` command stub (`src/index.ts`, `src/commands/scan.ts`)
 
 ## Remaining (CLI)
 
 ### A) Config + Input
 
-- Support a config file format (JSON first) and consistent lookup (`--config`, default `.alignui.json`).
+- Support a config file format (JSON first) and consistent lookup (`--config`, default `.designlatch.json`).
 - Validate config using core: `validateScanConfig()` + `lintRules()`.
 - Support token input modes:
   - `--tokens <tokens.json>` using `validateTokenMap()` + `resolveTokenMap()`

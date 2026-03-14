@@ -11,7 +11,7 @@ async function writeJson(p: string, v: unknown) {
 }
 
 test("runScan returns Ok for matching token vs snapshot", async () => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), "alignui-scan-"));
+  const dir = await mkdtemp(path.join(os.tmpdir(), "designlatch-scan-"));
   const configPath = path.join(dir, "config.json");
   const tokensPath = path.join(dir, "tokens.json");
   const snapsPath = path.join(dir, "snapshots.json");
@@ -41,12 +41,12 @@ test("runScan returns Ok for matching token vs snapshot", async () => {
   const txt = await readFile(outPath, "utf8");
   expect(txt).toMatch(/\"score\"/);
   const html = await readFile(htmlPath, "utf8");
-  expect(html).toMatch(/AlignUI - Compliance Report/);
+  expect(html).toMatch(/DesignLatch - Compliance Report/);
   expect(html).not.toMatch(/\n\s+</);
 });
 
 test("runScan returns Fail when token is missing", async () => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), "alignui-scan-"));
+  const dir = await mkdtemp(path.join(os.tmpdir(), "designlatch-scan-"));
   const configPath = path.join(dir, "config.json");
   const tokensPath = path.join(dir, "tokens.json");
   const snapsPath = path.join(dir, "snapshots.json");
@@ -74,7 +74,7 @@ test("runScan returns Fail when token is missing", async () => {
 });
 
 test("runScan defaults to report/ folder when no out/reportDir are provided", async () => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), "alignui-scan-"));
+  const dir = await mkdtemp(path.join(os.tmpdir(), "designlatch-scan-"));
   const configPath = path.join(dir, "config.json");
   const tokensPath = path.join(dir, "tokens.json");
   const snapsPath = path.join(dir, "snapshots.json");
@@ -104,7 +104,7 @@ test("runScan defaults to report/ folder when no out/reportDir are provided", as
     const json = await readFile(path.join(dir, "report", "report.json"), "utf8");
     const html = await readFile(path.join(dir, "report", "index.html"), "utf8");
     expect(json).toMatch(/\"score\"/);
-    expect(html).toMatch(/AlignUI - Compliance Report/);
+    expect(html).toMatch(/DesignLatch - Compliance Report/);
     expect(html).not.toMatch(/\n\s+</);
   } finally {
     process.chdir(cwd);

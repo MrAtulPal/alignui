@@ -5,7 +5,7 @@ import path from "node:path";
 import { startReportServer } from "./report-server.js";
 
 test("startReportServer serves report directory", async () => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), "alignui-serve-"));
+  const dir = await mkdtemp(path.join(os.tmpdir(), "designlatch-serve-"));
   await mkdir(path.join(dir, "report"), { recursive: true });
   await writeFile(path.join(dir, "report", "index.html"), "<html><body>hello</body></html>", "utf8");
   await writeFile(path.join(dir, "report", "report.json"), '{"ok":true}', "utf8");
@@ -22,7 +22,7 @@ test("startReportServer serves report directory", async () => {
 });
 
 test("startReportServer serves explicit file", async () => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), "alignui-serve-file-"));
+  const dir = await mkdtemp(path.join(os.tmpdir(), "designlatch-serve-file-"));
   const file = path.join(dir, "custom.html");
   await writeFile(file, "<html><body>custom</body></html>", "utf8");
 
@@ -36,7 +36,7 @@ test("startReportServer serves explicit file", async () => {
 });
 
 test("startReportServer increments port when busy", async () => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), "alignui-serve-port-"));
+  const dir = await mkdtemp(path.join(os.tmpdir(), "designlatch-serve-port-"));
   await writeFile(path.join(dir, "index.html"), "<html><body>port</body></html>", "utf8");
 
   const blocker = createServer();
