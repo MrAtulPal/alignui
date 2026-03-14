@@ -1,13 +1,13 @@
 {
   "name": "@alignui/cli",
-  "version": "0.0.0",
+  "version": "1.0.0-beta",
   "private": true,
   "type": "module",
   "bin": {
     "alignui": "./dist/index.js"
   },
   "dependencies": {
-    "@alignui/core": "0.0.0",
+    "@alignui/core": "1.0.0-beta",
     "dotenv": "^17.3.1",
     "html-minifier-terser": "^7.2.0",
     "playwright": "^1.54.0"
