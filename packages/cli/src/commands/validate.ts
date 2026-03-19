@@ -1,7 +1,10 @@
-import { lintRules, resolveTokenMap, validateScanConfig, validateTokenMap, type ScanConfig, type TokenMap } from "@designlatch/core";
+﻿import { lintRules, resolveTokenMap, validateScanConfig, validateTokenMap, type ScanConfig, type TokenMap } from "@designlatch/core";
 import { readJsonFile } from "../lib/json.js";
 import { parseSnapshots } from "../lib/snapshots.js";
 import { ExitCode } from "../lib/exit-codes.js";
+
+type ErrItem = { path: string; message: string };
+
 
 type ValidateOpts = {
   configPath?: string;
@@ -15,14 +18,14 @@ export async function runValidate(opts: ValidateOpts): Promise<number> {
   const configRaw = await readJsonFile(configPath);
   const validated = validateScanConfig(configRaw);
   if (!validated.ok) {
-    const msg = validated.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
+    const msg = validated.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
     throw new Error(`Invalid config (${configPath}):\n${msg}`);
   }
   const config: ScanConfig = validated.value;
 
   const lint = lintRules(config.rules);
   if (lint.errors.length > 0) {
-    const msg = lint.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
+    const msg = lint.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
     throw new Error(`Config lint errors (${configPath}):\n${msg}`);
   }
   if (lint.warnings.length > 0) {
@@ -34,7 +37,7 @@ export async function runValidate(opts: ValidateOpts): Promise<number> {
   const tokensRaw = await readJsonFile(opts.tokensPath);
   const tv = validateTokenMap(tokensRaw);
   if (!tv.ok) {
-    const msg = tv.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
+    const msg = tv.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
     throw new Error(`Invalid tokens (${opts.tokensPath}):\n${msg}`);
   }
   const resolved = resolveTokenMap(tv.value);

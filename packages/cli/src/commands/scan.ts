@@ -1,4 +1,4 @@
-import {
+﻿import {
   compare,
   diffReports,
   evaluate,
@@ -20,6 +20,8 @@ import { ExitCode } from "../lib/exit-codes.js";
 import { renderHtmlReport } from "../lib/html-report.js";
 import { buildInlinedFontFaceCss } from "../lib/font-assets.js";
 import { minify } from "html-minifier-terser";
+type ErrItem = { path: string; message: string };
+
 
 type ScanOpts = {
   configPath?: string;
@@ -70,14 +72,14 @@ export async function runScan(opts: ScanOpts): Promise<number> {
   const configRaw = await readJsonFile(configPath);
   const validated = validateScanConfig(configRaw);
   if (!validated.ok) {
-    const msg = validated.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
+    const msg = validated.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
     throw new Error(`Invalid config (${configPath}):\n${msg}`);
   }
   const config: ScanConfig = validated.value;
 
   const lint = lintRules(config.rules);
   if (lint.errors.length > 0) {
-    const msg = lint.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
+    const msg = lint.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
     throw new Error(`Config lint errors (${configPath}):\n${msg}`);
   }
   if (lint.warnings.length > 0) {
@@ -92,7 +94,7 @@ export async function runScan(opts: ScanOpts): Promise<number> {
   const tokensRaw = await readJsonFile(opts.tokensPath);
   const tv = validateTokenMap(tokensRaw);
   if (!tv.ok) {
-    const msg = tv.errors.map((e) => `${e.path}: ${e.message}`).join("\n");
+    const msg = tv.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
     throw new Error(`Invalid tokens (${opts.tokensPath}):\n${msg}`);
   }
   const resolved = resolveTokenMap(tv.value);
