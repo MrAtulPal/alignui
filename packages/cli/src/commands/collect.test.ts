@@ -1,4 +1,4 @@
-﻿import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+﻿import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { ExitCode } from "../lib/exit-codes.js";
@@ -152,6 +152,99 @@ test("runCollect executes steps and respects reloadPage settings", async () => {
     "press:#input:Enter",
     "scrollIntoView:.b",
     "waitForTimeout:50"
+  ]);
+});
+
+test("runCollect supports config directories and resets before each file", async () => {
+  const calls: string[] = [];
+  const page = {
+    setDefaultTimeout: (_ms: number) => {},
+    goto: async (url: string, _opts: any) => {
+      calls.push(`goto:${url}`);
+    },
+    waitForSelector: async (sel: string) => {
+      calls.push(`waitForSelector:${sel}`);
+    },
+    click: async (sel: string) => {
+      calls.push(`click:${sel}`);
+    },
+    hover: async (sel: string) => {
+      calls.push(`hover:${sel}`);
+    },
+    focus: async (sel: string) => {
+      calls.push(`focus:${sel}`);
+    },
+    type: async (sel: string, text: string) => {
+      calls.push(`type:${sel}:${text}`);
+    },
+    press: async (sel: string, key: string) => {
+      calls.push(`press:${sel}:${key}`);
+    },
+    waitForTimeout: async (ms: number) => {
+      calls.push(`waitForTimeout:${ms}`);
+    },
+    locator: (sel: string) => ({
+      scrollIntoViewIfNeeded: async () => {
+        calls.push(`scrollIntoView:${sel}`);
+      }
+    }),
+    evaluate: async (_fn: any, args: any) => {
+      if (args.selector === ".header") return { computed: { backgroundColor: "rgb(0, 0, 0)" } };
+      if (args.selector === ".card") return { computed: { backgroundColor: "rgb(255, 255, 255)" } };
+      return null;
+    }
+  };
+  const browser = {
+    newPage: async () => page,
+    close: async () => {}
+  };
+
+  __setChromiumLaunch(async () => browser);
+
+  const dir = await mkdtemp(path.join(os.tmpdir(), "designlatch-collect-dir-"));
+  const configDir = path.join(dir, "components");
+  const outPath = path.join(dir, "snapshots.json");
+  await mkdir(configDir, { recursive: true });
+
+  await writeJson(path.join(configDir, "01-header.json"), {
+    url: "https://x.test",
+    thresholds: { minScore: 90 },
+    rules: [
+      {
+        id: "header",
+        selector: ".header",
+        steps: [
+          { type: "click", selector: "#nav" },
+          { type: "waitForSelector", selector: ".panel" }
+        ],
+        properties: { backgroundColor: { token: "color.header" } }
+      }
+    ]
+  });
+  await writeJson(path.join(configDir, "02-card.json"), {
+    rules: [
+      {
+        id: "card",
+        selector: ".card",
+        properties: { backgroundColor: { token: "color.card" } }
+      }
+    ]
+  });
+
+  const code = await runCollect({ configPath: configDir, out: outPath, waitFor: "body" });
+  expect(code).toBe(ExitCode.Ok);
+
+  const txt = await readFile(outPath, "utf8");
+  const j = JSON.parse(txt) as any[];
+  expect(j).toHaveLength(2);
+  expect(j.map((x) => x.selector)).toEqual([".header", ".card"]);
+  expect(calls).toEqual([
+    "goto:https://x.test",
+    "waitForSelector:body",
+    "click:#nav",
+    "waitForSelector:.panel",
+    "goto:https://x.test",
+    "waitForSelector:body"
   ]);
 });
 

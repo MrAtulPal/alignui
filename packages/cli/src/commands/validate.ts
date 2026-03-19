@@ -1,10 +1,10 @@
 ﻿import { lintRules, resolveTokenMap, validateScanConfig, validateTokenMap, type ScanConfig, type TokenMap } from "@designlatch/core";
+import { ExitCode } from "../lib/exit-codes.js";
 import { readJsonFile } from "../lib/json.js";
 import { parseSnapshots } from "../lib/snapshots.js";
-import { ExitCode } from "../lib/exit-codes.js";
+import { loadConfigInput } from "../lib/config-loader.js";
 
 type ErrItem = { path: string; message: string };
-
 
 type ValidateOpts = {
   configPath?: string;
@@ -15,21 +15,21 @@ type ValidateOpts = {
 
 export async function runValidate(opts: ValidateOpts): Promise<number> {
   const configPath = opts.configPath ?? ".designlatch.json";
-  const configRaw = await readJsonFile(configPath);
-  const validated = validateScanConfig(configRaw);
+  const loaded = await loadConfigInput(configPath);
+  const validated = validateScanConfig(loaded.configRaw);
   if (!validated.ok) {
     const msg = validated.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
-    throw new Error(`Invalid config (${configPath}):\n${msg}`);
+    throw new Error(`Invalid config (${loaded.configPath}):\n${msg}`);
   }
   const config: ScanConfig = validated.value;
 
   const lint = lintRules(config.rules);
   if (lint.errors.length > 0) {
     const msg = lint.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
-    throw new Error(`Config lint errors (${configPath}):\n${msg}`);
+    throw new Error(`Config lint errors (${loaded.configPath}):\n${msg}`);
   }
   if (lint.warnings.length > 0) {
-    console.log(`Config lint warnings (${configPath}):`);
+    console.log(`Config lint warnings (${loaded.configPath}):`);
     for (const w of lint.warnings) console.log(`- ${w.path}: ${w.message}`);
   }
 
@@ -60,4 +60,3 @@ export async function runValidate(opts: ValidateOpts): Promise<number> {
 
   return ExitCode.Ok;
 }
-

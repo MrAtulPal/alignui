@@ -2,11 +2,10 @@
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
-import { readJsonFile } from "../lib/json.js";
 import { ExitCode } from "../lib/exit-codes.js";
+import { loadConfigInput, sliceRulesBySource } from "../lib/config-loader.js";
 
 type ErrItem = { path: string; message: string };
-
 
 type CollectOpts = {
   configPath?: string;
@@ -209,14 +208,15 @@ async function collectForSelector(
 
 export async function runCollect(opts: CollectOpts): Promise<number> {
   const configPath = opts.configPath ?? ".designlatch.json";
-  const configRaw = await readJsonFile(configPath);
-  const validated = validateScanConfig(configRaw);
+  const loaded = await loadConfigInput(configPath);
+  const validated = validateScanConfig(loaded.configRaw);
   if (!validated.ok) {
     const msg = validated.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
-    throw new Error(`Invalid config (${configPath}):\n${msg}`);
+    throw new Error(`Invalid config (${loaded.configPath}):\n${msg}`);
   }
   const config: ScanConfig = validated.value;
-  const extras = validateCollectExtras(configRaw);
+  const extras = validateCollectExtras(loaded.configRaw);
+  const ruleGroups = sliceRulesBySource(config, loaded.ruleSources);
 
   const url = opts.url ?? config.url;
   if (!url) throw new Error("Missing url (provide --url or config.url).");
@@ -231,35 +231,38 @@ export async function runCollect(opts: CollectOpts): Promise<number> {
     const page = await browser.newPage();
     page.setDefaultTimeout(timeoutMs);
 
-    await page.goto(url, { waitUntil: "domcontentloaded" });
-    if (waitFor) await page.waitForSelector(waitFor);
-
     const snapshots: StyleSnapshot[] = [];
+    let extrasOffset = 0;
 
-    for (let i = 0; i < config.rules.length; i++) {
-      const rule = config.rules[i]!;
-      const ruleExtras = extras.ruleExtras[i] ?? {};
-      const shouldReload = ruleExtras.reloadPageBefore ?? extras.reloadPage ?? false;
-      if (shouldReload) {
-        await page.goto(url, { waitUntil: "domcontentloaded" });
-        if (waitFor) await page.waitForSelector(waitFor);
-      }
-      if (ruleExtras.steps && ruleExtras.steps.length > 0) {
-        try {
-          await runSteps(page, ruleExtras.steps);
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          console.log(`Step failed for rule ${rule.id}: ${msg}`);
+    for (const group of ruleGroups) {
+      await page.goto(url, { waitUntil: "domcontentloaded" });
+      if (waitFor) await page.waitForSelector(waitFor);
+
+      for (const rule of group.rules) {
+        const ruleExtras = extras.ruleExtras[extrasOffset] ?? {};
+        extrasOffset++;
+        const shouldReload = ruleExtras.reloadPageBefore ?? extras.reloadPage ?? false;
+        if (shouldReload) {
+          await page.goto(url, { waitUntil: "domcontentloaded" });
+          if (waitFor) await page.waitForSelector(waitFor);
+        }
+        if (ruleExtras.steps && ruleExtras.steps.length > 0) {
+          try {
+            await runSteps(page, ruleExtras.steps);
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            console.log(`Step failed for rule ${rule.id}: ${msg}`);
+            continue;
+          }
+        }
+        const properties = unique(Object.keys(rule.properties));
+        const picked = await collectForSelector(page, rule.selector, properties);
+        if (!picked) {
+          console.log(`Missing selector: ${rule.selector}`);
           continue;
         }
+        snapshots.push({ selector: rule.selector, url, computed: picked.computed, text: picked.text });
       }
-      const properties = unique(Object.keys(rule.properties));
-      const picked = await collectForSelector(page, rule.selector, properties);
-      if (!picked) {
-        console.log(`Missing selector: ${rule.selector}`);
-        continue;
-      }
-      snapshots.push({ selector: rule.selector, url, computed: picked.computed, text: picked.text });
     }
 
     await mkdir(path.dirname(outPath), { recursive: true });
@@ -270,4 +273,3 @@ export async function runCollect(opts: CollectOpts): Promise<number> {
     await browser.close();
   }
 }
-

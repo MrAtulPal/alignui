@@ -14,14 +14,15 @@
 } from "@designlatch/core";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { ExitCode } from "../lib/exit-codes.js";
+import { buildInlinedFontFaceCss } from "../lib/font-assets.js";
+import { renderHtmlReport } from "../lib/html-report.js";
 import { readJsonFile } from "../lib/json.js";
 import { parseSnapshots } from "../lib/snapshots.js";
-import { ExitCode } from "../lib/exit-codes.js";
-import { renderHtmlReport } from "../lib/html-report.js";
-import { buildInlinedFontFaceCss } from "../lib/font-assets.js";
 import { minify } from "html-minifier-terser";
-type ErrItem = { path: string; message: string };
+import { loadConfigInput } from "../lib/config-loader.js";
 
+type ErrItem = { path: string; message: string };
 
 type ScanOpts = {
   configPath?: string;
@@ -69,21 +70,21 @@ async function writeHtmlReport(reportDir: string, report: ScanReport, ev: Return
 
 export async function runScan(opts: ScanOpts): Promise<number> {
   const configPath = opts.configPath ?? ".designlatch.json";
-  const configRaw = await readJsonFile(configPath);
-  const validated = validateScanConfig(configRaw);
+  const loaded = await loadConfigInput(configPath);
+  const validated = validateScanConfig(loaded.configRaw);
   if (!validated.ok) {
     const msg = validated.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
-    throw new Error(`Invalid config (${configPath}):\n${msg}`);
+    throw new Error(`Invalid config (${loaded.configPath}):\n${msg}`);
   }
   const config: ScanConfig = validated.value;
 
   const lint = lintRules(config.rules);
   if (lint.errors.length > 0) {
     const msg = lint.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
-    throw new Error(`Config lint errors (${configPath}):\n${msg}`);
+    throw new Error(`Config lint errors (${loaded.configPath}):\n${msg}`);
   }
   if (lint.warnings.length > 0) {
-    console.log(`Config lint warnings (${configPath}):`);
+    console.log(`Config lint warnings (${loaded.configPath}):`);
     for (const w of lint.warnings) console.log(`- ${w.path}: ${w.message}`);
   }
 
@@ -108,7 +109,6 @@ export async function runScan(opts: ScanOpts): Promise<number> {
   const snapshots: StyleSnapshot[] = parseSnapshots(snapsRaw).map((s) => ({ ...s, url }));
 
   const report = compare(tokens, snapshots, config.rules, config.defaults);
-
   const ev = evaluate(report, config.thresholds);
 
   const reportDir = opts.reportDir ?? (opts.out ? undefined : "report");
@@ -128,7 +128,7 @@ export async function runScan(opts: ScanOpts): Promise<number> {
 
   if (opts.baselinePath) {
     const baselineRaw = await readJsonFile(opts.baselinePath);
-    const baseline = baselineRaw as ScanReport; // v1: assume correct shape, can validate later
+    const baseline = baselineRaw as ScanReport;
     const diff = diffReports(baseline, report);
     const diffOut = opts.diffOut ?? "diff.json";
     await writeFile(diffOut, JSON.stringify(diff, null, 2), "utf8");
