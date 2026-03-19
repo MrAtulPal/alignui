@@ -31,6 +31,11 @@ type RuleExtras = {
   reloadPageBefore?: boolean;
 };
 
+type SelectorStep = Extract<Step, { selector: string }>;
+
+type StepValidator = (input: Record<string, unknown>, path: string, errors: string[]) => Step | null;
+type StepRunner<T extends Step = Step> = (page: Page, step: T) => Promise<void>;
+
 function unique(items: string[]): string[] {
   return Array.from(new Set(items));
 }
@@ -51,55 +56,73 @@ function isBoolean(value: unknown): value is boolean {
   return typeof value === "boolean";
 }
 
+function validateSelectorStep<T extends SelectorStep["type"]>(
+  type: T,
+  input: Record<string, unknown>,
+  path: string,
+  errors: string[]
+): Extract<Step, { type: T }> | null {
+  if (!isString(input.selector)) {
+    errors.push(`${path}.selector: Expected string`);
+    return null;
+  }
+  return { type, selector: input.selector } as Extract<Step, { type: T }>;
+}
+
+const stepValidators: Record<Step["type"], StepValidator> = {
+  click: (input, path, errors) => validateSelectorStep("click", input, path, errors),
+  hover: (input, path, errors) => validateSelectorStep("hover", input, path, errors),
+  focus: (input, path, errors) => validateSelectorStep("focus", input, path, errors),
+  scrollIntoView: (input, path, errors) => validateSelectorStep("scrollIntoView", input, path, errors),
+  waitForSelector: (input, path, errors) => validateSelectorStep("waitForSelector", input, path, errors),
+  type: (input, path, errors) => {
+    if (!isString(input.selector)) errors.push(`${path}.selector: Expected string`);
+    if (!isString(input.text)) errors.push(`${path}.text: Expected string`);
+    if (!isString(input.selector) || !isString(input.text)) return null;
+    return { type: "type", selector: input.selector, text: input.text };
+  },
+  press: (input, path, errors) => {
+    if (!isString(input.selector)) errors.push(`${path}.selector: Expected string`);
+    if (!isString(input.key)) errors.push(`${path}.key: Expected string`);
+    if (!isString(input.selector) || !isString(input.key)) return null;
+    return { type: "press", selector: input.selector, key: input.key };
+  },
+  waitForTimeout: (input, path, errors) => {
+    if (!isNumber(input.ms)) {
+      errors.push(`${path}.ms: Expected number`);
+      return null;
+    }
+    return { type: "waitForTimeout", ms: input.ms };
+  }
+};
+
+const stepRunners: { [K in Step["type"]]: StepRunner<Extract<Step, { type: K }>> } = {
+  click: async (page, step) => await page.click(step.selector),
+  hover: async (page, step) => await page.hover(step.selector),
+  focus: async (page, step) => await page.focus(step.selector),
+  type: async (page, step) => await page.type(step.selector, step.text),
+  press: async (page, step) => await page.press(step.selector, step.key),
+  scrollIntoView: async (page, step) => await page.locator(step.selector).scrollIntoViewIfNeeded(),
+  waitForSelector: async (page, step) => { await page.waitForSelector(step.selector); },
+  waitForTimeout: async (page, step) => await page.waitForTimeout(step.ms)
+};
+
 function parseStep(input: unknown, path: string, errors: string[]): Step | null {
   if (!isRecord(input)) {
     errors.push(`${path}: Expected object`);
     return null;
   }
-  const type = input.type;
-  if (!isString(type)) {
+  if (!isString(input.type)) {
     errors.push(`${path}.type: Expected string`);
     return null;
   }
 
-  const selector = input.selector;
-  switch (type) {
-    case "click":
-    case "hover":
-    case "focus":
-    case "scrollIntoView":
-    case "waitForSelector":
-      if (!isString(selector)) {
-        errors.push(`${path}.selector: Expected string`);
-        return null;
-      }
-      return { type, selector };
-    case "type": {
-      const text = input.text;
-      if (!isString(selector)) errors.push(`${path}.selector: Expected string`);
-      if (!isString(text)) errors.push(`${path}.text: Expected string`);
-      if (!isString(selector) || !isString(text)) return null;
-      return { type, selector, text };
-    }
-    case "press": {
-      const key = input.key;
-      if (!isString(selector)) errors.push(`${path}.selector: Expected string`);
-      if (!isString(key)) errors.push(`${path}.key: Expected string`);
-      if (!isString(selector) || !isString(key)) return null;
-      return { type, selector, key };
-    }
-    case "waitForTimeout": {
-      const ms = input.ms;
-      if (!isNumber(ms)) {
-        errors.push(`${path}.ms: Expected number`);
-        return null;
-      }
-      return { type, ms };
-    }
-    default:
-      errors.push(`${path}.type: Unknown step type "${type}"`);
-      return null;
+  const validator = stepValidators[input.type as Step["type"]];
+  if (!validator) {
+    errors.push(`${path}.type: Unknown step type "${input.type}"`);
+    return null;
   }
+  return validator(input, path, errors);
 }
 
 function validateCollectExtras(configRaw: unknown): { reloadPage?: boolean; ruleExtras: RuleExtras[] } {
@@ -155,32 +178,8 @@ function validateCollectExtras(configRaw: unknown): { reloadPage?: boolean; rule
 
 async function runSteps(page: Page, steps: Step[]): Promise<void> {
   for (const step of steps) {
-    switch (step.type) {
-      case "click":
-        await page.click(step.selector);
-        break;
-      case "hover":
-        await page.hover(step.selector);
-        break;
-      case "focus":
-        await page.focus(step.selector);
-        break;
-      case "type":
-        await page.type(step.selector, step.text);
-        break;
-      case "press":
-        await page.press(step.selector, step.key);
-        break;
-      case "scrollIntoView":
-        await page.locator(step.selector).scrollIntoViewIfNeeded();
-        break;
-      case "waitForSelector":
-        await page.waitForSelector(step.selector);
-        break;
-      case "waitForTimeout":
-        await page.waitForTimeout(step.ms);
-        break;
-    }
+    const runner = stepRunners[step.type] as StepRunner;
+    await runner(page, step);
   }
 }
 
