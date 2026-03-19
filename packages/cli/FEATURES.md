@@ -1,4 +1,4 @@
-# @designlatch/cli Features (Status)
+﻿# @designlatch/cli Features (Status)
 
 CLI is the first adapter on top of `@designlatch/core`. It is responsible for:
 
@@ -9,6 +9,7 @@ CLI is the first adapter on top of `@designlatch/core`. It is responsible for:
 ## Done
 
 - Project skeleton and `designlatch scan` command stub (`src/index.ts`, `src/commands/scan.ts`)
+- Collect supports per-rule `steps` plus `collect.reloadPage` / `rules[].reloadPageBefore` for SPA flows
 
 ## Remaining (CLI)
 

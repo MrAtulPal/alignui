@@ -1,11 +1,50 @@
 [
   {
-    "selector": ".btn-primary",
-    "url": "https://example.com",
+    "selector": ".promo-card",
+    "url": "https://example.com/dashboard",
+    "computed": {
+      "backgroundColor": "rgb(255, 255, 255)",
+      "borderRadius": "12px",
+      "boxShadow": "rgba(15, 23, 42, 0.12) 0px 12px 24px 0px",
+      "overflow": "hidden"
+    },
+    "text": "Launch your next campaign faster with reusable building blocks."
+  },
+  {
+    "selector": ".promo-card .promo-card-header",
+    "url": "https://example.com/dashboard",
     "computed": {
       "backgroundColor": "rgb(47, 107, 255)",
-      "padding": "10px 16px"
-    }
+      "color": "rgb(255, 255, 255)",
+      "padding": "24px 32px",
+      "fontSize": "20px",
+      "fontWeight": "600",
+      "display": "flex",
+      "justifyContent": "space-between"
+    },
+    "text": "Performance Overview"
+  },
+  {
+    "selector": ".promo-card .promo-card-body",
+    "url": "https://example.com/dashboard",
+    "computed": {
+      "padding": "24px 32px",
+      "color": "rgb(17, 24, 39)",
+      "lineHeight": "1.5"
+    },
+    "text": "Revenue is up 18% this month and conversion is holding steady."
+  },
+  {
+    "selector": ".promo-card .promo-card-cta:not(.is-secondary)",
+    "url": "https://example.com/dashboard",
+    "computed": {
+      "backgroundColor": "rgb(47, 107, 255)",
+      "color": "rgb(255, 255, 255)",
+      "padding": "10px 16px",
+      "borderRadius": "8px 8px 8px 8px",
+      "gap": "8px",
+      "fontFamily": "\"Inter\", system-ui, sans-serif"
+    },
+    "text": "Open Report"
   }
 ]
-

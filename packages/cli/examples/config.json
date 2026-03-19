@@ -1,15 +1,62 @@
 {
-  "url": "https://example.com",
+  "url": "https://example.com/dashboard",
+  "collect": {
+    "reloadPage": true
+  },
   "rules": [
     {
-      "id": "btn-primary",
-      "selector": ".btn-primary",
+      "id": "promo-card-root",
+      "selector": ".promo-card",
+      "steps": [
+        { "type": "click", "selector": ".nav-toggle" },
+        { "type": "waitForSelector", "selector": ".dashboard-shell" },
+        { "type": "click", "selector": "[data-view='cards']" },
+        { "type": "waitForSelector", "selector": ".promo-card" }
+      ],
       "properties": {
-        "backgroundColor": { "token": "color.primary", "tolerance": { "kind": "rgba", "value": 0 }, "severity": "error" },
-        "padding": { "token": "pad.md", "tolerance": { "kind": "px", "value": 0 }, "severity": "warn" }
+        "backgroundColor": { "token": "color.surface.card", "tolerance": { "kind": "rgba", "value": 0 }, "severity": "error" },
+        "borderRadius": { "token": "radius.card", "tolerance": { "kind": "px", "value": 0 }, "severity": "error" },
+        "boxShadow": { "token": "shadow.card", "severity": "warn" },
+        "overflow": { "token": "overflow.hidden", "severity": "warn" }
+      }
+    },
+    {
+      "id": "promo-card-header",
+      "selector": ".promo-card .promo-card-header",
+      "properties": {
+        "backgroundColor": { "token": "color.brand.primary", "tolerance": { "kind": "rgba", "value": 0 }, "severity": "error" },
+        "color": { "token": "color.text.inverse", "tolerance": { "kind": "rgba", "value": 0 }, "severity": "error" },
+        "padding": { "token": "space.card.header", "tolerance": { "kind": "px", "value": 0 }, "severity": "error" },
+        "fontSize": { "token": "text.heading.md", "tolerance": { "kind": "px", "value": 0 }, "severity": "warn" },
+        "fontWeight": { "token": "font.weight.semibold", "severity": "warn" },
+        "display": { "token": "layout.display.flex", "severity": "warn" },
+        "justifyContent": { "token": "layout.justify.between", "severity": "warn" }
+      }
+    },
+    {
+      "id": "promo-card-body",
+      "selector": ".promo-card .promo-card-body",
+      "properties": {
+        "padding": { "token": "space.card.body", "tolerance": { "kind": "px", "value": 0 }, "severity": "error" },
+        "color": { "token": "color.text.primary", "tolerance": { "kind": "rgba", "value": 0 }, "severity": "warn" },
+        "lineHeight": { "token": "text.body.lineHeight", "tolerance": { "kind": "ratio", "value": 0 }, "severity": "warn" }
+      }
+    },
+    {
+      "id": "promo-card-cta",
+      "selector": ".promo-card .promo-card-cta:not(.is-secondary)",
+      "properties": {
+        "backgroundColor": { "token": "color.brand.primary", "tolerance": { "kind": "rgba", "value": 0 }, "severity": "error" },
+        "color": { "token": "color.text.inverse", "tolerance": { "kind": "rgba", "value": 0 }, "severity": "error" },
+        "padding": { "token": "space.button.md", "tolerance": { "kind": "px", "value": 0 }, "severity": "error" },
+        "borderRadius": { "token": "radius.button", "tolerance": { "kind": "px", "value": 0 }, "severity": "warn" },
+        "gap": { "token": "space.inline.sm", "tolerance": { "kind": "px", "value": 0 }, "severity": "warn" },
+        "fontFamily": { "token": "font.family.base", "severity": "warn" }
       }
     }
   ],
-  "thresholds": { "minScore": 100, "failOnSeverity": "error" }
+  "thresholds": {
+    "minScore": 95,
+    "failOnSeverity": "error"
+  }
 }
-
