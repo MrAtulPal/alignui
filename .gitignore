@@ -12,3 +12,5 @@ npm-debug.log*
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+AGENTS.md
+test_components
