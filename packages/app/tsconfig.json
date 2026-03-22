@@ -6,10 +6,9 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "@designlatch/app": ["../app/src/index.ts"],
       "@designlatch/core": ["../core/src/index.ts"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts"],
-  "references": [{ "path": "../core" }, { "path": "../app" }]
+  "include": ["src/**/*.ts"],
+  "references": [{ "path": "../core" }]
 }

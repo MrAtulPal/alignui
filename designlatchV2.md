@@ -8,21 +8,22 @@ DesignLatch V2 adds MCP support for AI agents while keeping the current CLI full
 
 - Add a new `packages/mcp` package.
 - Keep `@designlatch/core` as the shared pure engine.
+- Add a new `packages/app` package for shared in-memory workflows.
 - Keep the CLI standalone and unchanged in behavior.
 - MCP will be `stdio`-only in v1.
-- MCP will use file-based inputs like config, tokens, and snapshots paths.
+- MCP will accept inline JSON inputs from AI agents.
 - MCP will not expose `collect`.
 - AI agents will create `tokens.json` and `snapshots.json` using external tools such as Playwright and Figma MCP.
 - MCP v1 will expose two tools:
   - `validate_inputs`
   - `scan_compliance`
-- `scan_compliance` will return full report JSON and may also write report files to disk.
+- `scan_compliance` will return JSON only in v1.
 
 ## Architecture
 
 - Do not make MCP depend on CLI.
 - Keep `@designlatch/core` as the pure engine layer.
-- Add a shared workflow layer such as `@designlatch/app` or `@designlatch/shared`.
+- Add `@designlatch/app` as the shared workflow layer.
 - Keep `@designlatch/cli` and `@designlatch/mcp` as sibling adapters.
 
 Recommended dependency graph:
@@ -42,12 +43,12 @@ core <- cli <- mcp
 
 - `@designlatch/core`
   - types, validation, token resolution, compare, evaluate
-- `@designlatch/app` or `@designlatch/shared`
+- `@designlatch/app`
   - reusable workflows like `validateInputs(...)` and `scanCompliance(...)`
 - `@designlatch/cli`
-  - arg parsing, console UX, `collect`, `serve`
+  - arg parsing, file loading, console UX, `collect`, `serve`
 - `@designlatch/mcp`
-  - MCP transport, tool schemas, tool handlers
+  - MCP transport, tool schemas, tool handlers, JSON responses
 
 ## Working Model
 
@@ -56,6 +57,23 @@ core <- cli <- mcp
 - Work on terminal UX and browser collection in `cli`.
 - Work on AI-agent integration in `mcp`.
 - Both CLI and MCP should call the same shared workflow functions instead of calling each other.
+- CLI stays file-based and passes parsed JSON into `app`.
+- MCP stays JSON-in/JSON-out and passes inline objects into `app`.
+
+## Deployment
+
+- Keep the monorepo architecture with four internal packages:
+  - `core`
+  - `app`
+  - `cli`
+  - `mcp`
+- Publish only the user-facing adapters:
+  - `@designlatch/cli`
+  - `@designlatch/mcp`
+- Keep `@designlatch/core` and `@designlatch/app` private for now.
+- Use npm as the distribution channel for CLI and MCP.
+- Use `stdio` as the runtime interface for `@designlatch/mcp`.
+- Use GitHub Pages only for static assets such as docs or generated HTML reports, not for CLI or MCP runtime.
 
 ## Versioning Plan
 
@@ -71,3 +89,5 @@ core <- cli <- mcp
 - `collect` remains CLI-only.
 - MCP is a separate package, not a CLI subcommand.
 - Baseline/diff support is deferred from v1.
+- CLI remains file-based.
+- MCP accepts inline JSON from AI agents.

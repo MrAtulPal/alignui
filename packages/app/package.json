@@ -1,7 +1,7 @@
 {
-  "name": "@designlatch/core",
+  "name": "@designlatch/app",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -11,9 +11,12 @@
       "default": "./dist/index.js"
     }
   },
+  "dependencies": {
+    "@designlatch/core": "1.0.0-beta"
+  },
   "scripts": {
     "build": "tsc -b",
-    "test": "jest --config ../../jest.config.cjs --selectProjects core",
+    "test": "jest --config ../../jest.config.cjs --selectProjects app",
     "typecheck": "tsc -p tsconfig.json --pretty false --noEmit"
   }
 }
