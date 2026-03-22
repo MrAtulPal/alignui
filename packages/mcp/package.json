@@ -1,20 +1,19 @@
 {
-  "name": "@designlatch/cli",
+  "name": "@designlatch/mcp",
   "version": "0.1.0",
   "private": false,
   "type": "module",
   "bin": {
-    "designlatch": "./dist/index.js"
+    "designlatch-mcp": "./dist/index.js"
   },
   "dependencies": {
     "@designlatch/app": "0.1.0",
-    "@designlatch/core": "1.0.0-beta",
-    "dotenv": "^17.3.1",
-    "html-minifier-terser": "^7.2.0",
-    "playwright": "^1.54.0"
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.24.1"
   },
   "scripts": {
     "build": "tsc -b",
+    "test": "jest --config ../../jest.config.cjs --selectProjects mcp",
     "typecheck": "tsc -p tsconfig.typecheck.json --pretty false"
   }
 }

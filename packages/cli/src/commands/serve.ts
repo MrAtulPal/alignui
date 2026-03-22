@@ -1,5 +1,8 @@
+import { createLogger } from "@designlatch/app";
 import { ExitCode } from "../lib/exit-codes.js";
 import { startReportServer, waitForShutdown } from "../lib/report-server.js";
+
+const logger = createLogger("cli.serve");
 
 type ServeOpts = {
   reportDir?: string;
@@ -18,8 +21,10 @@ export async function runServe(opts: ServeOpts): Promise<number> {
     open: !opts.noOpen
   });
 
+  logger.info("report server started", { url: server.url });
   console.log(`Serving report at ${server.url}`);
   console.log("Press Ctrl+C to stop.");
   await waitForShutdown(server);
   return ExitCode.Ok;
 }
+

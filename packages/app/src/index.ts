@@ -1,3 +1,4 @@
+export * from "./lib/logger.js";
 export * from "./lib/snapshots.js";
 export * from "./scan/scan-compliance.js";
 export * from "./types/results.js";

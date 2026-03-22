@@ -8,7 +8,7 @@ module.exports = {
       preset: "ts-jest/presets/default-esm",
       extensionsToTreatAsEsm: [".ts"],
       transform: {
-        "^.+\.ts$": [
+        "^.+\\.ts$": [
           "ts-jest",
           {
             useESM: true,
@@ -17,7 +17,7 @@ module.exports = {
         ]
       },
       moduleNameMapper: {
-        "^(\.{1,2}/.*)\.js$": "$1"
+        "^(\\.{1,2}/.*)\\.js$": "$1"
       }
     },
     {
@@ -27,7 +27,7 @@ module.exports = {
       preset: "ts-jest/presets/default-esm",
       extensionsToTreatAsEsm: [".ts"],
       transform: {
-        "^.+\.ts$": [
+        "^.+\\.ts$": [
           "ts-jest",
           {
             useESM: true,
@@ -37,7 +37,7 @@ module.exports = {
       },
       moduleNameMapper: {
         "^@designlatch/core$": "<rootDir>/packages/core/src/index.ts",
-        "^(\.{1,2}/.*)\.js$": "$1"
+        "^(\\.{1,2}/.*)\\.js$": "$1"
       }
     },
     {
@@ -47,7 +47,7 @@ module.exports = {
       preset: "ts-jest/presets/default-esm",
       extensionsToTreatAsEsm: [".ts"],
       transform: {
-        "^.+\.ts$": [
+        "^.+\\.ts$": [
           "ts-jest",
           {
             useESM: true,
@@ -59,7 +59,28 @@ module.exports = {
         "^@designlatch/app$": "<rootDir>/packages/app/src/index.ts",
         "^@designlatch/core$": "<rootDir>/packages/core/src/index.ts",
         "^playwright$": "<rootDir>/packages/cli/src/test/playwright-mock.ts",
-        "^(\.{1,2}/.*)\.js$": "$1"
+        "^(\\.{1,2}/.*)\\.js$": "$1"
+      }
+    },
+    {
+      displayName: "mcp",
+      testMatch: ["<rootDir>/packages/mcp/src/**/*.test.ts"],
+      testEnvironment: "node",
+      preset: "ts-jest/presets/default-esm",
+      extensionsToTreatAsEsm: [".ts"],
+      transform: {
+        "^.+\\.ts$": [
+          "ts-jest",
+          {
+            useESM: true,
+            tsconfig: "<rootDir>/packages/mcp/tsconfig.json"
+          }
+        ]
+      },
+      moduleNameMapper: {
+        "^@designlatch/app$": "<rootDir>/packages/app/src/index.ts",
+        "^@designlatch/core$": "<rootDir>/packages/core/src/index.ts",
+        "^(\\.{1,2}/.*)\\.js$": "$1"
       }
     }
   ]

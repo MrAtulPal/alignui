@@ -6,8 +6,11 @@ import {
   type ScanConfig,
   type TokenMap
 } from "@designlatch/core";
+import { createLogger } from "../lib/logger.js";
 import { parseSnapshots } from "../lib/snapshots.js";
 import type { ValidateInputsParams, ValidateInputsResult, ValidationIssue } from "../types/results.js";
+
+const logger = createLogger("app.validate_inputs");
 
 function formatIssues(issues: ValidationIssue[]): string {
   return issues.map((issue) => `${issue.path}: ${issue.message}`).join("\n");
@@ -44,6 +47,11 @@ function resolveTokens(input: unknown): TokenMap {
 }
 
 export function validateInputs(params: ValidateInputsParams): ValidateInputsResult {
+  logger.debug("workflow started", {
+    hasTokens: params.tokens !== undefined,
+    hasSnapshots: params.snapshots !== undefined,
+    hasUrlOverride: params.urlOverride !== undefined
+  });
   const config = requireValidConfig(params.config);
   const lintWarnings = lintConfig(config);
   const url = params.urlOverride ?? config.url;
@@ -52,7 +60,7 @@ export function validateInputs(params: ValidateInputsParams): ValidateInputsResu
   const tokens = params.tokens === undefined ? undefined : resolveTokens(params.tokens);
   const snapshots = params.snapshots === undefined ? undefined : parseSnapshots(params.snapshots);
 
-  return {
+  const result = {
     config,
     url,
     thresholds: config.thresholds,
@@ -65,4 +73,7 @@ export function validateInputs(params: ValidateInputsParams): ValidateInputsResu
       snapshots: snapshots ? snapshots.length : 0
     }
   };
+
+  logger.info("workflow completed", result.counts);
+  return result;
 }

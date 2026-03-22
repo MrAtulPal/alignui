@@ -1,7 +1,10 @@
+import { createLogger } from "@designlatch/app";
 import { access, readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import path from "node:path";
 import { spawn } from "node:child_process";
+
+const logger = createLogger("cli.report_server");
 
 export type ServeOptions = {
   reportDir?: string;
@@ -145,7 +148,7 @@ export async function startReportServer(opts: ServeOptions): Promise<StartedRepo
     try {
       await openBrowser(url);
     } catch {
-      console.log(`Open browser manually: ${url}`);
+      logger.warn("browser open failed", { url });
     }
   }
 
@@ -172,3 +175,4 @@ export async function waitForShutdown(server: StartedReportServer): Promise<void
     process.once("SIGTERM", onSignal);
   });
 }
+
