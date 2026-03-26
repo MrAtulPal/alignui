@@ -1,15 +1,20 @@
-import { createLogger, scanCompliance, type ScanComplianceParams } from "@designlatch/app";
+import { createLogger, scanCompliance, writeScanReport, type ScanComplianceParams } from "@designlatch/app";
 
 const logger = createLogger("mcp.scan_compliance");
 
-export function runScanCompliance(params: ScanComplianceParams) {
+export async function runScanCompliance(params: ScanComplianceParams) {
   logger.info("tool started");
   const result = scanCompliance(params);
+  const output = await writeScanReport("report", result.report, result.evaluation);
   logger.info("tool completed", {
     total: result.report.summary.total,
     passed: result.report.summary.passed,
     score: result.report.summary.score,
-    pass: result.evaluation.pass
+    pass: result.evaluation.pass,
+    reportDir: output.reportDir
   });
-  return result;
+  return {
+    ...result,
+    reportOutput: output
+  };
 }

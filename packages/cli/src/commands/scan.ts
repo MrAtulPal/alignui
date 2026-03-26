@@ -1,12 +1,8 @@
-import { scanCompliance } from "@designlatch/app";
-import { diffReports, topFailures, type Evaluation, type ScanReport } from "@designlatch/core";
-import { writeFile, mkdir } from "node:fs/promises";
-import path from "node:path";
+import { scanCompliance, writeScanReport } from "@designlatch/app";
+import { diffReports, topFailures, type ScanReport } from "@designlatch/core";
+import { writeFile } from "node:fs/promises";
 import { ExitCode } from "../lib/exit-codes.js";
-import { buildInlinedFontFaceCss } from "../lib/font-assets.js";
-import { renderHtmlReport } from "../lib/html-report.js";
 import { readJsonFile } from "../lib/json.js";
-import { minify } from "html-minifier-terser";
 import { loadConfigInput } from "../lib/config-loader.js";
 
 type ScanOpts = {
@@ -27,30 +23,6 @@ function printTopFailures(report: ScanReport, max = 10) {
     const act = r.actual ?? "null";
     console.log(`- ${r.severity} ${r.selector} ${r.property} expected=${exp} actual=${act}`);
   }
-}
-
-async function writeHtmlReport(reportDir: string, report: ScanReport, ev: Evaluation) {
-  const jsonPath = path.join(reportDir, "report.json");
-  const htmlPath = path.join(reportDir, "index.html");
-
-  await mkdir(reportDir, { recursive: true });
-  const fontFaceCss = await buildInlinedFontFaceCss();
-
-  await writeFile(jsonPath, JSON.stringify(report, null, 2), "utf8");
-  const html = renderHtmlReport(report, ev, { fontFaceCss });
-  const minified = await minify(html, {
-    collapseWhitespace: true,
-    removeComments: true,
-    removeRedundantAttributes: true,
-    removeEmptyAttributes: true,
-    sortAttributes: true,
-    sortClassName: true,
-    minifyCSS: true,
-    minifyJS: true
-  });
-  await writeFile(htmlPath, minified, "utf8");
-  console.log(`Wrote ${jsonPath}`);
-  console.log(`Wrote ${htmlPath}`);
 }
 
 export async function runScan(opts: ScanOpts): Promise<number> {
@@ -79,7 +51,9 @@ export async function runScan(opts: ScanOpts): Promise<number> {
 
   const reportDir = opts.reportDir ?? (opts.out ? undefined : "report");
   if (reportDir) {
-    await writeHtmlReport(reportDir, scanned.report, scanned.evaluation);
+    const output = await writeScanReport(reportDir, scanned.report, scanned.evaluation);
+    console.log(`Wrote ${output.jsonPath}`);
+    console.log(`Wrote ${output.htmlPath}`);
   } else {
     const outPath = opts.out ?? "report.json";
     await writeFile(outPath, JSON.stringify(scanned.report, null, 2), "utf8");

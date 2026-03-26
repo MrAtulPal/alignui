@@ -52,7 +52,7 @@ export function createMcpServer() {
     scanComplianceSchema.shape,
     async (params) => {
       try {
-        return toToolResponse(runScanCompliance(params));
+        return toToolResponse(await runScanCompliance(params));
       } catch (error) {
         const normalized = toError(error);
         logger.error("tool failed", { tool: "scan_compliance", error: normalized.message });
@@ -71,4 +71,3 @@ export function createMcpServer() {
     }
   };
 }
-

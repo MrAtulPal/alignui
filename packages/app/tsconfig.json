@@ -9,6 +9,6 @@
       "@designlatch/core": ["../core/src/index.ts"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "references": [{ "path": "../core" }]
 }
