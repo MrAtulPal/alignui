@@ -258,4 +258,4 @@ The computed styles collected from the live site.
 
 ## More Docs
 
-- [`CLI dictionary`](./public/docs/CLI_USAGE.md)
+- [`CLI dictionary`](./public/docs/CLI_Dictionary.md)
