@@ -3,6 +3,21 @@
   "version": "1.0.0-beta",
   "private": false,
   "type": "module",
+  "keywords": [
+    "design compliance",
+    "designlatch",
+    "ui testing",
+    "ui cli"
+  ],
+  "homepage": "https://atulknowsme.github.io/designlatch/",
+  "author": "Atul Pal",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atulknowsme/designlatch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/atulknowsme/designlatch/issues"
+  },
   "bin": {
     "designlatch": "./dist/index.js"
   },
