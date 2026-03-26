@@ -1,6 +1,6 @@
 {
   "name": "@designlatch/cli",
-  "version": "0.1.0",
+  "version": "1.0.0-beta",
   "private": false,
   "type": "module",
   "bin": {
@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@designlatch/app": "0.1.0",
-    "@designlatch/core": "1.0.0-beta",
+    "@designlatch/core": "0.1.0",
     "dotenv": "^17.3.1",
     "html-minifier-terser": "^7.2.0",
     "playwright": "^1.54.0"
