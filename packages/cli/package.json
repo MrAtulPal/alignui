@@ -1,6 +1,6 @@
 {
   "name": "@designlatch/cli",
-  "version": "1.0.2-beta",
+  "version": "1.0.3-beta",
   "type": "module",
   "keywords": [
     "design compliance",
@@ -16,9 +16,6 @@
   },
   "bugs": {
     "url": "https://github.com/atulknowsme/designlatch/issues"
-  },
-  "publishConfig": {
-    "registry": "https://github.com/atulknowsme/designlatch.git"
   },
   "files": [
     "dist",
