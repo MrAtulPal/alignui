@@ -1,10 +1,7 @@
-﻿import { lintRules, resolveTokenMap, validateScanConfig, validateTokenMap, type ScanConfig, type TokenMap } from "@designlatch/core";
+import { validateInputs } from "@designlatch/app";
 import { ExitCode } from "../lib/exit-codes.js";
 import { readJsonFile } from "../lib/json.js";
-import { parseSnapshots } from "../lib/snapshots.js";
 import { loadConfigInput } from "../lib/config-loader.js";
-
-type ErrItem = { path: string; message: string };
 
 type ValidateOpts = {
   configPath?: string;
@@ -16,47 +13,31 @@ type ValidateOpts = {
 export async function runValidate(opts: ValidateOpts): Promise<number> {
   const configPath = opts.configPath ?? ".designlatch.json";
   const loaded = await loadConfigInput(configPath);
-  const validated = validateScanConfig(loaded.configRaw);
-  if (!validated.ok) {
-    const msg = validated.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
-    throw new Error(`Invalid config (${loaded.configPath}):\n${msg}`);
-  }
-  const config: ScanConfig = validated.value;
-
-  const lint = lintRules(config.rules);
-  if (lint.errors.length > 0) {
-    const msg = lint.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
-    throw new Error(`Config lint errors (${loaded.configPath}):\n${msg}`);
-  }
-  if (lint.warnings.length > 0) {
-    console.log(`Config lint warnings (${loaded.configPath}):`);
-    for (const w of lint.warnings) console.log(`- ${w.path}: ${w.message}`);
-  }
 
   if (!opts.tokensPath) throw new Error("Missing --tokens <tokens.json>.");
-  const tokensRaw = await readJsonFile(opts.tokensPath);
-  const tv = validateTokenMap(tokensRaw);
-  if (!tv.ok) {
-    const msg = tv.errors.map((e: ErrItem) => `${e.path}: ${e.message}`).join("\n");
-    throw new Error(`Invalid tokens (${opts.tokensPath}):\n${msg}`);
-  }
-  const resolved = resolveTokenMap(tv.value);
-  if (resolved.errors.length > 0) {
-    throw new Error(`Token resolution errors:\n${resolved.errors.join("\n")}`);
-  }
-  const tokens: TokenMap = resolved.resolved;
-
   if (!opts.snapshotsPath) throw new Error("Missing --snapshots <snapshots.json>.");
-  const snapsRaw = await readJsonFile(opts.snapshotsPath);
-  const snapshots = parseSnapshots(snapsRaw);
 
-  const url = opts.url ?? config.url;
-  if (!url) throw new Error("Missing url (provide --url or config.url).");
+  const [tokensRaw, snapshotsRaw] = await Promise.all([
+    readJsonFile(opts.tokensPath),
+    readJsonFile(opts.snapshotsPath)
+  ]);
 
-  console.log(`Config: ${config.rules.length} rule(s)`);
-  console.log(`Tokens: ${Object.keys(tokens).length} token(s)`);
-  console.log(`Snapshots: ${snapshots.length} selector(s)`);
-  console.log(`URL: ${url}`);
+  const validated = validateInputs({
+    config: loaded.configRaw,
+    tokens: tokensRaw,
+    snapshots: snapshotsRaw,
+    urlOverride: opts.url
+  });
+
+  if (validated.lintWarnings.length > 0) {
+    console.log(`Config lint warnings (${loaded.configPath}):`);
+    for (const warning of validated.lintWarnings) console.log(`- ${warning.path}: ${warning.message}`);
+  }
+
+  console.log(`Config: ${validated.counts.rules} rule(s)`);
+  console.log(`Tokens: ${validated.counts.tokens} token(s)`);
+  console.log(`Snapshots: ${validated.counts.snapshots} selector(s)`);
+  console.log(`URL: ${validated.url}`);
 
   return ExitCode.Ok;
 }

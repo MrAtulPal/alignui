@@ -21,6 +21,26 @@ module.exports = {
       }
     },
     {
+      displayName: "app",
+      testMatch: ["<rootDir>/packages/app/src/**/*.test.ts"],
+      testEnvironment: "node",
+      preset: "ts-jest/presets/default-esm",
+      extensionsToTreatAsEsm: [".ts"],
+      transform: {
+        "^.+\\.ts$": [
+          "ts-jest",
+          {
+            useESM: true,
+            tsconfig: "<rootDir>/packages/app/tsconfig.json"
+          }
+        ]
+      },
+      moduleNameMapper: {
+        "^@designlatch/core$": "<rootDir>/packages/core/src/index.ts",
+        "^(\\.{1,2}/.*)\\.js$": "$1"
+      }
+    },
+    {
       displayName: "cli",
       testMatch: ["<rootDir>/packages/cli/src/**/*.test.ts"],
       testEnvironment: "node",
@@ -36,8 +56,30 @@ module.exports = {
         ]
       },
       moduleNameMapper: {
+        "^@designlatch/app$": "<rootDir>/packages/app/src/index.ts",
         "^@designlatch/core$": "<rootDir>/packages/core/src/index.ts",
         "^playwright$": "<rootDir>/packages/cli/src/test/playwright-mock.ts",
+        "^(\\.{1,2}/.*)\\.js$": "$1"
+      }
+    },
+    {
+      displayName: "mcp",
+      testMatch: ["<rootDir>/packages/mcp/src/**/*.test.ts"],
+      testEnvironment: "node",
+      preset: "ts-jest/presets/default-esm",
+      extensionsToTreatAsEsm: [".ts"],
+      transform: {
+        "^.+\\.ts$": [
+          "ts-jest",
+          {
+            useESM: true,
+            tsconfig: "<rootDir>/packages/mcp/tsconfig.json"
+          }
+        ]
+      },
+      moduleNameMapper: {
+        "^@designlatch/app$": "<rootDir>/packages/app/src/index.ts",
+        "^@designlatch/core$": "<rootDir>/packages/core/src/index.ts",
         "^(\\.{1,2}/.*)\\.js$": "$1"
       }
     }

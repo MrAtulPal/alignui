@@ -1,4 +1,4 @@
-﻿import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { ExitCode } from "../lib/exit-codes.js";
@@ -42,7 +42,8 @@ test("runScan returns Ok for matching token vs snapshot", async () => {
   expect(txt).toMatch(/\"score\"/);
   const html = await readFile(htmlPath, "utf8");
   expect(html).toMatch(/DesignLatch - Compliance Report/);
-  expect(html).not.toMatch(/\n\s+</);
+  expect(html).toMatch(/__DESIGNLATCH_DATA__/);
+  expect(html).toMatch(/"score":\s*100/);
 });
 
 test("runScan returns Fail when token is missing", async () => {
@@ -150,8 +151,10 @@ test("runScan defaults to report/ folder when no out/reportDir are provided", as
     const html = await readFile(path.join(dir, "report", "index.html"), "utf8");
     expect(json).toMatch(/\"score\"/);
     expect(html).toMatch(/DesignLatch - Compliance Report/);
-    expect(html).not.toMatch(/\n\s+</);
+    expect(html).toMatch(/__DESIGNLATCH_DATA__/);
+    expect(html).toMatch(/"score":\s*100/);
   } finally {
     process.chdir(cwd);
   }
 });
+

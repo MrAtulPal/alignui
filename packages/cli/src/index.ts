@@ -1,18 +1,13 @@
 #!/usr/bin/env node
+import { createLogger } from "@designlatch/app";
 import { ExitCode } from "./lib/exit-codes.js";
 import { parseArgs, type ParsedArgs } from "./lib/args.js";
 
 const DOCS_URL = "https://mratulpal.github.io/alignui/";
+const logger = createLogger("cli");
 
 function printHelp() {
-  console.log(`
- █████╗ ██╗     ██╗ ██████╗ ███╗   ██╗██╗   ██╗██╗
-██╔══██╗██║     ██║██╔════╝ ████╗  ██║██║   ██║██║
-███████║██║     ██║██║  ███╗██╔██╗ ██║██║   ██║██║
-██╔══██║██║     ██║██║   ██║██║ ╚██╗██║██║   ██║██║
-██║  ██║███████╗██║╚██████╔╝██║  ╚████║╚██████╔╝██║
-╚═╝  ╚═╝╚══════╝╚═╝ ╚═════╝ ╚═╝   ╚═══╝ ╚═════╝ ╚═╝
-    `);
+  console.log("DesignLatch");
   console.log("Design-to-code compliance checks");
   console.log("");
   console.log("Commands:");
@@ -48,7 +43,7 @@ async function handleScan(args: Extract<ParsedArgs, { cmd: "scan" }>): Promise<n
     const { runServe } = await import("./commands/serve.js");
     await runServe({ reportDir: scanReportDir(args), host: args.host, port: args.port, noOpen: args.noOpen });
   } else if (args.serveReport && !scanWillWriteHtml(args)) {
-    console.log("Skipping report server: HTML report is not generated when using --out without --report-dir.");
+    logger.warn("report server skipped", { reason: "html-not-generated" });
   }
   return code;
 }
@@ -80,14 +75,18 @@ const handlers: HandlerMap = {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  logger.debug("command parsed", { cmd: args.cmd });
 
   try {
     const code = await handlers[args.cmd](args as never);
     process.exit(code);
   } catch (err) {
-    console.error(err instanceof Error ? err.message : String(err));
+    const message = err instanceof Error ? err.message : String(err);
+    logger.error("command failed", { error: message });
+    console.error(message);
     process.exit(ExitCode.RuntimeError);
   }
 }
 
 await main();
+
