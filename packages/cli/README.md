@@ -4,8 +4,8 @@ This is the canonical documentation for the file-based DesignLatch CLI adapter. 
 
 DesignLatch splits responsibilities into layers:
 
-- `@designlatch/core`: pure comparison logic (`ScanConfig`, tokens, evaluations).
-- `@designlatch/app`: shared workflows (`validateInputs`, `scanCompliance`, helpers for reports).
+- `@designlatch/core`: pure comparison logic (`ScanConfig`, tokens, evaluations), bundled into the published CLI package.
+- `@designlatch/app`: shared workflows (`validateInputs`, `scanCompliance`, helpers for reports), bundled into the published CLI package.
 - `@designlatch/cli`: CLI entrypoint, config loading, Playwright collection, report generation.
 
 Use the CLI when you want file-based workflows, Playwright-powered snapshot collection, and local HTML/JSON reports.
