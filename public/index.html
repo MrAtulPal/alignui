@@ -9,111 +9,19 @@
 </head>
 <body>
 
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="brand" onclick="showPage('home')" title="Home">
-    <div class="brand-mark">D</div>
-    <div class="brand-copy"><strong>DesignLatch</strong></div>
-  </div>
-  <nav class="topbar-nav" id="topbar-nav"></nav>
-  <button class="hamburger" id="ham-btn" aria-label="Open menu" onclick="openDrawer()">
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-      <line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>
-    </svg>
-  </button>
-</header>
-
-<!-- DRAWER OVERLAY -->
-<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
-
-<!-- DRAWER -->
-<div class="drawer" id="drawer">
-  <div class="drawer-header">
-    <div class="drawer-brand" onclick="closeDrawer();showPage('home')">
-      <div class="dm">D</div>
-      <strong>DesignLatch</strong>
-    </div>
-    <button class="drawer-close" onclick="closeDrawer()" aria-label="Close">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg>
-    </button>
-  </div>
-  <div class="drawer-nav-links" id="drawer-nav-links"></div>
-  <div class="drawer-sidebar-content" id="drawer-sb-content" style="display:none">
-    <div class="sb-grp" style="margin-top:18px">
-      <span class="sb-lbl">Start here</span>
-      <ul class="sb-nav">
-        <li><a data-sec="overview" onclick="drawerNav('overview')"><span class="sb-dot"></span>Overview</a></li>
-        <li><a data-sec="problem" onclick="drawerNav('problem')"><span class="sb-dot"></span>The problem</a></li>
-        <li><a data-sec="how-it-works" onclick="drawerNav('how-it-works')"><span class="sb-dot"></span>How it works</a></li>
-        <li><a data-sec="architecture" onclick="drawerNav('architecture')"><span class="sb-dot"></span>Architecture</a></li>
-        <li><a data-sec="status" onclick="drawerNav('status')"><span class="sb-dot"></span>What's shipped</a></li>
-      </ul>
-    </div>
-    <div class="sb-grp">
-      <span class="sb-lbl sb-lbl-cli">CLI Adapter</span>
-      <hr class="sb-rule sb-rule-cli">
-      <ul class="sb-nav">
-        <li><a data-sec="cli" onclick="drawerNav('cli')"><span class="sb-dot sb-dot-cli"></span>CLI overview</a></li>
-        <li><a data-sec="cmd-init" onclick="drawerNav('cmd-init')"><span class="sb-dot sb-dot-cli"></span>init</a></li>
-        <li><a data-sec="cmd-collect" onclick="drawerNav('cmd-collect')"><span class="sb-dot sb-dot-cli"></span>collect</a></li>
-        <li><a data-sec="cmd-validate" onclick="drawerNav('cmd-validate')"><span class="sb-dot sb-dot-cli"></span>validate</a></li>
-        <li><a data-sec="cmd-scan" onclick="drawerNav('cmd-scan')"><span class="sb-dot sb-dot-cli"></span>scan</a></li>
-        <li><a data-sec="cmd-serve" onclick="drawerNav('cmd-serve')"><span class="sb-dot sb-dot-cli"></span>serve</a></li>
-      </ul>
-    </div>
-    <div class="sb-grp sb-mcp-grp">
-      <span class="sb-lbl sb-lbl-mcp">MCP Adapter</span>
-      <hr class="sb-rule sb-rule-mcp">
-      <ul class="sb-nav">
-        <li><a data-sec="mcp" onclick="drawerNav('mcp')"><span class="sb-dot sb-dot-mcp"></span>MCP overview</a></li>
-        <li><a data-sec="mcp-validate" onclick="drawerNav('mcp-validate')"><span class="sb-dot sb-dot-mcp"></span>validate_inputs</a></li>
-        <li><a data-sec="mcp-scan" onclick="drawerNav('mcp-scan')"><span class="sb-dot sb-dot-mcp"></span>scan_compliance</a></li>
-      </ul>
-    </div>
-    <div class="sb-grp">
-      <span class="sb-lbl">Reference</span>
-      <ul class="sb-nav">
-        <li><a data-sec="inputs" onclick="drawerNav('inputs')"><span class="sb-dot"></span>Inputs</a></li>
-        <li><a data-sec="outputs" onclick="drawerNav('outputs')"><span class="sb-dot"></span>Outputs</a></li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<!-- ══ HOME PAGE ══ -->
-<div class="page-home active" id="page-home">
-<div class="home-wrap"><div class="home-inner">
-
-  <section class="h-hero" id="home-top">
-    <article class="h-hero-card panel">
-      <span class="eyebrow">Design Compliance Toolkit</span>
-      <h1>Keep your UI honest.</h1>
-      <p class="h-lead">DesignLatch catches the gap between your design tokens and your live UI — automatically. It compares expected token values against actual computed styles, then surfaces every drift as a scored compliance report.</p>
-      <div class="h-actions">
-        <button class="btn btn-primary" onclick="showPage('docs','overview')">Read the Docs</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('home-qs').scrollIntoView({behavior:'smooth'})">Quick Start</button>
-      </div>
-    </article>
-    <aside class="h-hero-side">
-      <section class="h-summary-card panel">
-        <h2>Two adapters, one engine</h2>
-        <p>Use the CLI for terminal-based workflows with Playwright and HTML reports. Use MCP when an AI agent already holds your data inline and needs JSON-only results.</p>
-        <div class="h-stats">
-          <div class="h-stat stat-cli"><span>CLI</span><strong>@designlatch/cli</strong></div>
-          <div class="h-stat stat-mcp"><span>MCP</span><strong>@designlatch/mcp</strong></div>
-          <div class="h-stat"><span>CLI outputs</span><strong>JSON + HTML</strong></div>
-          <div class="h-stat"><span>MCP tools</span><strong>validate + scan</strong></div>
+    <section class="hero" id="top">
+      <article class="hero-card panel">
+        <span class="eyebrow">CLI-first documentation</span>
+        <h1>Check live UI against expected design values.</h1>
+        <p class="lead">
+          DesignLatch is a CLI-first design compliance tool. It compares expected token values with computed styles from a running site,
+          then generates JSON and HTML reports so teams can review drift with something measurable instead of subjective visual QA.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#quickstart">Quick Start</a>
+          <a class="button secondary" href="./docs/index.html">Open Docs</a>
         </div>
-      </section>
-      <section class="h-summary-card panel">
-        <h2>Full docs →</h2>
-        <p>CLI commands with every flag explained, MCP tool reference, inputs, outputs, and architecture — all in one place.</p>
-        <div class="h-actions" style="margin-top:14px">
-          <button class="btn btn-secondary" onclick="showPage('docs','overview')" style="font-size:13px;min-height:38px">Open Docs</button>
-        </div>
-      </section>
-    </aside>
-  </section>
+      </article>
 
   <div class="h-ps">
     <div class="h-ps-card h-ps-problem">
@@ -162,7 +70,7 @@ npx designlatch scan --tokens tokens.json --snapshots snapshots.json --report-di
     <span>DesignLatch v1</span>
     <div class="h-footer-links">
       <button onclick="showPage('docs','overview')" style="background:none;border:none;cursor:pointer;color:var(--text);font-size:12px;font-family:var(--sans)">Documentation</button>
-      <a href="https://github.com/MrAtulPal/alignui" target="_blank" rel="noreferrer">GitHub</a>
+      <a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer">GitHub</a>
     </div>
   </footer>
 
@@ -293,189 +201,46 @@ npx designlatch help</code></pre></div>
               <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--accent);min-width:68px">serve</span><span style="color:var(--muted)">→ Open the HTML report</span></div>
             </div>
           </div>
+        </section>
+
+        <section class="cta-card panel">
+          <h2>Use the docs for details</h2>
+          <p>
+            The full docs page contains the command guide, install flow, examples, required inputs, and report flow. The landing page stays intentionally minimal.
+          </p>
+        </section>
+      </aside>
+    </section>
+
+    <section class="section" id="quickstart">
+      <article class="section-card panel">
+        <div class="section-header">
+          <h2>Quick Start</h2>
+          <span>npm release flow</span>
         </div>
-      </div>
-    </section>
-
-    <section class="doc-sec" id="cmd-init">
-      <div class="zone zone-cli">
-        <div class="zone-hdr"><div><div class="d-eyebrow">CLI · 1 / 5</div><h2 class="d-h2">init</h2></div><span class="zone-pkg">first run</span></div>
-        <p style="font-size:14.5px;color:rgba(233,229,220,.70);max-width:58ch;margin-bottom:16px"><strong>What it does:</strong> Scaffolds your project with a starter <code>.designlatch.json</code> config, an example <code>tokens.json</code>, and a snapshots template. Run once when setting up.</p>
-        <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npx designlatch init
-# Overwrite existing config:
-npx designlatch init --force</code></pre></div>
-        <div class="flags-lbl" style="margin-top:14px">Flags</div>
-        <div class="flags"><div class="flag-row"><span class="flag-name opt">--force</span><span class="flag-desc">Overwrites existing <code>.designlatch.json</code> and template files. Use for a fresh start.</span></div></div>
-        <div class="callout callout-tip" style="margin-top:12px"><span class="callout-icon">💡</span><p>After <code>init</code>, open <code>.designlatch.json</code> and set the <code>url</code> field to your site's address.</p></div>
-      </div>
-    </section>
-
-    <section class="doc-sec" id="cmd-collect">
-      <div class="zone zone-cli">
-        <div class="zone-hdr"><div><div class="d-eyebrow">CLI · 2 / 5</div><h2 class="d-h2">collect</h2></div><span class="zone-pkg">requires Playwright</span></div>
-        <p style="font-size:14.5px;color:rgba(233,229,220,.70);max-width:60ch;margin-bottom:16px"><strong>What it does:</strong> Opens your site in a real browser via Playwright and captures the computed CSS for every selector in your config. Saves results as <code>snapshots.json</code> — the "actual reality" half of the comparison.</p>
-        <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash — typical collect</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npx designlatch collect \
-  --config  .designlatch.json \
-  --url     https://app.example.com \
-  --out     designlatch/snapshots.json</code></pre></div>
-        <div class="flags-lbl" style="margin-top:14px">Flags</div>
-        <div class="flags">
-          <div class="flag-row"><span class="flag-name">--config<span class="flag-req">*</span></span><span class="flag-desc">Path to your config file. Defines which selectors and properties to capture.</span></div>
-          <div class="flag-row"><span class="flag-name">--url<span class="flag-req">*</span></span><span class="flag-desc">The URL of the page to open. Playwright navigates here and captures computed styles.</span></div>
-          <div class="flag-row"><span class="flag-name">--out<span class="flag-req">*</span></span><span class="flag-desc">Where to write the snapshots JSON. Pass this path to <code>validate</code> and <code>scan</code> later.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--wait-for</span><span class="flag-desc">CSS selector to wait for before capturing — ensures the page is fully rendered.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--timeout-ms</span><span class="flag-desc">Max milliseconds to wait for the <code>--wait-for</code> selector.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--headed</span><span class="flag-desc">Run the browser in visible (non-headless) mode. Useful for debugging capture issues.</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="doc-sec" id="cmd-validate">
-      <div class="zone zone-cli">
-        <div class="zone-hdr"><div><div class="d-eyebrow">CLI · 3 / 5</div><h2 class="d-h2">validate</h2></div><span class="zone-pkg">optional but recommended</span></div>
-        <p style="font-size:14.5px;color:rgba(233,229,220,.70);max-width:60ch;margin-bottom:16px"><strong>What it does:</strong> Checks your config, tokens, and snapshots are well-formed before a full scan. A dry run for your inputs — catches typos and missing fields early.</p>
-        <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npx designlatch validate \
-  --tokens    designlatch/tokens.json \
-  --snapshots designlatch/snapshots.json</code></pre></div>
-        <div class="flags-lbl" style="margin-top:14px">Flags</div>
-        <div class="flags">
-          <div class="flag-row"><span class="flag-name">--tokens<span class="flag-req">*</span></span><span class="flag-desc">Path to your <code>tokens.json</code> — the expected design values to validate.</span></div>
-          <div class="flag-row"><span class="flag-name">--snapshots<span class="flag-req">*</span></span><span class="flag-desc">Path to your <code>snapshots.json</code> — actual computed styles from <code>collect</code>.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--config</span><span class="flag-desc">Config file path. Defaults to <code>.designlatch.json</code> in the current directory.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--url</span><span class="flag-desc">Overrides the <code>url</code> in your config for this run only. Useful for staging URLs.</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="doc-sec" id="cmd-scan">
-      <div class="zone zone-cli">
-        <div class="zone-hdr"><div><div class="d-eyebrow">CLI · 4 / 5</div><h2 class="d-h2">scan</h2></div><span class="zone-pkg">main command</span></div>
-        <p style="font-size:14.5px;color:rgba(233,229,220,.70);max-width:60ch;margin-bottom:16px"><strong>What it does:</strong> Runs the full compliance engine. Compares tokens vs snapshots rule-by-rule, scores the result, and writes <code>report.json</code> + <code>index.html</code> to your report directory.</p>
-        <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash — full scan</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npx designlatch scan \
-  --tokens     designlatch/tokens.json \
-  --snapshots  designlatch/snapshots.json \
-  --report-dir report</code></pre></div>
-        <div class="flags-lbl" style="margin-top:14px">Flags</div>
-        <div class="flags">
-          <div class="flag-row"><span class="flag-name">--tokens<span class="flag-req">*</span></span><span class="flag-desc">Path to your <code>tokens.json</code> — the expected design token values.</span></div>
-          <div class="flag-row"><span class="flag-name">--snapshots<span class="flag-req">*</span></span><span class="flag-desc">Path to your <code>snapshots.json</code> — actual computed styles from your live site.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--config</span><span class="flag-desc">Config file path. Defaults to <code>.designlatch.json</code>.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--report-dir</span><span class="flag-desc">Directory to write output reports. Defaults to <code>report/</code>. Creates it if needed.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--url</span><span class="flag-desc">Overrides the page URL in config for this scan only.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--baseline</span><span class="flag-desc">Path to a previous <code>report.json</code> to compare against. Enables regression diffing.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--diff-out</span><span class="flag-desc">Where to write the diff JSON when using <code>--baseline</code>.</span></div>
-        </div>
-        <div class="callout callout-tip" style="margin-top:12px"><span class="callout-icon">📁</span><p>After scan, <code>report/report.json</code> holds machine-readable data and <code>report/index.html</code> is the human-readable view. Use <code>serve</code> to open it instantly.</p></div>
-      </div>
-    </section>
-
-    <section class="doc-sec" id="cmd-serve">
-      <div class="zone zone-cli">
-        <div class="zone-hdr"><div><div class="d-eyebrow">CLI · 5 / 5</div><h2 class="d-h2">serve</h2></div><span class="zone-pkg">local preview</span></div>
-        <p style="font-size:14.5px;color:rgba(233,229,220,.70);max-width:60ch;margin-bottom:16px"><strong>What it does:</strong> Starts a local web server and opens your HTML report in the browser. Run <code>serve</code> after a scan and it appears instantly.</p>
-        <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npx designlatch serve --report-dir report
-
-# Custom port, no auto-open:
-npx designlatch serve \
-  --report-dir report \
-  --port       4321 \
-  --no-open</code></pre></div>
-        <div class="flags-lbl" style="margin-top:14px">Flags</div>
-        <div class="flags">
-          <div class="flag-row"><span class="flag-name">--report-dir<span class="flag-req">*</span></span><span class="flag-desc">Directory containing your report files. Same value you passed to <code>scan --report-dir</code>.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--port</span><span class="flag-desc">Port for the local server. Defaults to <code>3000</code>.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--host</span><span class="flag-desc">Hostname to bind to. Defaults to <code>localhost</code>. Set to <code>0.0.0.0</code> to expose on your network.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--file</span><span class="flag-desc">Serve a specific HTML file instead of the report directory.</span></div>
-          <div class="flag-row"><span class="flag-name opt">--no-open</span><span class="flag-desc">Don't auto-open the browser. Useful in CI or headless environments.</span></div>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"><div class="divider-line"></div><span class="divider-lbl" style="color:var(--mcp)">▸ MCP Adapter</span><div class="divider-line" style="background:var(--mcp-bd)"></div></div>
-
-    <section class="doc-sec" id="mcp">
-      <div class="zone zone-mcp">
-        <div class="zone-hdr"><div><div class="d-eyebrow">MCP</div><h2 class="d-h2">MCP adapter — AI agent workflow</h2></div><span class="zone-pkg">@designlatch/mcp</span></div>
-        <p style="font-size:14.5px;color:rgba(233,229,220,.70);max-width:62ch;margin-bottom:18px">The MCP adapter is for AI agents that hold your config, tokens, and snapshots as in-memory JSON. It runs as a <code>stdio</code> server — JSON in, JSON out. No files, no Playwright.</p>
-        <div class="callout callout-info"><span class="callout-icon">🤖</span><p><strong>Not sure if you need MCP?</strong> If you're working in the terminal, use the CLI. MCP is for AI assistants orchestrating the workflow and holding data in memory.</p></div>
-        <div class="g2" style="margin-top:14px">
-          <div class="d-tile d-tile-mcp"><div class="h-chip chip-mcp">Transport</div><h3 class="d-h3">stdio only (v1)</h3><p class="body" style="max-width:none">JSON in, JSON out through standard input/output. No HTTP, no WebSockets.</p></div>
-          <div class="d-tile d-tile-mcp"><div class="h-chip chip-mcp">2 tools in v1</div><h3 class="d-h3">validate + scan</h3><p class="body" style="max-width:none">Mirrors the CLI's <code>validate</code> and <code>scan</code> commands but accepts inline JSON instead of file paths.</p></div>
-        </div>
-        <div class="codeblock" style="margin-top:14px"><div class="cb-hdr"><span class="cb-dot cb-dot-v"></span><span class="cb-lang">JSON — example payload</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>{
-  "config":      { /* contents of .designlatch.json */ },
-  "tokens":      { /* contents of tokens.json */ },
-  "snapshots":   [ /* array from snapshots.json */ ],
-  "urlOverride": "https://app.example.com"
-}</code></pre></div>
-      </div>
-    </section>
-
-    <section class="doc-sec" id="mcp-validate">
-      <div class="zone zone-mcp">
-        <div class="zone-hdr"><div><div class="d-eyebrow">MCP · Tool 1 / 2</div><h2 class="d-h2">validate_inputs</h2></div><span class="zone-pkg">config check</span></div>
-        <p style="font-size:14.5px;color:rgba(233,229,220,.70);max-width:60ch;margin-bottom:14px"><strong>What it does:</strong> Validates config structure, surfaces lint warnings, and optionally parses tokens and snapshots — without running a full compliance scan.</p>
-        <div class="tool-block">
-          <div class="tool-name">validate_inputs</div>
-          <div class="tool-desc">Returns a normalized validation result as JSON. Errors are returned as tool failures.</div>
-          <div class="flags">
-            <div class="flag-row"><span class="flag-name">config<span class="flag-req">*</span></span><span class="flag-desc">The full config object (same structure as <code>.designlatch.json</code>). <strong>Required.</strong></span></div>
-            <div class="flag-row"><span class="flag-name opt">tokens</span><span class="flag-desc">Token definitions object. Optional — omit to validate only config structure.</span></div>
-            <div class="flag-row"><span class="flag-name opt">snapshots</span><span class="flag-desc">Array of snapshot objects. Optional.</span></div>
-            <div class="flag-row"><span class="flag-name opt">urlOverride</span><span class="flag-desc">String URL that overrides <code>config.url</code> for this call only.</span></div>
+        <div class="entry-grid">
+          <div class="entry">
+            <div class="tag">1</div>
+            <h3>Install</h3>
+            <p>Add <code>@designlatch/cli</code> to your project and run it through <code>npx designlatch</code>.</p>
+          </div>
+          <div class="entry">
+            <div class="tag">2</div>
+            <h3>Collect</h3>
+            <p>Capture computed styles from the live site into <code>designlatch/snapshots.json</code>.</p>
+          </div>
+          <div class="entry">
+            <div class="tag">3</div>
+            <h3>Scan</h3>
+            <p>Compare expected tokens against snapshots and review the generated report.</p>
           </div>
         </div>
-      </div>
+      </article>
     </section>
 
-    <section class="doc-sec" id="mcp-scan">
-      <div class="zone zone-mcp">
-        <div class="zone-hdr"><div><div class="d-eyebrow">MCP · Tool 2 / 2</div><h2 class="d-h2">scan_compliance</h2></div><span class="zone-pkg">full scan</span></div>
-        <p style="font-size:14.5px;color:rgba(233,229,220,.70);max-width:60ch;margin-bottom:14px"><strong>What it does:</strong> Runs the full compliance engine inline. Returns normalized config, the full compliance report, and evaluation data as a JSON tool response.</p>
-        <div class="tool-block">
-          <div class="tool-name">scan_compliance</div>
-          <div class="tool-desc">Returns <code>{ config, report, evaluation }</code> as JSON. Errors are serialized as tool failures — no exceptions thrown.</div>
-          <div class="flags">
-            <div class="flag-row"><span class="flag-name">config<span class="flag-req">*</span></span><span class="flag-desc">Full config object. <strong>Required.</strong></span></div>
-            <div class="flag-row"><span class="flag-name">tokens<span class="flag-req">*</span></span><span class="flag-desc">Token definitions — the expected design values. <strong>Required.</strong></span></div>
-            <div class="flag-row"><span class="flag-name">snapshots<span class="flag-req">*</span></span><span class="flag-desc">Array of snapshot objects — actual computed styles. <strong>Required.</strong></span></div>
-            <div class="flag-row"><span class="flag-name opt">urlOverride</span><span class="flag-desc">Optional URL string that overrides <code>config.url</code> for this scan.</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"><div class="divider-line"></div><span class="divider-lbl">Reference</span><div class="divider-line"></div></div>
-
-    <section class="doc-sec" id="inputs">
-      <div class="d-eyebrow">Reference</div>
-      <h2 class="d-h2">Inputs</h2>
-      <p class="body" style="margin-bottom:18px">Both adapters share the same four input types — CLI reads from disk, MCP receives inline JSON.</p>
-      <div class="g4">
-        <div class="d-tile"><div class="h-chip chip-neutral">config</div><h3 class="d-h3"><code>.designlatch.json</code></h3><p class="body" style="max-width:none">Defines page URL, selectors, rules, scoring thresholds, and token-backed property expectations.</p></div>
-        <div class="d-tile"><div class="h-chip chip-neutral">tokens</div><h3 class="d-h3"><code>tokens.json</code></h3><p class="body" style="max-width:none">Map of token definitions (kind, value, rgba). CLI reads from disk; MCP receives inline. The "what should it be" half.</p></div>
-        <div class="d-tile"><div class="h-chip chip-neutral">snapshots</div><h3 class="d-h3"><code>snapshots.json</code></h3><p class="body" style="max-width:none">Array of selector captures: selector, URL, computed CSS, text. CLI collects them; MCP expects them from the agent.</p></div>
-        <div class="d-tile"><div class="h-chip chip-neutral">urlOverride</div><h3 class="d-h3">Optional URL string</h3><p class="body" style="max-width:none">Overrides <code>config.url</code> for a single run. Useful for pointing at staging without editing your config.</p></div>
-      </div>
-    </section>
-
-    <section class="doc-sec" id="outputs">
-      <div class="d-eyebrow">Reference</div>
-      <h2 class="d-h2">Outputs</h2>
-      <p class="body" style="margin-bottom:18px">CLI and MCP produce different output formats — humans vs agents.</p>
-      <div class="d-card">
-        <div class="g4">
-          <div class="d-tile d-tile-cli"><div class="h-chip chip-cli">CLI · JSON</div><h3 class="d-h3"><code>report/report.json</code></h3><p class="body" style="max-width:none">Machine-readable compliance data. Useful for CI pipelines and diff comparisons.</p></div>
-          <div class="d-tile d-tile-cli"><div class="h-chip chip-cli">CLI · HTML</div><h3 class="d-h3"><code>report/index.html</code></h3><p class="body" style="max-width:none">Human-readable report. Open in a browser (or with <code>serve</code>) to see scores and failing rules.</p></div>
-          <div class="d-tile d-tile-mcp"><div class="h-chip chip-mcp">MCP · JSON</div><h3 class="d-h3">Tool response objects</h3><p class="body" style="max-width:none">Structured JSON with <code>config</code>, <code>report</code>, and <code>evaluation</code>. No files written.</p></div>
-          <div class="d-tile d-tile-mcp"><div class="h-chip chip-mcp">MCP · Errors</div><h3 class="d-h3">Serialized tool failures</h3><p class="body" style="max-width:none">Errors returned as tool failure responses — not thrown. The agent can inspect them gracefully.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <footer class="d-footer">
+    <footer class="footer">
       <span>DesignLatch v1</span>
-      <div class="d-footer-links"><a href="https://github.com/MrAtulPal/alignui" target="_blank" rel="noreferrer">GitHub</a></div>
+      <div class="d-footer-links"><a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer">GitHub</a></div>
     </footer>
 
   </div></main>
@@ -519,7 +284,7 @@ function drawerNav(sec) {
 
 /* ── NAV TEMPLATES ── */
 const GH_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.66.5 12.03c0 5.1 3.3 9.43 7.88 10.96.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.71 1.27 3.37.97.1-.75.4-1.27.72-1.56-2.56-.29-5.25-1.29-5.25-5.74 0-1.27.45-2.31 1.2-3.13-.12-.3-.52-1.49.12-3.1 0 0 .98-.32 3.2 1.2a11.1 11.1 0 0 1 5.83 0c2.22-1.52 3.2-1.2 3.2-1.2.64 1.61.24 2.8.12 3.1.75.82 1.2 1.86 1.2 3.13 0 4.46-2.69 5.44-5.26 5.73.41.36.78 1.07.78 2.16 0 1.56-.02 2.82-.02 3.2 0 .31.21.68.8.56A11.54 11.54 0 0 0 23.5 12.03C23.5 5.66 18.35.5 12 .5Z"/></svg>`;
-const GH_A = `<a href="https://github.com/MrAtulPal/alignui" target="_blank" rel="noreferrer" class="gh-icon" title="GitHub" aria-label="GitHub">${GH_SVG}</a>`;
+const GH_A = `<a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer" class="gh-icon" title="GitHub" aria-label="GitHub">${GH_SVG}</a>`;
 const ICON_HOME = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`;
 const ICON_CLI  = `<span style="font-family:var(--mono);font-size:12px;line-height:1">$_</span>`;
 const ICON_MCP  = `<span style="font-family:var(--mono);font-size:12px;line-height:1">{}</span>`;
@@ -545,11 +310,11 @@ function showPage(page, section) {
     ? `<button onclick="closeDrawer();document.getElementById('home-qs').scrollIntoView({behavior:'smooth'})">${ICON_HOME} Quick Start</button>
        <button class="dnav-cli" onclick="closeDrawer();showPage('docs','cli')">${ICON_CLI} CLI Docs</button>
        <button class="dnav-mcp" onclick="closeDrawer();showPage('docs','mcp')">${ICON_MCP} MCP Docs</button>
-       <a href="https://github.com/MrAtulPal/alignui" target="_blank" rel="noreferrer" onclick="closeDrawer()">${ICON_GH} GitHub</a>`
+       <a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer" onclick="closeDrawer()">${ICON_GH} GitHub</a>`
     : `<button onclick="closeDrawer();showPage('home')">${ICON_HOME} Home</button>
        <button class="dnav-cli" onclick="drawerNav('cli')">${ICON_CLI} CLI</button>
        <button class="dnav-mcp" onclick="drawerNav('mcp')">${ICON_MCP} MCP</button>
-       <a href="https://github.com/MrAtulPal/alignui" target="_blank" rel="noreferrer" onclick="closeDrawer()">${ICON_GH} GitHub</a>`;
+       <a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer" onclick="closeDrawer()">${ICON_GH} GitHub</a>`;
 
   // show/hide docs sections in drawer
   document.getElementById('drawer-sb-content').style.display = page === 'docs' ? 'block' : 'none';

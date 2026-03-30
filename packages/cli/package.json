@@ -17,6 +17,9 @@
   "bugs": {
     "url": "https://github.com/atulknowsme/designlatch/issues"
   },
+  "publishConfig": {
+    "registry": "https://github.com/atulknowsme/designlatch.git"
+  },
   "files": [
     "dist",
     "assets",
