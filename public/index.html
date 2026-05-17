@@ -8,358 +8,605 @@
   <link rel="stylesheet" href="./assets/styles/index.css">
 </head>
 <body>
-
-    <section class="hero" id="top">
-      <article class="hero-card panel">
-        <span class="eyebrow">CLI-first documentation</span>
-        <h1>Check live UI against expected design values.</h1>
-        <p class="lead">
-          DesignLatch is a CLI-first design compliance tool. It compares expected token values with computed styles from a running site,
-          then generates JSON and HTML reports so teams can review drift with something measurable instead of subjective visual QA.
-        </p>
-        <div class="hero-actions">
-          <a class="button primary" href="#quickstart">Quick Start</a>
-          <a class="button secondary" href="./docs/index.html">Open Docs</a>
-        </div>
-      </article>
-
-  <div class="h-ps">
-    <div class="h-ps-card h-ps-problem">
-      <span class="h-ps-badge">Problem</span>
-      <span class="h-ps-icon">😬</span>
-      <h3>Design tokens drift — silently</h3>
-      <p>Your Figma spec says <code>--color-primary: #2dd4a0</code>. Your live site? Nobody checked. A hardcoded hex slipped in. Three sprints later, half your buttons are the wrong shade and nobody noticed until a stakeholder screenshot landed in Slack.</p>
-    </div>
-    <div class="h-ps-card h-ps-solution">
-      <span class="h-ps-badge">Solution</span>
-      <span class="h-ps-icon">✅</span>
-      <h3>Automated, scored compliance</h3>
-      <p>DesignLatch compares your token definitions against computed CSS captured from a real browser — rule by rule — and gives you a score. Run it in CI to catch drift before it ships.</p>
-    </div>
-  </div>
-
-  <div class="h-adapters" style="margin-top:14px">
-    <div class="h-adapter h-adapter-cli"><div class="h-adapter-bg">$_</div><div class="h-chip chip-cli">CLI</div><h3>@designlatch/cli</h3><p>Terminal workflow. Collects snapshots via Playwright, generates HTML reports, works entirely with files on disk.</p><button class="btn btn-secondary" onclick="showPage('docs','cli')" style="margin-top:14px;font-size:12px;min-height:34px;padding:0 14px">CLI docs →</button></div>
-    <div class="h-adapter h-adapter-mcp"><div class="h-adapter-bg">{}</div><div class="h-chip chip-mcp">MCP</div><h3>@designlatch/mcp</h3><p>AI agent workflow. Accepts inline JSON over <code>stdio</code>, returns JSON-only results. No files, no Playwright.</p><button class="btn btn-secondary" onclick="showPage('docs','mcp')" style="margin-top:14px;font-size:12px;min-height:34px;padding:0 14px">MCP docs →</button></div>
-  </div>
-
-  <section class="h-section" id="home-qs">
-    <article class="h-section-card panel">
-      <div class="h-section-hdr"><h2>Quick Start</h2><span>3 steps</span></div>
-      <div class="h-flow">
-        <div class="h-step"><div class="h-step-num">1</div><h3>Define expectations</h3><p>Write a <code>.designlatch.json</code> config listing selectors, rules, and expected token values — your compliance spec.</p></div>
-        <div class="h-step"><div class="h-step-num">2</div><h3>Capture reality</h3><p>The CLI uses Playwright to open your live site and record every computed CSS value. MCP receives snapshots as inline JSON.</p></div>
-        <div class="h-step"><div class="h-step-num">3</div><h3>Compare &amp; report</h3><p>The engine diffs expected vs actual, scores compliance, and returns an HTML report (CLI) or structured JSON (MCP).</p></div>
+  <header class="topbar">
+    <div class="brand" onclick="showPage('home')">
+      <div class="brand-mark">D</div>
+      <div class="brand-copy">
+        <strong>DesignLatch</strong>
+        <em>Design Compliance Toolkit</em>
       </div>
-      <div class="h-install-grid" style="margin-top:20px">
-        <div class="h-code-tile">
-          <div class="h-tile-tag">CLI — Install</div>
-          <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npm install -D @designlatch/cli
-npx designlatch init</code></pre></div>
-        </div>
-        <div class="h-code-tile">
-          <div class="h-tile-tag">CLI — Full scan</div>
-          <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npx designlatch collect --config .designlatch.json --url https://app.example.com --out snapshots.json
-npx designlatch scan --tokens tokens.json --snapshots snapshots.json --report-dir report</code></pre></div>
-        </div>
+    </div>
+    <nav class="topbar-nav" id="topbar-nav"></nav>
+    <button class="hamburger" type="button" aria-label="Open menu" onclick="openDrawer()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+  </header>
+
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-brand" onclick="closeDrawer();showPage('home')">
+        <div class="dm">DL</div>
+        <strong>DesignLatch</strong>
       </div>
-    </article>
-  </section>
-
-  <footer class="h-footer">
-    <span>DesignLatch v1</span>
-    <div class="h-footer-links">
-      <button onclick="showPage('docs','overview')" style="background:none;border:none;cursor:pointer;color:var(--text);font-size:12px;font-family:var(--sans)">Documentation</button>
-      <a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer">GitHub</a>
+      <button class="drawer-close" type="button" aria-label="Close menu" onclick="closeDrawer()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
     </div>
-  </footer>
-
-</div></div></div><!-- /home -->
-
-
-<!-- ══ DOCS PAGE ══ -->
-<div class="page-docs" id="page-docs">
-<div class="docs-wrap">
-
-  <aside class="sidebar" id="docs-sidebar">
-    <div class="sb-grp">
-      <span class="sb-lbl">Start here</span>
-      <ul class="sb-nav">
-        <li><a data-section="overview"><span class="sb-dot"></span>Overview</a></li>
-        <li><a data-section="problem"><span class="sb-dot"></span>The problem</a></li>
-        <li><a data-section="how-it-works"><span class="sb-dot"></span>How it works</a></li>
-        <li><a data-section="architecture"><span class="sb-dot"></span>Architecture</a></li>
-        <li><a data-section="status"><span class="sb-dot"></span>What's shipped</a></li>
-      </ul>
-    </div>
-    <div class="sb-grp">
-      <span class="sb-lbl sb-lbl-cli">CLI Adapter</span><hr class="sb-rule sb-rule-cli">
-      <ul class="sb-nav">
-        <li><a data-section="cli"><span class="sb-dot sb-dot-cli"></span>CLI overview</a></li>
-        <li><a data-section="cmd-init"><span class="sb-dot sb-dot-cli"></span>init</a></li>
-        <li><a data-section="cmd-collect"><span class="sb-dot sb-dot-cli"></span>collect</a></li>
-        <li><a data-section="cmd-validate"><span class="sb-dot sb-dot-cli"></span>validate</a></li>
-        <li><a data-section="cmd-scan"><span class="sb-dot sb-dot-cli"></span>scan</a></li>
-        <li><a data-section="cmd-serve"><span class="sb-dot sb-dot-cli"></span>serve</a></li>
-      </ul>
-    </div>
-    <div class="sb-grp sb-mcp-grp">
-      <span class="sb-lbl sb-lbl-mcp">MCP Adapter</span><hr class="sb-rule sb-rule-mcp">
-      <ul class="sb-nav">
-        <li><a data-section="mcp"><span class="sb-dot sb-dot-mcp"></span>MCP overview</a></li>
-        <li><a data-section="mcp-validate"><span class="sb-dot sb-dot-mcp"></span>validate_inputs</a></li>
-        <li><a data-section="mcp-scan"><span class="sb-dot sb-dot-mcp"></span>scan_compliance</a></li>
-      </ul>
-    </div>
-    <div class="sb-grp">
-      <span class="sb-lbl">Reference</span>
-      <ul class="sb-nav">
-        <li><a data-section="inputs"><span class="sb-dot"></span>Inputs</a></li>
-        <li><a data-section="outputs"><span class="sb-dot"></span>Outputs</a></li>
-      </ul>
+    <div class="drawer-nav-links" id="drawer-nav-links"></div>
+    <div class="drawer-sidebar-content" id="drawer-sb-content" style="display:none">
+      <div class="sb-grp">
+        <span class="sb-lbl">Start here</span>
+        <ul class="sb-nav">
+          <li><a data-sec="overview"><span class="sb-dot"></span>Overview</a></li>
+          <li><a data-sec="problem"><span class="sb-dot"></span>The problem</a></li>
+          <li><a data-sec="how-it-works"><span class="sb-dot"></span>How it works</a></li>
+          <li><a data-sec="architecture"><span class="sb-dot"></span>Architecture</a></li>
+          <li><a data-sec="status"><span class="sb-dot"></span>What's shipped</a></li>
+        </ul>
+      </div>
+      <div class="sb-grp">
+        <span class="sb-lbl sb-lbl-cli">CLI Adapter</span><hr class="sb-rule sb-rule-cli">
+        <ul class="sb-nav">
+          <li><a data-sec="cli"><span class="sb-dot sb-dot-cli"></span>CLI overview</a></li>
+          <li><a data-sec="cmd-init"><span class="sb-dot sb-dot-cli"></span>init</a></li>
+          <li><a data-sec="cmd-collect"><span class="sb-dot sb-dot-cli"></span>collect</a></li>
+          <li><a data-sec="cmd-validate"><span class="sb-dot sb-dot-cli"></span>validate</a></li>
+          <li><a data-sec="cmd-scan"><span class="sb-dot sb-dot-cli"></span>scan</a></li>
+          <li><a data-sec="cmd-serve"><span class="sb-dot sb-dot-cli"></span>serve</a></li>
+        </ul>
+      </div>
+      <div class="sb-grp sb-mcp-grp">
+        <span class="sb-lbl sb-lbl-mcp">MCP Adapter</span><hr class="sb-rule sb-rule-mcp">
+        <ul class="sb-nav">
+          <li><a data-sec="mcp"><span class="sb-dot sb-dot-mcp"></span>MCP overview</a></li>
+          <li><a data-sec="mcp-compare"><span class="sb-dot sb-dot-mcp"></span>compare_live_ui_to_figma</a></li>
+          <li><a data-sec="mcp-validate"><span class="sb-dot sb-dot-mcp"></span>validate_inputs</a></li>
+          <li><a data-sec="mcp-scan"><span class="sb-dot sb-dot-mcp"></span>scan_compliance</a></li>
+        </ul>
+      </div>
+      <div class="sb-grp">
+        <span class="sb-lbl">Reference</span>
+        <ul class="sb-nav">
+          <li><a data-sec="inputs"><span class="sb-dot"></span>Inputs</a></li>
+          <li><a data-sec="outputs"><span class="sb-dot"></span>Outputs</a></li>
+        </ul>
+      </div>
     </div>
   </aside>
 
-  <main class="docs-main"><div class="docs-wrap-inner">
-
-    <section class="doc-sec" id="overview">
-      <div class="d-eyebrow">Docs · v1</div>
-      <h1 class="d-h1">DesignLatch docs</h1>
-      <p class="lead" style="margin-bottom:20px">DesignLatch keeps your live UI honest against your design system. It compares expected token values with actual computed styles and gives you a scored compliance report — through a terminal CLI or an AI-agent MCP server.</p>
-      <div class="adapter-compare">
-        <div class="adapter-c-card adapter-c-cli"><div class="adapter-bg">$_</div><div class="h-chip chip-cli">CLI</div><h3>@designlatch/cli</h3><p>Terminal workflow — Playwright collection, file-based inputs, offline HTML reports. Great for CI and local dev.</p></div>
-        <div class="adapter-c-card adapter-c-mcp"><div class="adapter-bg">{}</div><div class="h-chip chip-mcp">MCP</div><h3>@designlatch/mcp</h3><p>AI agent workflow — accepts inline JSON over <code>stdio</code>, returns JSON-only results. No files or Playwright needed.</p></div>
-      </div>
-    </section>
-
-    <section class="doc-sec" id="problem">
-      <div class="d-eyebrow">Why it exists</div>
-      <h2 class="d-h2">The problem &amp; the solution</h2>
-      <p class="lead" style="margin-bottom:0">Design drift is invisible until it's embarrassing. Here's what DesignLatch fixes.</p>
-      <div class="ps-row">
-        <div class="ps-card ps-problem"><span class="ps-label">Problem</span><span class="ps-icon">😬</span><h3>Tokens drift silently</h3><p>Your Figma says <code>--color-primary: #2dd4a0</code>. Your live site? Nobody checked. A hardcoded hex slipped in. Three sprints later, half your buttons are the wrong shade.</p><p style="margin-top:8px">Manual visual QA is slow, inconsistent, and doesn't scale.</p></div>
-        <div class="ps-card ps-solution"><span class="ps-label">Solution</span><span class="ps-icon">✅</span><h3>Automated compliance</h3><p>DesignLatch captures computed CSS from a real browser, diffs it against your token spec rule-by-rule, and returns a scored report.</p><p style="margin-top:8px">Run it in CI to fail builds on drift. Objective, repeatable compliance.</p></div>
-      </div>
-    </section>
-
-    <section class="doc-sec" id="how-it-works">
-      <div class="d-eyebrow">Concept</div>
-      <h2 class="d-h2">How it works in 3 steps</h2>
-      <p class="body" style="margin-bottom:22px">The same core engine runs under both adapters.</p>
-      <div class="d-card">
-        <div class="d-flow">
-          <div class="d-flow-step"><div class="d-step-num">1</div><h3>Define expectations</h3><p>Write a <code>.designlatch.json</code> config listing selectors, rules, and expected token values — your compliance spec.</p></div>
-          <div class="d-flow-step"><div class="d-step-num">2</div><h3>Capture reality</h3><p>CLI uses Playwright to open your live site and record computed CSS. MCP receives snapshots as inline JSON from the agent.</p></div>
-          <div class="d-flow-step"><div class="d-step-num">3</div><h3>Compare &amp; report</h3><p>The engine diffs expected vs actual, scores compliance, and returns an HTML report (CLI) or structured JSON (MCP).</p></div>
-        </div>
-      </div>
-      <div class="callout callout-tip" style="margin-top:14px"><span class="callout-icon">💡</span><p><strong>New to this?</strong> Start with the CLI. Install it, run <code>npx designlatch init</code>, then follow the commands below step by step.</p></div>
-    </section>
-
-    <section class="doc-sec" id="architecture">
-      <div class="d-eyebrow">Architecture</div>
-      <h2 class="d-h2">Package layout</h2>
-      <p class="body" style="margin-bottom:18px">Three packages, one engine. Both adapters share the same core.</p>
-      <div class="d-card">
-        <div class="g3">
-          <div class="d-tile"><div class="h-chip chip-neutral">Core</div><h3 class="d-h3"><code>@designlatch/core</code></h3><p class="body" style="max-width:none">Pure engine — validation logic, token resolution, style comparison, scoring, report utilities. No I/O.</p></div>
-          <div class="d-tile"><div class="h-chip chip-neutral">App</div><h3 class="d-h3"><code>@designlatch/app</code></h3><p class="body" style="max-width:none">Shared workflows: <code>validateInputs()</code> and <code>scanCompliance()</code>. Both adapters call these.</p></div>
-          <div class="d-tile"><div class="h-chip chip-accent">Adapters</div><h3 class="d-h3">CLI + MCP</h3><p class="body" style="max-width:none">Sibling packages. CLI adds Playwright + HTML. MCP adds a <code>stdio</code> JSON interface for AI agents.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="doc-sec" id="status">
-      <div class="d-eyebrow">Status</div>
-      <h2 class="d-h2">What's shipped in v1</h2>
-      <div class="status-list">
-        <div class="status-row"><span class="s-dot s-cli"></span>CLI is live with all five commands: <code>init</code>, <code>collect</code>, <code>validate</code>, <code>scan</code>, and <code>serve</code>.</div>
-        <div class="status-row"><span class="s-dot s-mcp"></span>MCP v1 is live as a <code>stdio</code> server with two tools.</div>
-        <div class="status-row"><span class="s-dot s-mcp"></span>MCP exposes exactly <strong>two tools</strong>: <code>validate_inputs</code> and <code>scan_compliance</code>.</div>
-        <div class="status-row"><span class="s-dot s-cli"></span>Playwright collection &amp; HTML reports are <strong>CLI-only</strong> — not part of the MCP surface in v1.</div>
-        <div class="status-row"><span class="s-dot s-mcp"></span>MCP accepts inline JSON and returns JSON-only results. No files are written.</div>
-      </div>
-    </section>
-
-    <div class="divider"><div class="divider-line"></div><span class="divider-lbl" style="color:var(--accent)">▸ CLI Adapter</span><div class="divider-line" style="background:var(--accent-bd)"></div></div>
-
-    <section class="doc-sec" id="cli">
-      <div class="zone zone-cli">
-        <div class="zone-hdr"><div><div class="d-eyebrow">CLI</div><h2 class="d-h2">CLI adapter — file-based workflow</h2></div><span class="zone-pkg">@designlatch/cli</span></div>
-        <p style="font-size:15px;color:rgba(233,229,220,.70);max-width:60ch;margin-bottom:18px">The CLI is the right choice when you want to run compliance checks locally, collect real snapshots from a live site, and generate readable HTML reports.</p>
-        <div class="g2">
-          <div class="d-tile d-tile-cli"><div class="h-chip chip-cli">Install</div><h3 class="d-h3">Get started</h3>
-            <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npm install -D @designlatch/cli
-npx designlatch help</code></pre></div>
-          </div>
-          <div class="d-tile d-tile-cli"><div class="h-chip chip-cli">5 commands</div><h3 class="d-h3">Full CLI flow</h3>
-            <div style="display:grid;gap:5px;margin-top:8px">
-              <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--accent);min-width:68px">init</span><span style="color:var(--muted)">→ Scaffold project files</span></div>
-              <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--accent);min-width:68px">collect</span><span style="color:var(--muted)">→ Capture live computed styles</span></div>
-              <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--accent);min-width:68px">validate</span><span style="color:var(--muted)">→ Check inputs are well-formed</span></div>
-              <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--accent);min-width:68px">scan</span><span style="color:var(--muted)">→ Run the compliance engine</span></div>
-              <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--accent);min-width:68px">serve</span><span style="color:var(--muted)">→ Open the HTML report</span></div>
+  <div class="page-home" id="page-home">
+    <div class="home-wrap">
+      <div class="home-inner">
+        <section class="h-hero" id="top">
+          <article class="h-hero-card panel">
+            <span class="eyebrow">Design Compliance Toolkit</span>
+            <h1>Keep your UI honest.</h1>
+            <p class="h-lead">
+              DesignLatch catches the gap between your design tokens and your live UI — automatically. It compares expected token values against actual computed styles, then surfaces every drift as a scored compliance report.
+            </p>
+            <div class="h-actions">
+              <a class="btn btn-primary" href="#home-qs">Quick Start</a>
+              <!-- <button class="btn btn-secondary" type="button" onclick="showPage('docs','overview')">Open Docs</button> -->
             </div>
+          </article>
+
+          <div class="h-hero-side">
+            <section class="h-summary-card panel">
+              <h2>Two adapters, one engine</h2>
+              <p>Use the CLI for terminal-based workflows with Playwright and HTML reports. Use MCP when an AI agent already holds your data inline and needs JSON-only results.</p>
+              <div class="h-stats">
+                <div class="h-stat stat-cli"><span>CLI</span><strong>@designlatch/cli</strong></div>
+                <div class="h-stat stat-mcp"><span>MCP</span><strong>@designlatch/mcp</strong></div>
+                <div class="h-stat"><span>CLI outputs</span><strong>JSON + HTML</strong></div>
+                <div class="h-stat"><span>MCP tools</span><strong>validate + scan</strong></div>
+              </div>
+            </section>
+            <section class="h-summary-card panel">
+              <h2>Full docs →</h2>
+              <p>CLI commands with every flag explained, MCP tool reference, inputs, outputs, and architecture — all in one place.</p>
+              <div class="h-actions" style="margin-top:14px">
+                <button class="btn btn-secondary" onclick="showPage('docs','overview')" style="font-size:13px;min-height:38px">Open Docs</button>
+              </div>
+            </section>
           </div>
         </section>
 
-        <section class="cta-card panel">
-          <h2>Use the docs for details</h2>
-          <p>
-            The full docs page contains the command guide, install flow, examples, required inputs, and report flow. The landing page stays intentionally minimal.
-          </p>
+        <div class="h-ps">
+          <div class="h-ps-card h-ps-problem">
+            <span class="h-ps-badge">Problem</span>
+            <span class="h-ps-icon">😬</span>
+            <h3>Design tokens drift silently</h3>
+            <p>Your Figma spec says <code>--color-primary: #2dd4a0</code>. Your live site? Nobody checked. A hardcoded hex slipped in. Three sprints later, half your buttons are the wrong shade and nobody noticed until a stakeholder screenshot landed in Slack.</p>
+          </div>
+          <div class="h-ps-card h-ps-solution">
+            <span class="h-ps-badge">Solution</span>
+            <span class="h-ps-icon">✅</span>
+            <h3>Automated, scored compliance</h3>
+            <p>DesignLatch compares your token definitions against computed CSS captured from a real browser, rule by rule, and gives you a score. Run it in CI to catch drift before it ships.</p>
+          </div>
+        </div>
+
+        <div class="h-adapters" style="margin-top:14px">
+          <div class="h-adapter h-adapter-cli">
+            <div class="h-adapter-bg">$_</div>
+            <div class="h-chip chip-cli">CLI</div>
+            <h3>@designlatch/cli</h3>
+            <p>Terminal workflow. Collects snapshots via Playwright, generates HTML reports, and works entirely with files on disk.</p>
+            <button class="btn btn-secondary" type="button" onclick="showPage('docs','cli')" style="margin-top:14px;font-size:12px;min-height:34px;padding:0 14px">CLI docs -></button>
+          </div>
+          <div class="h-adapter h-adapter-mcp">
+            <div class="h-adapter-bg">{}</div>
+            <div class="h-chip chip-mcp">MCP</div>
+            <h3>@designlatch/mcp</h3>
+            <p>AI agent workflow. Accepts inline JSON over <code>stdio</code>, returns structured results, and works best when the agent can also reach Playwright MCP and Figma MCP.</p>
+            <button class="btn btn-secondary" type="button" onclick="showPage('docs','mcp')" style="margin-top:14px;font-size:12px;min-height:34px;padding:0 14px">MCP docs -></button>
+          </div>
+        </div>
+
+        <section class="h-section" id="home-qs">
+          <article class="h-section-card panel">
+            <div class="h-section-hdr"><h2>Quick Start</h2><span>CLI + MCP</span></div>
+            <div class="h-flow">
+              <div class="h-step"><div class="h-step-num">1</div><h3>Define expectations</h3><p>Write a <code>.designlatch.json</code> config listing selectors, rules, and expected token values - your compliance spec.</p></div>
+              <div class="h-step"><div class="h-step-num">2</div><h3>Capture reality</h3><p>The CLI uses Playwright to open your live site and record every computed CSS value. MCP receives snapshots as inline JSON from the agent workflow.</p></div>
+              <div class="h-step"><div class="h-step-num">3</div><h3>Compare and report</h3><p>The engine diffs expected vs actual, scores compliance, and returns an HTML report (CLI) or structured JSON summary (MCP).</p></div>
+            </div>
+            <div class="h-install-grid" style="margin-top:20px">
+              <div class="h-code-tile">
+                <div class="h-tile-tag">CLI - Install</div>
+                <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npm install -D @designlatch/cli
+npx designlatch init</code></pre></div>
+              </div>
+              <div class="h-code-tile">
+                <div class="h-tile-tag">CLI - Full scan</div>
+                <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npx designlatch collect --config .designlatch.json --url https://app.example.com --out snapshots.json
+npx designlatch scan --tokens tokens.json --snapshots snapshots.json --report-dir report</code></pre></div>
+              </div>
+              <div class="h-code-tile">
+                <div class="h-tile-tag">MCP - Connect</div>
+                <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-v"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>  claude mcp add --transport stdio designlatch npx -- -y @designlatch/mcp
+</code></pre></div>
+              </div>
+              <div class="h-code-tile">
+                <div class="h-tile-tag">MCP - Agent prompt</div>
+                <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-v"></span><span class="cb-lang">text</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>Use Playwright MCP and Figma MCP to gather the live selector styles and the matching design values.
+Then call DesignLatch MCP compare_live_ui_to_figma and return the score, mismatches, and report path.</code></pre></div>
+              </div>
+            </div>
+          </article>
         </section>
+
+        <footer class="h-footer">
+          <span>DesignLatch v1</span>
+          <div class="h-footer-links">
+            <button onclick="showPage('docs','overview')" style="background:none;border:none;cursor:pointer;color:var(--text);font-size:12px;font-family:var(--sans)">Documentation</button>
+            <a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-docs" id="page-docs">
+    <div class="docs-wrap">
+      <aside class="sidebar" id="docs-sidebar">
+        <div class="sb-grp">
+          <span class="sb-lbl">Start here</span>
+          <ul class="sb-nav">
+            <li><a data-section="overview"><span class="sb-dot"></span>Overview</a></li>
+            <li><a data-section="problem"><span class="sb-dot"></span>The problem</a></li>
+            <li><a data-section="how-it-works"><span class="sb-dot"></span>How it works</a></li>
+            <li><a data-section="architecture"><span class="sb-dot"></span>Architecture</a></li>
+            <li><a data-section="status"><span class="sb-dot"></span>What's shipped</a></li>
+          </ul>
+        </div>
+        <div class="sb-grp">
+          <span class="sb-lbl sb-lbl-cli">CLI Adapter</span><hr class="sb-rule sb-rule-cli">
+          <ul class="sb-nav">
+            <li><a data-section="cli"><span class="sb-dot sb-dot-cli"></span>CLI overview</a></li>
+            <li><a data-section="cmd-init"><span class="sb-dot sb-dot-cli"></span>init</a></li>
+            <li><a data-section="cmd-collect"><span class="sb-dot sb-dot-cli"></span>collect</a></li>
+            <li><a data-section="cmd-validate"><span class="sb-dot sb-dot-cli"></span>validate</a></li>
+            <li><a data-section="cmd-scan"><span class="sb-dot sb-dot-cli"></span>scan</a></li>
+            <li><a data-section="cmd-serve"><span class="sb-dot sb-dot-cli"></span>serve</a></li>
+          </ul>
+        </div>
+        <div class="sb-grp sb-mcp-grp">
+          <span class="sb-lbl sb-lbl-mcp">MCP Adapter</span><hr class="sb-rule sb-rule-mcp">
+          <ul class="sb-nav">
+            <li><a data-section="mcp"><span class="sb-dot sb-dot-mcp"></span>MCP overview</a></li>
+            <li><a data-section="mcp-compare"><span class="sb-dot sb-dot-mcp"></span>compare_live_ui_to_figma</a></li>
+            <li><a data-section="mcp-validate"><span class="sb-dot sb-dot-mcp"></span>validate_inputs</a></li>
+            <li><a data-section="mcp-scan"><span class="sb-dot sb-dot-mcp"></span>scan_compliance</a></li>
+          </ul>
+        </div>
+        <div class="sb-grp">
+          <span class="sb-lbl">Reference</span>
+          <ul class="sb-nav">
+            <li><a data-section="inputs"><span class="sb-dot"></span>Inputs</a></li>
+            <li><a data-section="outputs"><span class="sb-dot"></span>Outputs</a></li>
+          </ul>
+        </div>
       </aside>
-    </section>
 
-    <section class="section" id="quickstart">
-      <article class="section-card panel">
-        <div class="section-header">
-          <h2>Quick Start</h2>
-          <span>npm release flow</span>
-        </div>
-        <div class="entry-grid">
-          <div class="entry">
-            <div class="tag">1</div>
-            <h3>Install</h3>
-            <p>Add <code>@designlatch/cli</code> to your project and run it through <code>npx designlatch</code>.</p>
-          </div>
-          <div class="entry">
-            <div class="tag">2</div>
-            <h3>Collect</h3>
-            <p>Capture computed styles from the live site into <code>designlatch/snapshots.json</code>.</p>
-          </div>
-          <div class="entry">
-            <div class="tag">3</div>
-            <h3>Scan</h3>
-            <p>Compare expected tokens against snapshots and review the generated report.</p>
-          </div>
-        </div>
-      </article>
-    </section>
+      <main class="docs-main">
+        <div class="docs-wrap-inner">
+          <section class="doc-sec" id="overview">
+            <div class="d-eyebrow">Docs - v1</div>
+            <h1 class="d-h1">DesignLatch docs</h1>
+            <p class="lead" style="margin-bottom:20px">DesignLatch keeps your live UI honest against your design system. It compares expected token values with actual computed styles and gives you a scored compliance report - through a terminal CLI or an AI-agent MCP server.</p>
+            <div class="adapter-compare">
+              <div class="adapter-c-card adapter-c-cli"><div class="adapter-bg">$_</div><div class="h-chip chip-cli">CLI</div><h3>@designlatch/cli</h3><p>Terminal workflow - Playwright collection, file-based inputs, offline HTML reports. Great for CI and local dev.</p></div>
+              <div class="adapter-c-card adapter-c-mcp"><div class="adapter-bg">{}</div><div class="h-chip chip-mcp">MCP</div><h3>@designlatch/mcp</h3><p>AI agent workflow - accepts inline JSON over <code>stdio</code>, returns structured results, and fits best when the agent can also reach Playwright MCP and Figma MCP.</p></div>
+            </div>
+          </section>
 
-    <footer class="footer">
-      <span>DesignLatch v1</span>
-      <div class="d-footer-links"><a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer">GitHub</a></div>
-    </footer>
+          <section class="doc-sec" id="problem">
+            <div class="d-eyebrow">Why it exists</div>
+            <h2 class="d-h2">The problem and the solution</h2>
+            <p class="lead" style="margin-bottom:0">Design drift is invisible until it's embarrassing. Here's what DesignLatch fixes.</p>
+            <div class="ps-row">
+              <div class="ps-card ps-problem"><span class="ps-label">Problem</span><span class="ps-icon">😬</span><h3>Tokens drift silently</h3><p>Your Figma says <code>--color-primary: #2dd4a0</code>. Your live site? Nobody checked. A hardcoded hex slipped in. Three sprints later, half your buttons are the wrong shade.</p><p style="margin-top:8px">Manual visual QA is slow, inconsistent, and doesn't scale.</p></div>
+              <div class="ps-card ps-solution"><span class="ps-label">Solution</span><span class="ps-icon">✅</span><h3>Automated compliance</h3><p>DesignLatch captures computed CSS from a real browser, diffs it against your token spec rule-by-rule, and returns a scored report.</p><p style="margin-top:8px">Run it in CI to fail builds on drift. Objective, repeatable compliance.</p></div>
+            </div>
+          </section>
 
-  </div></main>
-</div></div><!-- /docs -->
+          <section class="doc-sec" id="how-it-works">
+            <div class="d-eyebrow">Concept</div>
+            <h2 class="d-h2">How it works in 3 steps</h2>
+            <p class="body" style="margin-bottom:22px">The same core engine runs under both adapters.</p>
+            <div class="d-card">
+              <div class="d-flow">
+                <div class="d-flow-step"><div class="d-step-num">1</div><h3>Define expectations</h3><p>Write a <code>.designlatch.json</code> config listing selectors, rules, and expected token values - your compliance spec.</p></div>
+                <div class="d-flow-step"><div class="d-step-num">2</div><h3>Capture reality</h3><p>CLI uses Playwright to open your live site and record computed CSS. MCP receives snapshots as inline JSON from the agent.</p></div>
+                <div class="d-flow-step"><div class="d-step-num">3</div><h3>Compare and report</h3><p>The engine diffs expected vs actual, scores compliance, and returns an HTML report (CLI) or structured JSON (MCP).</p></div>
+              </div>
+            </div>
+            <div class="callout callout-tip" style="margin-top:14px"><span class="callout-icon">*</span><p><strong>New to this?</strong> Start with the CLI. Install it, run <code>npx designlatch init</code>, then follow the commands below step by step.</p></div>
+          </section>
 
-<script>
-/* ── COPY CODE ── */
-function copyCode(btn) {
-  const pre = btn.closest('.codeblock').querySelector('pre');
-  const text = (pre ? pre.innerText : '').trim();
-  const finish = () => {
-    btn.classList.add('copied');
-    const s = btn.querySelector('span');
-    const prev = s ? s.textContent : '';
-    if (s) s.textContent = 'Copied!';
-    setTimeout(() => { btn.classList.remove('copied'); if (s) s.textContent = prev; }, 2000);
-  };
-  if (navigator.clipboard) { navigator.clipboard.writeText(text).then(finish).catch(finish); }
-  else {
-    const ta = Object.assign(document.createElement('textarea'), { value: text, style: 'position:fixed;opacity:0' });
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta); finish();
+          <section class="doc-sec" id="architecture">
+            <div class="d-eyebrow">Architecture</div>
+            <h2 class="d-h2">Package layout</h2>
+            <p class="body" style="margin-bottom:18px">Three packages, one engine. Both adapters share the same core.</p>
+            <div class="d-card">
+              <div class="g3">
+                <div class="d-tile"><div class="h-chip chip-neutral">Core</div><h3 class="d-h3"><code>@designlatch/core</code></h3><p class="body" style="max-width:none">Pure engine - validation logic, token resolution, style comparison, scoring, report utilities. No I/O.</p></div>
+                <div class="d-tile"><div class="h-chip chip-neutral">App</div><h3 class="d-h3"><code>@designlatch/app</code></h3><p class="body" style="max-width:none">Shared workflows: <code>validateInputs()</code> and <code>scanCompliance()</code>. Both adapters call these.</p></div>
+                <div class="d-tile"><div class="h-chip chip-accent">Adapters</div><h3 class="d-h3">CLI + MCP</h3><p class="body" style="max-width:none">Sibling packages. CLI adds Playwright + HTML. MCP adds a <code>stdio</code> JSON interface for AI agents.</p></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="doc-sec" id="status">
+            <div class="d-eyebrow">Status</div>
+            <h2 class="d-h2">What's shipped in v1</h2>
+            <div class="status-list">
+              <div class="status-row"><span class="s-dot s-cli"></span>CLI is live with all five commands: <code>init</code>, <code>collect</code>, <code>validate</code>, <code>scan</code>, and <code>serve</code>.</div>
+              <div class="status-row"><span class="s-dot s-mcp"></span>MCP v1 is live as a <code>stdio</code> server with three tools.</div>
+              <div class="status-row"><span class="s-dot s-mcp"></span>MCP exposes <strong>three tools</strong>: <code>compare_live_ui_to_figma</code>, <code>validate_inputs</code>, and <code>scan_compliance</code>.</div>
+              <div class="status-row"><span class="s-dot s-cli"></span>Playwright collection &amp; HTML reports are <strong>CLI-only</strong> - not part of the MCP surface in v1.</div>
+              <div class="status-row"><span class="s-dot s-mcp"></span>MCP accepts inline JSON and returns JSON-first results. The compare flow still depends on agent access to Playwright MCP and Figma MCP.</div>
+            </div>
+          </section>
+
+          <div class="divider"><div class="divider-line"></div><span class="divider-lbl" style="color:var(--accent)">CLI Adapter</span><div class="divider-line" style="background:var(--accent-bd)"></div></div>
+
+          <section class="doc-sec" id="cli">
+            <div class="zone zone-cli">
+              <div class="zone-hdr"><div><div class="d-eyebrow">CLI</div><h2 class="d-h2">CLI adapter - file-based workflow</h2></div><span class="zone-pkg">@designlatch/cli</span></div>
+              <p style="font-size:15px;color:rgba(233,229,220,.70);max-width:60ch;margin-bottom:18px">The CLI is the right choice when you want to run compliance checks locally, collect real snapshots from a live site, and generate readable HTML reports.</p>
+              <div class="g2">
+                <div class="d-tile d-tile-cli"><div class="h-chip chip-cli">Install</div><h3 class="d-h3">Get started</h3>
+                  <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npm install -D @designlatch/cli
+npx designlatch help</code></pre></div>
+                </div>
+                <div class="d-tile d-tile-cli"><div class="h-chip chip-cli">How to use</div><h3 class="d-h3">Recommended CLI flow</h3>
+                  <div style="display:grid;gap:5px;margin-top:8px">
+                    <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--accent);min-width:68px">init</span><span style="color:var(--muted)">-> Scaffold project files</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--accent);min-width:68px">collect</span><span style="color:var(--muted)">-> Capture live computed styles</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--accent);min-width:68px">validate</span><span style="color:var(--muted)">-> Check inputs are well-formed</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--accent);min-width:68px">scan</span><span style="color:var(--muted)">-> Run the compliance engine</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--accent);min-width:68px">serve</span><span style="color:var(--muted)">-> Open the HTML report</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="callout callout-tip" style="margin-top:16px"><span class="callout-icon">*</span><p><strong>How to use the CLI:</strong> initialize your workspace, keep tokens/config on disk, collect snapshots from a live site, validate inputs, scan for compliance, then serve the HTML report for review.</p></div>
+            </div>
+          </section>
+
+          <section class="doc-sec" id="cmd-init">
+            <div class="d-card">
+              <div class="h-chip chip-cli">init</div>
+              <h3 class="d-h3">Bootstrap the workspace</h3>
+              <p class="body">Use <code>init</code> first when starting a new DesignLatch project. It scaffolds the baseline config plus the local <code>designlatch/</code> folder structure so the rest of the CLI flow has predictable inputs.</p>
+              <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npm install -D @designlatch/cli
+npx designlatch init</code></pre></div>
+            </div>
+          </section>
+
+          <section class="doc-sec" id="cmd-collect">
+            <div class="d-card">
+              <div class="h-chip chip-cli">collect</div>
+              <h3 class="d-h3">Capture live computed styles</h3>
+              <p class="body">Run <code>collect</code> when you want DesignLatch to open the real product in Playwright and write fresh snapshots to disk. This is the moment where the CLI turns your running UI into measurable input data.</p>
+              <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npx designlatch collect --config .designlatch.json --url https://app.example.com --out designlatch/snapshots.json</code></pre></div>
+            </div>
+          </section>
+
+          <section class="doc-sec" id="cmd-validate">
+            <div class="d-card">
+              <div class="h-chip chip-cli">validate</div>
+              <h3 class="d-h3">Check config, tokens, and snapshots before scanning</h3>
+              <p class="body">Use <code>validate</code> as a fast sanity check. It verifies that the config is readable, the token map resolves, and the snapshots are shaped correctly before you spend time debugging scan output.</p>
+              <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npx designlatch validate --config .designlatch.json --tokens designlatch/tokens.json --snapshots designlatch/snapshots.json</code></pre></div>
+            </div>
+          </section>
+
+          <section class="doc-sec" id="cmd-scan">
+            <div class="d-card">
+              <div class="h-chip chip-cli">scan</div>
+              <h3 class="d-h3">Run the compliance engine and generate reports</h3>
+              <p class="body">Use <code>scan</code> for the actual comparison pass. It takes the expected tokens, the observed snapshots, and the config rules, then produces scored JSON and HTML output your team can review or gate in CI.</p>
+              <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npx designlatch scan --config .designlatch.json --tokens designlatch/tokens.json --snapshots designlatch/snapshots.json --report-dir report</code></pre></div>
+            </div>
+          </section>
+
+          <section class="doc-sec" id="cmd-serve">
+            <div class="d-card">
+              <div class="h-chip chip-cli">serve</div>
+              <h3 class="d-h3">Review the HTML report locally</h3>
+              <p class="body">Use <code>serve</code> after <code>scan</code> when you want to inspect the generated report in the browser, share it locally, or quickly verify what actually failed without parsing raw JSON.</p>
+              <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-g"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>npx designlatch serve --report-dir report</code></pre></div>
+            </div>
+          </section>
+
+          <div class="divider"><div class="divider-line"></div><span class="divider-lbl" style="color:var(--mcp)">MCP Adapter</span><div class="divider-line" style="background:var(--mcp-bd)"></div></div>
+
+          <section class="doc-sec" id="mcp">
+            <div class="zone zone-mcp">
+              <div class="zone-hdr"><div><div class="d-eyebrow">MCP</div><h2 class="d-h2">MCP adapter - agent workflow over stdio</h2></div><span class="zone-pkg">@designlatch/mcp</span></div>
+              <p style="font-size:15px;color:rgba(233,229,220,.70);max-width:60ch;margin-bottom:18px">The MCP adapter is the right choice when an AI agent already has design data and live UI data in memory, or when you want the agent to orchestrate a comparison flow and return a structured summary instead of a manual terminal workflow.</p>
+              <div class="g2">
+                <div class="d-tile d-tile-mcp"><div class="h-chip chip-mcp">Install</div><h3 class="d-h3">Connect the MCP server</h3>
+                  <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-v"></span><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div>
+                  <pre><code>  
+                    claude mcp add --transport stdio designlatch npx -- -y @designlatch/mcp
+                  </code></pre></div>
+                </div>
+                <div class="d-tile d-tile-mcp"><div class="h-chip chip-mcp">3 tools</div><h3 class="d-h3">Current MCP surface</h3>
+                  <div style="display:grid;gap:5px;margin-top:8px">
+                    <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--mcp);min-width:164px">compare_live_ui_to_figma</span><span style="color:var(--muted)">-> High-level agent workflow</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--mcp);min-width:164px">validate_inputs</span><span style="color:var(--muted)">-> Verify raw payload shape</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="font-family:var(--mono);color:var(--mcp);min-width:164px">scan_compliance</span><span style="color:var(--muted)">-> Run the comparison engine</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="callout callout-info" style="margin-top:16px"><span class="callout-icon">{}</span><p><strong>How to use MCP:</strong> configure DesignLatch in an MCP-capable AI client, make sure Playwright MCP and Figma MCP are also available for the compare flow, let the agent gather live and design data, then call the DesignLatch tools to validate and scan.</p></div>
+            </div>
+            <div class="d-card" style="margin-top:16px">
+              <div class="h-chip chip-mcp">How to use</div>
+              <h3 class="d-h3">Recommended MCP flow for agentic AI</h3>
+              <div class="d-flow" style="margin-top:10px">
+                <div class="d-flow-step"><div class="d-step-num" style="background:var(--mcp)">1</div><h3>Connect DesignLatch</h3><p>Add the MCP server to your AI client and restart the agent session so the tools become visible.</p></div>
+                <div class="d-flow-step"><div class="d-step-num" style="background:var(--mcp)">2</div><h3>Gather design + live data</h3><p>Use Playwright MCP for computed styles and Figma MCP for the matching component or token values.</p></div>
+                <div class="d-flow-step"><div class="d-step-num" style="background:var(--mcp)">3</div><h3>Compare and summarize</h3><p>Call <code>compare_live_ui_to_figma</code> for the high-level flow, or use <code>validate_inputs</code> and <code>scan_compliance</code> directly when you already have raw JSON.</p></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="doc-sec" id="mcp-compare">
+            <div class="d-card">
+              <div class="h-chip chip-mcp">compare_live_ui_to_figma</div>
+              <h3 class="d-h3">Preferred high-level MCP workflow</h3>
+              <p class="body">This tool is the agent-facing entrypoint when the task sounds like a natural comparison request. It checks prerequisites first, tells the agent what is missing, and once the live/Figma data is supplied it synthesizes the DesignLatch payloads internally and runs the scan.</p>
+              <div class="tool-block">
+                <div class="tool-name">Response states</div>
+                <div class="tool-desc"><code>blocked</code> means Playwright MCP, Figma MCP, or Figma auth is missing. <code>validated</code> means the prerequisites are available but the agent still needs to gather <code>liveCapture</code> or <code>figmaDesign</code>. <code>completed</code> returns score, mismatches, and report paths. <code>failed</code> means validation or scan execution broke.</div>
+              </div>
+              <div class="g2" style="margin-top:14px">
+                <div class="d-tile d-tile-mcp">
+                  <div class="h-chip chip-mcp">Prompt</div>
+                  <h3 class="d-h3">Sample prompt - high-level compare flow</h3>
+                  <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-v"></span><span class="cb-lang">text</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>Compare live site (google.com's) search bar UI with this Figma search bar component (Figma Link) using designlatch mcp.</code></pre></div>
+                </div>
+                <div class="d-tile d-tile-mcp">
+                  <div class="h-chip chip-mcp">Payload</div>
+                  <h3 class="d-h3">Sample input shape</h3>
+                  <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-v"></span><span class="cb-lang">json</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>{
+  "request": "Compare google.com's search bar UI with this Figma search bar component",
+  "liveUrl": "https://google.com",
+  "selector": "textarea[name='q']",
+  "figmaFileOrUrl": "https://www.figma.com/file/abc123/search-bar",
+  "figmaNodeIdOrComponentName": "Search Bar",
+  "prerequisites": {
+    "playwrightMcpConfigured": true,
+    "figmaMcpConfigured": true,
+    "figmaAuthenticated": true
   }
-}
+}</code></pre></div>
+                </div>
+              </div>
+            </div>
+          </section>
 
-/* ── DRAWER ── */
-function openDrawer() {
-  document.getElementById('drawer').classList.add('open');
-  document.getElementById('drawer-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeDrawer() {
-  document.getElementById('drawer').classList.remove('open');
-  document.getElementById('drawer-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-function drawerNav(sec) {
-  closeDrawer();
-  setTimeout(() => { const el = document.getElementById(sec); if (el) el.scrollIntoView({ behavior:'smooth', block:'start' }); }, 260);
-}
+          <section class="doc-sec" id="mcp-validate">
+            <div class="d-card">
+              <div class="h-chip chip-mcp">validate_inputs</div>
+              <h3 class="d-h3">Use when you already have raw DesignLatch JSON</h3>
+              <p class="body">Call <code>validate_inputs</code> when the agent has already assembled <code>config</code>, <code>tokens</code>, and optionally <code>snapshots</code>, and you want a fast structure check before a full compliance scan.</p>
+              <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-v"></span><span class="cb-lang">text</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>Validate these DesignLatch inputs first. If they pass, I will run scan_compliance next.
+Return the validation result and tell me if any token references or snapshot shapes are wrong.</code></pre></div>
+            </div>
+          </section>
 
-/* ── NAV TEMPLATES ── */
-const GH_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.66.5 12.03c0 5.1 3.3 9.43 7.88 10.96.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.71 1.27 3.37.97.1-.75.4-1.27.72-1.56-2.56-.29-5.25-1.29-5.25-5.74 0-1.27.45-2.31 1.2-3.13-.12-.3-.52-1.49.12-3.1 0 0 .98-.32 3.2 1.2a11.1 11.1 0 0 1 5.83 0c2.22-1.52 3.2-1.2 3.2-1.2.64 1.61.24 2.8.12 3.1.75.82 1.2 1.86 1.2 3.13 0 4.46-2.69 5.44-5.26 5.73.41.36.78 1.07.78 2.16 0 1.56-.02 2.82-.02 3.2 0 .31.21.68.8.56A11.54 11.54 0 0 0 23.5 12.03C23.5 5.66 18.35.5 12 .5Z"/></svg>`;
-const GH_A = `<a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer" class="gh-icon" title="GitHub" aria-label="GitHub">${GH_SVG}</a>`;
-const ICON_HOME = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`;
-const ICON_CLI  = `<span style="font-family:var(--mono);font-size:12px;line-height:1">$_</span>`;
-const ICON_MCP  = `<span style="font-family:var(--mono);font-size:12px;line-height:1">{}</span>`;
-const ICON_GH   = GH_SVG;
+          <section class="doc-sec" id="mcp-scan">
+            <div class="d-card">
+              <div class="h-chip chip-mcp">scan_compliance</div>
+              <h3 class="d-h3">Run the engine directly from inline JSON</h3>
+              <p class="body">Call <code>scan_compliance</code> when the agent already has the final payloads and wants the report immediately. This is the most direct path when Playwright/Figma orchestration happens outside DesignLatch.</p>
+              <div class="codeblock"><div class="cb-hdr"><span class="cb-dot cb-dot-v"></span><span class="cb-lang">text</span><button class="cb-copy" onclick="copyCode(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div><pre><code>Run DesignLatch scan_compliance with the validated config, tokens, and snapshots.
+Return the pass/fail result, score, top mismatches, and report output paths.</code></pre></div>
+            </div>
+          </section>
 
-function showPage(page, section) {
-  document.getElementById('page-home').classList.toggle('active', page === 'home');
-  document.getElementById('page-docs').classList.toggle('active', page === 'docs');
+          <section class="doc-sec" id="inputs">
+            <div class="d-card">
+              <div class="d-eyebrow">Reference</div>
+              <h2 class="d-h2">Inputs</h2>
+              <div class="g2">
+                <div class="d-tile"><h3 class="d-h3">CLI inputs</h3><p class="body" style="max-width:none">The CLI works with files on disk: a DesignLatch config, a token map, and captured snapshots. The workflow is explicit and repeatable, which makes it a strong fit for local development and CI.</p></div>
+                <div class="d-tile"><h3 class="d-h3">MCP inputs</h3><p class="body" style="max-width:none">The MCP tools work with inline JSON. In the high-level compare flow, the agent first gathers live and design data, then passes normalized payloads or prerequisite status into DesignLatch.</p></div>
+              </div>
+            </div>
+          </section>
 
-  // desktop topbar nav
-  document.getElementById('topbar-nav').innerHTML = page === 'home'
-    ? `<button onclick="document.getElementById('home-qs').scrollIntoView({behavior:'smooth'})">Quick Start</button>
-       <button onclick="showPage('docs','cli')" class="nav-cli">CLI</button>
-       <button onclick="showPage('docs','mcp')" class="nav-mcp">MCP</button>
-       ${GH_A}`
-    : `<button onclick="showPage('home')">Home</button>
-       <button onclick="showPage('docs','cli')" class="nav-cli">CLI</button>
-       <button onclick="showPage('docs','mcp')" class="nav-mcp">MCP</button>
-       ${GH_A}`;
+          <section class="doc-sec" id="outputs">
+            <div class="d-card">
+              <div class="d-eyebrow">Reference</div>
+              <h2 class="d-h2">Outputs</h2>
+              <div class="g2">
+                <div class="d-tile"><h3 class="d-h3">CLI outputs</h3><p class="body" style="max-width:none">The CLI writes snapshots during collection and generates a JSON report plus an HTML report during scanning. That makes it ideal when a human still wants to inspect the final report visually.</p></div>
+                <div class="d-tile"><h3 class="d-h3">MCP outputs</h3><p class="body" style="max-width:none">The MCP tools return structured results to the agent. The compare flow also returns report paths so the agent can summarize the scan and point the user to the generated artifacts.</p></div>
+              </div>
+            </div>
+          </section>
 
-  // drawer top nav
-  document.getElementById('drawer-nav-links').innerHTML = page === 'home'
-    ? `<button onclick="closeDrawer();document.getElementById('home-qs').scrollIntoView({behavior:'smooth'})">${ICON_HOME} Quick Start</button>
-       <button class="dnav-cli" onclick="closeDrawer();showPage('docs','cli')">${ICON_CLI} CLI Docs</button>
-       <button class="dnav-mcp" onclick="closeDrawer();showPage('docs','mcp')">${ICON_MCP} MCP Docs</button>
-       <a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer" onclick="closeDrawer()">${ICON_GH} GitHub</a>`
-    : `<button onclick="closeDrawer();showPage('home')">${ICON_HOME} Home</button>
-       <button class="dnav-cli" onclick="drawerNav('cli')">${ICON_CLI} CLI</button>
-       <button class="dnav-mcp" onclick="drawerNav('mcp')">${ICON_MCP} MCP</button>
-       <a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer" onclick="closeDrawer()">${ICON_GH} GitHub</a>`;
+          <!-- <section class="cta-card panel">
+            <h2>Use the adapter that matches the workflow</h2>
+            <p>
+              Choose CLI when you want a local, file-based, Playwright-powered flow with HTML reporting. Choose MCP when an AI agent should drive the workflow and return structured summaries.
+            </p>
+          </section> -->
 
-  // show/hide docs sections in drawer
-  document.getElementById('drawer-sb-content').style.display = page === 'docs' ? 'block' : 'none';
+          <footer class="d-footer">
+            <span>DesignLatch v1</span>
+            <div class="d-footer-links"><a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer">GitHub</a></div>
+          </footer>
+        </div>
+      </main>
+    </div>
+  </div>
 
-  window.scrollTo({ top:0, behavior:'instant' });
-  if (page === 'docs' && section) {
-    requestAnimationFrame(() => setTimeout(() => {
-      const el = document.getElementById(section);
-      if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
-    }, 60));
+  <script>
+  function copyCode(btn) {
+    const pre = btn.closest('.codeblock').querySelector('pre');
+    const text = (pre ? pre.innerText : '').trim();
+    const finish = () => {
+      btn.classList.add('copied');
+      const s = btn.querySelector('span');
+      const prev = s ? s.textContent : '';
+      if (s) s.textContent = 'Copied!';
+      setTimeout(() => { btn.classList.remove('copied'); if (s) s.textContent = prev; }, 2000);
+    };
+    if (navigator.clipboard) { navigator.clipboard.writeText(text).then(finish).catch(finish); }
+    else {
+      const ta = Object.assign(document.createElement('textarea'), { value: text, style: 'position:fixed;opacity:0' });
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); finish();
+    }
   }
-}
 
-// init
-showPage('home');
+  function openDrawer() {
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('drawer-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 
-/* ── SIDEBAR ACTIVE TRACKING ── */
-const allSb = () => [
-  ...document.querySelectorAll('#docs-sidebar .sb-nav a[data-section]'),
-  ...document.querySelectorAll('#drawer-sb-content .sb-nav a[data-sec]')
-];
-const docSecs = [...document.querySelectorAll('.doc-sec[id]')];
+  function closeDrawer() {
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('drawer-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
 
-new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    const id = e.target.id;
-    allSb().forEach(l => l.classList.toggle('active', (l.dataset.section || l.dataset.sec) === id));
+  function drawerNav(sec) {
+    closeDrawer();
+    setTimeout(() => {
+      const el = document.getElementById(sec);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 260);
+  }
+
+  const GH_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.66.5 12.03c0 5.1 3.3 9.43 7.88 10.96.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.71 1.27 3.37.97.1-.75.4-1.27.72-1.56-2.56-.29-5.25-1.29-5.25-5.74 0-1.27.45-2.31 1.2-3.13-.12-.3-.52-1.49.12-3.1 0 0 .98-.32 3.2 1.2a11.1 11.1 0 0 1 5.83 0c2.22-1.52 3.2-1.2 3.2-1.2.64 1.61.24 2.8.12 3.1.75.82 1.2 1.86 1.2 3.13 0 4.46-2.69 5.44-5.26 5.73.41.36.78 1.07.78 2.16 0 1.56-.02 2.82-.02 3.2 0 .31.21.68.8.56A11.54 11.54 0 0 0 23.5 12.03C23.5 5.66 18.35.5 12 .5Z"/></svg>';
+  const GH_A = `<a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer" class="gh-icon" title="GitHub" aria-label="GitHub">${GH_SVG}</a>`;
+  const ICON_HOME = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+  const ICON_CLI = '<span style="font-family:var(--mono);font-size:12px;line-height:1">$_</span>';
+  const ICON_MCP = '<span style="font-family:var(--mono);font-size:12px;line-height:1">{}</span>';
+  const ICON_GH = GH_SVG;
+
+  function showPage(page, section) {
+    document.getElementById('page-home').classList.toggle('active', page === 'home');
+    document.getElementById('page-docs').classList.toggle('active', page === 'docs');
+
+    document.getElementById('topbar-nav').innerHTML = page === 'home'
+      ? `<button onclick="document.getElementById('home-qs').scrollIntoView({behavior:'smooth'})">Quick Start</button>
+         <button onclick="showPage('docs','cli')" class="nav-cli">CLI</button>
+         <button onclick="showPage('docs','mcp')" class="nav-mcp">MCP</button>
+         ${GH_A}`
+      : `<button onclick="showPage('home')">Home</button>
+         <button onclick="showPage('docs','cli')" class="nav-cli">CLI</button>
+         <button onclick="showPage('docs','mcp')" class="nav-mcp">MCP</button>
+         ${GH_A}`;
+
+    document.getElementById('drawer-nav-links').innerHTML = page === 'home'
+      ? `<button onclick="closeDrawer();document.getElementById('home-qs').scrollIntoView({behavior:'smooth'})">${ICON_HOME} Quick Start</button>
+         <button class="dnav-cli" onclick="closeDrawer();showPage('docs','cli')">${ICON_CLI} CLI Docs</button>
+         <button class="dnav-mcp" onclick="closeDrawer();showPage('docs','mcp')">${ICON_MCP} MCP Docs</button>
+         <a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer" onclick="closeDrawer()">${ICON_GH} GitHub</a>`
+      : `<button onclick="closeDrawer();showPage('home')">${ICON_HOME} Home</button>
+         <button class="dnav-cli" onclick="drawerNav('cli')">${ICON_CLI} CLI</button>
+         <button class="dnav-mcp" onclick="drawerNav('mcp')">${ICON_MCP} MCP</button>
+         <a href="https://github.com/atulknowsme/designlatch" target="_blank" rel="noreferrer" onclick="closeDrawer()">${ICON_GH} GitHub</a>`;
+
+    document.getElementById('drawer-sb-content').style.display = page === 'docs' ? 'block' : 'none';
+
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    if (page === 'docs' && section) {
+      requestAnimationFrame(() => setTimeout(() => {
+        const el = document.getElementById(section);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 60));
+    }
+  }
+
+  showPage('home');
+
+  const allSb = () => [
+    ...document.querySelectorAll('#docs-sidebar .sb-nav a[data-section]'),
+    ...document.querySelectorAll('#drawer-sb-content .sb-nav a[data-sec]')
+  ];
+  const docSecs = [...document.querySelectorAll('.doc-sec[id]')];
+
+  docSecs.forEach((section) => {
+    new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        allSb().forEach((link) => {
+          link.classList.toggle('active', (link.dataset.section || link.dataset.sec) === entry.target.id);
+        });
+      });
+    }, { rootMargin: '-18% 0px -62% 0px' }).observe(section);
   });
-}, { rootMargin:'-18% 0px -62% 0px' }).observe && docSecs.forEach(s =>
-  new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      allSb().forEach(l => l.classList.toggle('active', (l.dataset.section || l.dataset.sec) === e.target.id));
-    });
-  }, { rootMargin:'-18% 0px -62% 0px' }).observe(s)
-);
 
-// desktop sidebar click → smooth scroll
-document.getElementById('docs-sidebar').addEventListener('click', e => {
-  const a = e.target.closest('a[data-section]');
-  if (!a) return; e.preventDefault();
-  const el = document.getElementById(a.dataset.section);
-  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
-});
-</script>
+  document.getElementById('docs-sidebar').addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-section]');
+    if (!a) return;
+    e.preventDefault();
+    const el = document.getElementById(a.dataset.section);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  document.getElementById('drawer-sb-content').addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-sec]');
+    if (!a) return;
+    e.preventDefault();
+    drawerNav(a.dataset.sec);
+  });
+  </script>
 </body>
 </html>

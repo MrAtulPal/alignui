@@ -53,33 +53,48 @@ The common pattern is:
 }
 ```
 
-That tells the AI client to start the DesignLatch MCP server through `npx`.
+### Codex
+1. Via Codex CLI
 
-If the package is already installed in the project, a local variant is usually cleaner:
-
-```json
-{
-  "mcpServers": {
-    "designlatch": {
-      "command": "npx",
-      "args": ["designlatch-mcp"]
-    }
-  }
-}
+```bash
+  codex mcp add designlatch npx -- -y @designlatch/mcp
 ```
 
-If your client prefers a direct Node entrypoint instead of `npx`, use the built file:
+2. Codex reads MCP server entries from `~/.codex/config.toml`.
 
-```json
-{
-  "mcpServers": {
-    "designlatch": {
-      "command": "node",
-      "args": ["/absolute/path/to/node_modules/@designlatch/mcp/dist/index.js"]
-    }
-  }
-}
+On Windows, that is typically:
+
+```text
+C:\Users\<your-user>\.codex\config.toml
 ```
+
+Then add this block to your Codex config:
+
+```toml
+[mcp_servers.designlatch]
+command = "npx"
+args = ["-y", "@designlatch/mcp"]
+```
+
+### Claude Code
+Via Claude Code
+
+```bash
+  claude mcp add --transport stdio designlatch npx -- -y @designlatch/mcp
+```
+
+
+If you want the high-level `compare_live_ui_to_figma` workflow to work in Codex, make sure Codex also has:
+
+- a Playwright MCP entry
+- a Figma MCP entry
+- working Figma authentication
+
+After updating `config.toml`, restart Codex and open a new session. The agent should then see:
+
+- `validate_inputs`
+- `scan_compliance`
+- `compare_live_ui_to_figma`
 
 What the user does in practice:
 
