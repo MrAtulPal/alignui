@@ -2,12 +2,13 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createLogger } from "@designlatch/app";
 import { asJsonText } from "../lib/json.js";
-import { scanComplianceSchema, validateInputsSchema } from "../lib/schemas.js";
+import { compareLiveUiToFigmaSchema, scanComplianceSchema, validateInputsSchema } from "../lib/schemas.js";
+import { runCompareLiveUiToFigma } from "../tools/compare-live-ui-to-figma.js";
 import { runScanCompliance } from "../tools/scan-compliance.js";
 import { runValidateInputs } from "../tools/validate-inputs.js";
 
 const logger = createLogger("mcp.server");
-export const MCP_TOOL_NAMES = ["validate_inputs", "scan_compliance"] as const;
+export const MCP_TOOL_NAMES = ["validate_inputs", "scan_compliance", "compare_live_ui_to_figma"] as const;
 
 function toToolResponse(value: unknown) {
   return {
@@ -56,6 +57,21 @@ export function createMcpServer() {
       } catch (error) {
         const normalized = toError(error);
         logger.error("tool failed", { tool: "scan_compliance", error: normalized.message });
+        throw normalized;
+      }
+    }
+  );
+
+  server.tool(
+    MCP_TOOL_NAMES[2],
+    "Compare a live UI selector against a Figma component. If Playwright MCP or Figma MCP is not configured or Figma auth is unavailable, return setup guidance and stop. If prerequisites are available, provide liveCapture and figmaDesign payloads gathered from those tools so DesignLatch can synthesize inputs, validate them, and run the scan.",
+    compareLiveUiToFigmaSchema.shape,
+    async (params) => {
+      try {
+        return toToolResponse(await runCompareLiveUiToFigma(params));
+      } catch (error) {
+        const normalized = toError(error);
+        logger.error("tool failed", { tool: "compare_live_ui_to_figma", error: normalized.message });
         throw normalized;
       }
     }
