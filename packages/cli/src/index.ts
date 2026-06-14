@@ -3,7 +3,7 @@ import { createLogger } from "@designlatch/app";
 import { ExitCode } from "./lib/exit-codes.js";
 import { parseArgs, type ParsedArgs } from "./lib/args.js";
 
-const DOCS_URL = "https://mratulpal.github.io/alignui/";
+const DOCS_URL = "https://atulknowsme.github.io/designlatch/";
 const logger = createLogger("cli");
 
 function printHelp() {

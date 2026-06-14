@@ -6,10 +6,11 @@ It exposes DesignLatch validation and compliance scanning over `stdio` so an AI 
 
 ## What It Does
 
-This package exposes two MCP tools:
+This package exposes three MCP tools:
 
 - `validate_inputs`
 - `scan_compliance`
+- `compare_live_ui_to_figma`
 
 Use MCP when your agent already has, or can generate, these JSON inputs in memory:
 
@@ -52,33 +53,48 @@ The common pattern is:
 }
 ```
 
-That tells the AI client to start the DesignLatch MCP server through `npx`.
+### Codex
+1. Via Codex CLI
 
-If the package is already installed in the project, a local variant is usually cleaner:
-
-```json
-{
-  "mcpServers": {
-    "designlatch": {
-      "command": "npx",
-      "args": ["designlatch-mcp"]
-    }
-  }
-}
+```bash
+  codex mcp add designlatch npx -- -y @designlatch/mcp
 ```
 
-If your client prefers a direct Node entrypoint instead of `npx`, use the built file:
+2. Codex reads MCP server entries from `~/.codex/config.toml`.
 
-```json
-{
-  "mcpServers": {
-    "designlatch": {
-      "command": "node",
-      "args": ["/absolute/path/to/node_modules/@designlatch/mcp/dist/index.js"]
-    }
-  }
-}
+On Windows, that is typically:
+
+```text
+C:\Users\<your-user>\.codex\config.toml
 ```
+
+Then add this block to your Codex config:
+
+```toml
+[mcp_servers.designlatch]
+command = "npx"
+args = ["-y", "@designlatch/mcp"]
+```
+
+### Claude Code
+Via Claude Code
+
+```bash
+  claude mcp add --transport stdio designlatch npx -- -y @designlatch/mcp
+```
+
+
+If you want the high-level `compare_live_ui_to_figma` workflow to work in Codex, make sure Codex also has:
+
+- a Playwright MCP entry
+- a Figma MCP entry
+- working Figma authentication
+
+After updating `config.toml`, restart Codex and open a new session. The agent should then see:
+
+- `validate_inputs`
+- `scan_compliance`
+- `compare_live_ui_to_figma`
 
 What the user does in practice:
 
@@ -86,12 +102,13 @@ What the user does in practice:
 2. Open the AI client's MCP/server configuration
 3. Add a `designlatch` server entry using one of the examples above
 4. Restart or reload the AI client
-5. Ask the agent to call `validate_inputs` or `scan_compliance`
+5. Ask the agent to call `compare_live_ui_to_figma`, `validate_inputs`, or `scan_compliance`
 
 Once connected, the AI agent should see these tools:
 
 - `validate_inputs`
 - `scan_compliance`
+- `compare_live_ui_to_figma`
 
 ## MCP Model
 
@@ -100,7 +117,7 @@ DesignLatch MCP currently supports:
 - transport: `stdio`
 - input mode: inline JSON only
 - output mode: JSON tool responses
-- tools: `validate_inputs`, `scan_compliance`
+- tools: `validate_inputs`, `scan_compliance`, `compare_live_ui_to_figma`
 
 It does not provide a `collect` tool. Snapshot collection remains a CLI concern.
 
@@ -149,6 +166,66 @@ Notes:
 - `tokens` is required
 - `snapshots` is required
 - `urlOverride` is optional
+
+### `compare_live_ui_to_figma`
+
+Use this when the user wants a higher-level workflow such as:
+
+```text
+Compare google.com's search bar UI with this Figma search bar component
+```
+
+This tool does three things:
+
+1. Checks whether the agent confirms `Playwright MCP`, `Figma MCP`, and `Figma auth` are available
+2. If those prerequisites are missing, returns a `blocked` response with setup guidance and exits
+3. If prerequisites are available and `liveCapture` plus `figmaDesign` are provided, synthesizes DesignLatch `config`, `tokens`, and `snapshots`, validates them, runs the scan, and returns the summary plus report output paths
+
+Important limitation:
+
+- DesignLatch MCP does not auto-install or auto-register other MCP servers
+- The host agent must gather live data from Playwright MCP and design data from Figma MCP
+- If prerequisite status is present but external data has not been gathered yet, the tool returns a `validated` response telling the agent what to collect next
+
+Input shape:
+
+```json
+{
+  "request": "Compare google.com's search bar UI with this Figma search bar component",
+  "liveUrl": "https://google.com",
+  "selector": "textarea[name='q']",
+  "figmaFileOrUrl": "https://www.figma.com/file/abc123/search-bar",
+  "figmaNodeIdOrComponentName": "Search Bar",
+  "prerequisites": {
+    "playwrightMcpConfigured": true,
+    "figmaMcpConfigured": true,
+    "figmaAuthenticated": true
+  },
+  "liveCapture": {
+    "text": "Google Search",
+    "computed": {
+      "backgroundColor": "rgb(255, 255, 255)",
+      "color": "rgb(32, 33, 36)",
+      "padding": "0px 16px"
+    }
+  },
+  "figmaDesign": {
+    "componentName": "Search Bar",
+    "properties": {
+      "backgroundColor": { "expected": "rgb(255, 255, 255)" },
+      "color": { "expected": "rgb(32, 33, 36)" },
+      "padding": { "expected": "0px 16px" }
+    }
+  }
+}
+```
+
+Response states:
+
+- `blocked`: missing Playwright MCP, Figma MCP, or Figma auth
+- `validated`: prerequisites confirmed, but the agent still needs to gather `liveCapture` or `figmaDesign`
+- `completed`: scan finished and report files were written
+- `failed`: payload synthesis, validation, or scan failed
 
 ## JSON Structures
 
@@ -405,6 +482,32 @@ Return valid JSON only when generating config/tokens/snapshots.
 Do not wrap JSON in Markdown fences.
 ```
 
+### 6. Use `compare_live_ui_to_figma` as the high-level MCP workflow
+
+```text
+Call DesignLatch MCP tool compare_live_ui_to_figma.
+
+User request:
+"Compare google.com's search bar UI with this Figma search bar component"
+
+First, confirm whether Playwright MCP and Figma MCP are configured and whether Figma auth is working.
+If any prerequisite is missing, return the blocked guidance from DesignLatch and stop.
+
+If prerequisites are available:
+1. Use Playwright MCP to capture computed styles for selector "textarea[name='q']" on https://google.com
+2. Use Figma MCP to inspect the "Search Bar" node/component in the provided Figma file
+3. Call compare_live_ui_to_figma again with:
+- prerequisites
+- liveCapture
+- figmaDesign
+
+Then summarize:
+- pass/fail
+- score
+- top mismatches
+- report path
+```
+
 ## Common Mistakes
 
 - Referencing token keys in `config` that do not exist in `tokens`
@@ -416,11 +519,12 @@ Do not wrap JSON in Markdown fences.
 
 ## Typical MCP Flow
 
-1. Ask your AI agent to generate `config`, `tokens`, and optionally `snapshots`
-2. Call `validate_inputs` first to verify structure
-3. Fix any schema or token-reference issues
-4. Call `scan_compliance` once the payloads are valid
-5. Use the returned report and evaluation in your agent workflow
+1. Call `compare_live_ui_to_figma` for the user-facing workflow, or generate raw `config`, `tokens`, and `snapshots` yourself
+2. If the compare tool returns `blocked`, configure the missing prerequisite MCPs or fix Figma auth
+3. If the compare tool returns `validated`, gather `liveCapture` and `figmaDesign` from Playwright MCP and Figma MCP
+4. Call `validate_inputs` first when working directly with raw DesignLatch payloads
+5. Call `scan_compliance` once the payloads are valid
+6. Use the returned report and evaluation in your agent workflow
 
 Example multi-tool agent flow:
 

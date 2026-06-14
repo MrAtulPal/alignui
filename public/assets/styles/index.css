@@ -265,7 +265,7 @@ code,pre { font-family:var(--mono); }
 .sb-dot-cli { background:var(--accent); box-shadow:0 0 5px var(--accent); }
 .sb-dot-mcp { background:var(--mcp); box-shadow:0 0 5px var(--mcp); }
 .docs-main { margin-left:var(--sidebar-w); width:100%; padding:52px 56px 96px; }
-.docs-wrap-inner { max-width:800px; }
+/* .docs-wrap-inner { max-width:800px; } */
 .d-h1 { font-family:var(--display); font-weight:800; font-size:clamp(26px,5vw,52px); letter-spacing:-.038em; line-height:.97; color:var(--text-strong); margin-bottom:14px; }
 .d-h2 { font-family:var(--display); font-weight:800; font-size:clamp(18px,3.5vw,34px); letter-spacing:-.032em; line-height:.97; color:var(--text-strong); margin-bottom:10px; }
 .d-h3 { font-family:var(--display); font-weight:700; font-size:16px; color:var(--text-strong); margin-bottom:7px; }
@@ -310,9 +310,9 @@ strong { color:var(--text-strong); font-weight:600; }
 .d-flow { display:grid; grid-template-columns:repeat(3,1fr); gap:0; position:relative; }
 .d-flow::before { content:""; position:absolute; top:17px; left:calc(16.66% + 12px); right:calc(16.66% + 12px); height:1px; background:var(--accent-bd); }
 .d-step-num { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; margin-bottom:14px; font-family:var(--display); font-weight:800; font-size:13px; color:#06120e; background:var(--accent); box-shadow:0 0 14px rgba(45,212,160,.24); }
-.d-flow-step { padding:0 14px 0 0; }
+.d-flow-step { padding:0 14px 0 0; display: flex; flex-direction: column; align-items: center;}
 .d-flow-step:last-child { padding-right:0; }
-.d-flow-step h3 { font-family:var(--display); font-size:15px; margin-bottom:6px; color:var(--text-strong); }
+.d-flow-step h3 { font-family:var(--display); font-size:15px; margin-bottom:6px; color:var(--text-strong);}
 .d-flow-step p { font-size:13px; line-height:1.65; color:rgba(233,229,220,.62); }
 .adapter-compare { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .adapter-c-card { padding:22px 24px; border-radius:20px; position:relative; overflow:hidden; }

@@ -1,14 +1,14 @@
 {
   "name": "@designlatch/mcp",
-  "version": "0.1.1-alpha",
+  "version": "0.1.0",
   "type": "module",
   "files": [
     "dist"
   ],
   "bin": {
-    "designlatch-mcp": "./dist/index.js"
+    "designlatch-mcp": "dist/index.js"
   },
-   "keywords": [
+  "keywords": [
     "design compliance",
     "designlatch",
     "ui testing",
