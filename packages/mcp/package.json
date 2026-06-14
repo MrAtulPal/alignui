@@ -6,9 +6,9 @@
     "dist"
   ],
   "bin": {
-    "designlatch-mcp": "./dist/index.js"
+    "designlatch-mcp": "dist/index.js"
   },
-   "keywords": [
+  "keywords": [
     "design compliance",
     "designlatch",
     "ui testing",
